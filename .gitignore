@@ -1,0 +1,6 @@
+*.*
+!*.py
+!*.bat
+!.git*
+
+!requirements.txt
