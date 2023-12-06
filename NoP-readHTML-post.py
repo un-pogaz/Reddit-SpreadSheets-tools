@@ -31,7 +31,6 @@ except HttpError as err:
     print(err)
     input()
 
-print(len(list_url_data))
 
 dic_url_data = defaultdict(set)
 for url in list_url_data:
@@ -57,4 +56,4 @@ for file in args:
 
 
 write_lines('search-HTML-post.txt', sorted(total_line))
-print('Authors not in sheet:', len(total_line))
+print('Links not in sheet:', len(total_line))
