@@ -20,8 +20,8 @@ if not args or help_args():
     print(os.path.basename(APP), 'author [author ...]')
     print()
     print('ERROR: Need a author as parameter!')
-    print('  pass ? to read 10 lines of authors_others.txt')
-    print('  pass * to read all lines of authors_data.txt')
+    print('  pass ? to read 10 lines from authors_others.txt')
+    print('  pass * to read all lines from authors_others.txt')
     exit()
 
 
@@ -39,7 +39,7 @@ if len(args) == 1:
     elif args[0] == '*':
         spreadsheets = ini_spreadsheets()
         
-        args = read_lines('authors_data.txt', [])
+        args = read_lines('authors_others.txt', [])
         
         print('Google Sheets: retrive all url of present post...')
         try:
