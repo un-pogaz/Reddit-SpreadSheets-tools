@@ -16,30 +16,35 @@ for a in ARGS:
     if a:
         args.append(a)
 
+authors_file = 'authors_others.txt'
 if not args or help_args():
     print(os.path.basename(APP), 'author [author ...]')
     print()
     print('ERROR: Need a author as parameter!')
-    print('  pass ? to read 10 lines from authors_others.txt')
-    print('  pass * to read all lines from authors_others.txt')
+    print(f'  pass ? to read 10 lines from {authors_file}')
+    print(f'  pass * to read all lines from {authors_file}')
     exit()
 
 
-authors_others = []
+authors_lst = []
 list_url_data = []
 list_authors_empty = []
 list_authors_error = []
 if len(args) == 1:
     if args[0] == '?':
-        authors_others = read_lines('authors_others.txt', [])
-        args = authors_others[:10]
+        authors_lst = read_lines(authors_file, [])
+        args = authors_lst[:10]
         if not args:
-            print('authors_others.txt is empty.')
+            print(f'{authors_file} is empty.')
+            exit()
     
     elif args[0] == '*':
         spreadsheets = ini_spreadsheets()
         
-        args = read_lines('authors_others.txt', [])
+        args = read_lines(authors_file, [])
+        if not args:
+            print(f'{authors_file} is empty.')
+            exit()
         
         print('Google Sheets: retrive all url of present post...')
         try:
@@ -164,5 +169,5 @@ for author in args:
         time.sleep(i+round(random.random(),1))
         print(' '*len(msg), end='\r')
 
-if authors_others:
-    write_lines('authors_others.txt', authors_others[10:])
+if authors_lst:
+    write_lines(authors_file, authors_lst[10:])
