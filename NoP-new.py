@@ -145,20 +145,16 @@ if not lines:
 # update Google Sheets
 
 try:
-    def get_range(start, lenght) -> list[list[str]]:
-        end = start+lenght-1
-        return spreadsheets.get(f"pending!{start}:{end}")
-    
-    def is_empty_row(row):
-        for d in row:
-              if d:
-                  return False
-        return True
-    
     print()
     print('Google Sheets: send', len(lines), 'new entry to pending.')
-    spreadsheets.append("pending!A:A", lines)
+    
+    start = len(spreadsheets.get(f"pending!A:H"))+1
+    lines.insert(0, [''])
+    end = start+len(lines)
+    
+    spreadsheets.update(f"pending!{start}:{end}", lines)
     spreadsheets.update(oldest_post_cell, [[oldest_post]])
+    
     print('Google Sheets: update completed')
     
 except HttpError as err:
