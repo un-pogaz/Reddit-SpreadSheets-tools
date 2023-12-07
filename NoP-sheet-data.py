@@ -25,14 +25,14 @@ if not args or help_args():
     exit()
 
 
+authors_others = []
 list_url_data = []
 list_authors_empty = []
 list_authors_error = []
 if len(args) == 1:
     if args[0] == '?':
-        lines = read_lines('authors_others.txt', [])
-        args = lines[:10]
-        write_lines('authors_others.txt', lines[10:])
+        authors_others = read_lines('authors_others.txt', [])
+        args = authors_others[:10]
         if not args:
             print('authors_others.txt is empty.')
     
@@ -163,3 +163,6 @@ for author in args:
         print(msg, end='\r')
         time.sleep(i+round(random.random(),1))
         print(' '*len(msg), end='\r')
+
+if authors_others:
+    write_lines('authors_others.txt', authors_others[10:])
