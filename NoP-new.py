@@ -94,7 +94,7 @@ for item in all_post.values():
     if link_post in list_url_data:
         continue
     
-    if item['link_flair_text'] and item['link_flair_text'].lower() not in ['fanfic', 'nsfw']:
+    if (item['link_flair_text'] or '').lower() not in ['fanfic', 'nsfw']:
         continue
     
     link_redirect = ''
@@ -123,7 +123,7 @@ for item in all_post.values():
         'Fan-fic NoP1',
         replace_entitie(item['title']),
         item['author'],
-        'Mature' if item['over_18'] else '',
+        'Mature' if item['over_18'] or (item['link_flair_text'] or '').lower() == 'nsfw' else '',
         '',
         link_post,
         link_redirect,

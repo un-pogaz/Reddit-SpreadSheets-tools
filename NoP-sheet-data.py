@@ -100,7 +100,7 @@ for author in args:
             if link_post in list_url_data:
                 continue
             
-            if subreddit == 'NatureofPredators' and (item['link_flair_text'] and item['link_flair_text'].lower() not in ['fanfic', 'nsfw']):
+            if subreddit == 'NatureofPredators' and (item['link_flair_text'] or '').lower() not in ['fanfic', 'nsfw']:
                 continue
             
             link_redirect = ''
@@ -115,7 +115,7 @@ for author in args:
             elif domain != self_domain:
                 continue
             
-            cw = 'Mature' if item['over_18'] else ''
+            cw = 'Mature' if item['over_18'] or (item['link_flair_text'] or '').lower() == 'nsfw' else ''
             if cw and subreddit == 'NatureOfPredatorsNSFW':
                 cw = 'Adult'
             
