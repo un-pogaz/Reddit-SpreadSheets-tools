@@ -1,4 +1,3 @@
-from typing import Any
 import requests as _requests
 
 from google_api_client import SpreadSheetsClient, HttpError
@@ -23,7 +22,7 @@ requests.headers.update({'User-Agent':'un_pogaz/NatureofPredators:sheet:new_post
 ARGS = (lambda :(__import__("sys").argv[1:]))()
 APP = (lambda :(__import__("sys").argv[0]))()
 
-def help_args():
+def help_args() -> bool:
     for h in ['-h', '--help', '/?']:
         if h in ARGS:
             return True
@@ -59,7 +58,7 @@ def make_dirname(path):
     dir = os.path.dirname(path)
     if dir: os.makedirs(dir, exist_ok=True)
 
-def read_json(path, default=None) -> dict:
+def read_json(path, default=None) -> dict|list:
     try:
         with open(path, 'rb') as f:
             return load_json(f.read(), default=default)
@@ -67,13 +66,13 @@ def read_json(path, default=None) -> dict:
         print(ex)
         return default
 
-def write_json(path, obj, ensure_ascii=False):
+def write_json(path: str, obj, ensure_ascii=False):
     import json
     make_dirname(path)
     with open(path, 'wt', newline='\n', encoding='utf-8') as f:
         f.write(json.dumps(obj, indent=2, ensure_ascii=ensure_ascii))
 
-def load_json(data, default=None):
+def load_json(data, default=None) -> dict|list:
     import json
     try:
         return json.loads(data)
@@ -81,7 +80,7 @@ def load_json(data, default=None):
         print(ex)
         return default
 
-def read_lines(path, default=None) -> list[str]:
+def read_lines(path: str, default=None) -> list[str]:
     try:
         with open(path, 'rt', encoding='utf-8') as f:
             return f.read().splitlines(False)
@@ -89,13 +88,13 @@ def read_lines(path, default=None) -> list[str]:
         print(ex)
         return default
 
-def write_lines(path, *lines):
+def write_lines(path: str, *lines: list[str]):
     if len(lines) == 1 and not isinstance(lines[0], str):
         lines = lines[0]
     
     write_text(path, '\n'.join(lines))
 
-def read_text(path, default=None) -> str:
+def read_text(path: str, default=None) -> str:
     try:
         with open(path, 'rt', encoding='utf-8') as f:
             return ''.join(f.readlines())
@@ -103,13 +102,13 @@ def read_text(path, default=None) -> str:
         print(ex)
         return default
 
-def write_text(path, text):
+def write_text(path: str, text: str):
     make_dirname(path)
     with open(path, 'wt', newline='\n', encoding='utf-8') as f:
         f.write(text)
 
 
-def run_animation(awaitable, text_wait, text_end=None):
+def run_animation(awaitable, text_wait: str, text_end: str=None):
     import asyncio, time
     global animation_run, msg_last
     run_animation.extra = ''
@@ -163,14 +162,14 @@ exclude_items = [
     'replies',
 ]
 
-def parse_exclude(post):
+def parse_exclude(post: dict) -> dict:
     for d in exclude_items:
         if d in post:
             del post[d]
     
     return post
 
-def parse_body(post, keep_body):
+def parse_body(post: dict, keep_body: bool|None) -> dict:
     if isinstance(keep_body, str):
         keep_body = keep_body.lower()
     
@@ -208,7 +207,7 @@ def parse_body(post, keep_body):
 
 awards_filter = ['name', 'description', 'award_type' ,'icon_url', 'static_icon_url']
 
-def parse_awards(post):
+def parse_awards(post: dict) -> dict:
     awards = []
     for d in post.get('all_awardings', []):
         awards.append({k:d[k] for k in awards_filter})
@@ -218,7 +217,7 @@ def parse_awards(post):
     
     return post
 
-def parse_content(post):
+def parse_content(post: dict) -> str:
     parse_exclude(post)
     parse_body(post, 'md')
     parse_awards(post)
@@ -228,10 +227,10 @@ def parse_content(post):
     
     return post
 
-def replace_entitie(text):
+def replace_entitie(text: str) -> str:
     return text.replace('&lt;', '<').replace('&gt;', '>').replace('&amp;', '&').replace('&#39;', "'")
 
-def parse_rawhtml(text):
+def parse_rawhtml(text: str) -> str:
     import re
     
     if not text:
@@ -245,7 +244,7 @@ class PostEntry():
     
     DATETIME_FORMAT = '%m/%d/%Y'
     
-    def __init__(self, post_item: dict['str', Any]):
+    def __init__(self, post_item: dict):
         from datetime import datetime
         
         if post_item.get('domain', None) in DOMAIN_STORY_HOST:
@@ -285,7 +284,7 @@ class PostEntry():
     def __str__(self) -> str:
         return self.__class__.__name__+'('+','.join([self.created.isoformat(), repr(self.title), repr(self.link)])+')'
 
-def post_is_to_old(post_item) -> bool:
+def post_is_to_old(post_item: dict) -> bool:
     return post_item['created_utc'] < 1649689768
 
 def get_filtered_post(source_data: list[dict], exclude_url: list[str]) -> list[PostEntry]:
