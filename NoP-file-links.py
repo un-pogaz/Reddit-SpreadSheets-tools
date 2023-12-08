@@ -1,9 +1,8 @@
 import os.path, time, random
 
 from common import (
-    ARGS, APP,
-    help_args, requests, run_animation, write_lines, read_lines,
-    get_filtered_post, parse_content,
+    ARGS, APP, help_args, requests, run_animation,
+    write_lines, read_lines, get_filtered_post, parse_content,
 )
 
 
@@ -16,7 +15,7 @@ for a in ARGS:
 if not args or help_args():
     print(os.path.basename(APP), 'file [file ...]')
     print()
-    print('ERROR: Need a author as parameter!')
+    print('ERROR: Need a file as parameter!')
     exit()
 
 

@@ -16,6 +16,7 @@ for a in ARGS:
 authors_file = 'authors_others.txt'
 authors_count = 10
 if not args or help_args():
+    print()
     print(os.path.basename(APP), 'author [author ...]')
     print()
     print('ERROR: Need a author as parameter!')

@@ -1,11 +1,7 @@
 import os.path, re
 from collections import defaultdict
 
-from common import (
-    ARGS, APP, help_args,
-    ini_spreadsheets, HttpError,
-    read_text, write_lines,
-)
+from common import ARGS, APP, help_args, ini_spreadsheets, HttpError, read_text, write_lines
 
 
 args = []
@@ -15,6 +11,7 @@ for a in ARGS:
         args.append(a)
 
 if not args or help_args():
+    print()
     print(os.path.basename(APP), 'file [file ...]')
     print()
     print('ERROR: Need a file as parameter!')

@@ -1,9 +1,6 @@
 import os.path, re
 
-from common import (
-    ARGS, APP, help_args,
-    read_lines, read_text, write_lines,
-)
+from common import ARGS, APP, help_args, read_lines, read_text, write_lines
 
 
 args = []
@@ -13,6 +10,7 @@ for a in ARGS:
         args.append(a)
 
 if not args or help_args():
+    print()
     print(os.path.basename(APP), 'file [file ...]')
     print()
     print('ERROR: Need a file as parameter!')

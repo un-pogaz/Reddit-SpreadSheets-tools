@@ -7,9 +7,9 @@ from common import (
 
 
 if help_args():
+    print()
     print(os.path.basename(APP), '[id_post]')
     print()
-    print('ERROR: Need a author as parameter!')
     print('  id_post (optional) id of the oldest post to check back')
     exit()
 
