@@ -1,38 +1,52 @@
+import os.path
 from common import (
-    DOMAIN_EXCLUDE, DOMAIN_STORY_HOST,
-    ini_spreadsheets, HttpError, requests, run_animation, date_from_utc,
+    ARGS, APP, DOMAIN_EXCLUDE, DOMAIN_STORY_HOST,
+    help_args, ini_spreadsheets, HttpError, requests, run_animation, date_from_utc,
     replace_entitie, parse_exclude, parse_body, parse_awards,
 )
 
+
+if help_args():
+    print(os.path.basename(APP), '[id_post]')
+    print()
+    print('ERROR: Need a author as parameter!')
+    print('  id_post (optional) id of the oldest post to check back')
+    exit()
 
 spreadsheets = ini_spreadsheets()
 
 ####################
 # get oldest_post
 
-oldest_post = None
+oldest_post = ARGS[0] if ARGS else None
 oldest_post_cell = "pending!A2"
 
-try:
-    print('Google Sheets: retrive the oldest post to check')
-    rslt = spreadsheets.get(oldest_post_cell)
-    
+if oldest_post:
+    print()
+    if not oldest_post.startswith('t3_'):
+        oldest_post = 't3_'+oldest_post
+    print('Oldest post to check', oldest_post)
+else:
     try:
-        while not isinstance(rslt, str):
-            rslt = rslt[0]
-    except:
-        rslt = ''
-    rslt = rslt.strip()
-    
-    if rslt:
-        oldest_post = rslt
-        print('Google Sheets: oldest post to check', oldest_post)
-    else:
-        print('Google Sheets: retrive last post')
-    
-except HttpError as err:
-    print(err)
-    input()
+        print('Google Sheets: retrive the oldest post to check')
+        rslt = spreadsheets.get(oldest_post_cell)
+        
+        try:
+            while not isinstance(rslt, str):
+                rslt = rslt[0]
+        except:
+            rslt = ''
+        rslt = rslt.strip()
+        
+        if rslt:
+            oldest_post = rslt
+            print('Google Sheets: oldest post to check', oldest_post)
+        else:
+            print('Google Sheets: retrive last post')
+        
+    except HttpError as err:
+        print(err)
+        input()
 
 try:
     list_url_data = spreadsheets.get('data!G:G')[1:]
