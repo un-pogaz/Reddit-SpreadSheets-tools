@@ -3,9 +3,9 @@ from collections import defaultdict
 
 from common import (
     ARGS, APP, DOMAIN_EXCLUDE, DOMAIN_STORY_HOST, SUBREDDITS,
-    help_args, ini_spreadsheets, HttpError, requests, run_animation,
-    write_lines, read_lines, datetime, date_from_utc,
-    replace_entitie, parse_exclude, parse_body, parse_awards,
+    help_args, ini_spreadsheets, HttpError, requests,
+    run_animation, write_lines, read_lines,
+    parse_exclude, parse_body, parse_awards, PostEntry,
 )
 
 
@@ -63,7 +63,7 @@ for args_idx in range(args_length):
     print()
     author = args[args_idx]
     
-    lines = []
+    lines: list[PostEntry] = []
     all_post = defaultdict(dict)
     
     # get all posts of author
@@ -125,26 +125,11 @@ for args_idx in range(args_length):
             elif domain != self_domain:
                 continue
             
-            cw = 'Mature' if item['over_18'] or (item['link_flair_text'] or '').lower() == 'nsfw' else ''
-            if cw and subreddit == 'NatureOfPredatorsNSFW':
-                cw = 'Adult'
-            
-            lines.append([
-                datetime(item['created_utc']),
-                date_from_utc(item['created_utc']),
-                'Fan-fic NoP1',
-                replace_entitie(item['title']),
-                author,
-                cw,
-                '',
-                link_post,
-                link_redirect,
-            ])
+            lines.append(PostEntry(item))
     
     # write posts
-    lines.sort(key=lambda x:x[0])
-    for idx in range(len(lines)):
-        lines[idx] = '\t'.join(lines[idx][1:])
+    lines.sort(key=lambda x:x.created)
+    lines = [e.to_string() for e in lines]
     
     if special == '*':
         subdir = 'multi-authors'

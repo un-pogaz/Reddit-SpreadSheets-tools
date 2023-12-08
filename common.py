@@ -52,14 +52,6 @@ DOMAIN_STORY_HOST = [
 SUBREDDITS = ['HFY', 'NatureofPredators', 'NatureOfPredatorsNSFW']
 
 
-
-def datetime(timestamp):
-    from datetime import datetime
-    return datetime.fromtimestamp(timestamp)
-
-def date_from_utc(utc_time):
-    return datetime(utc_time).strftime('%m/%d/%Y')
-
 def make_dirname(path):
     import os.path
     dir = os.path.dirname(path)
@@ -146,7 +138,6 @@ def run_animation(awaitable, text_wait, text_end=None):
     del t
 run_animation.extra = None
 run_animation.loop = ['|','/','—','\\']
-
 
 
 exclude_items = [
@@ -240,23 +231,46 @@ def parse_rawhtml(text):
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+class PostEntry():
+    
+    DATETIME_FORMAT = '%m/%d/%Y'
+    
+    def __init__(self, post_item):
+        from datetime import datetime
+        
+        if post_item.get('domain', None) in DOMAIN_STORY_HOST:
+            link_redirect = post_item['url_overridden_by_dest']
+        else:
+            link_redirect = ''
+        
+        cw = 'Mature' if post_item['over_18'] or (post_item['link_flair_text'] or '').lower() == 'nsfw' else ''
+        if cw and post_item['subreddit'] == 'NatureOfPredatorsNSFW':
+            cw = 'Adult'
+        
+        self._post_item = post_item
+        self.created = datetime.fromtimestamp(post_item['created_utc'])
+        self.timeline = 'Fan-fic NoP1'
+        self.title = replace_entitie(post_item['title'])
+        self.authors = post_item['author']
+        self.content_warning = cw
+        self.statue = ''
+        self.link = post_item['permalink']
+        self.description = link_redirect
+    
+    def to_list(self) -> list[str]:
+        return [
+            self.created.strftime(self.DATETIME_FORMAT),
+            self.timeline,
+            self.title,
+            self.authors,
+            self.content_warning,
+            self.statue,
+            self.link,
+            self.description,
+        ]
+    
+    def to_string(self) -> str:
+        return '\t'.join(self.to_list())
+    
+    def __str__(self) -> str:
+        return self.__class__.__name__+'('+','.join([self.created.isoformat(), repr(self.title), repr(self.link)])+')'

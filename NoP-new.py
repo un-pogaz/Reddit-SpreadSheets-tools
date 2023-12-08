@@ -1,8 +1,8 @@
 import os.path
 from common import (
     ARGS, APP, DOMAIN_EXCLUDE, DOMAIN_STORY_HOST,
-    help_args, ini_spreadsheets, HttpError, requests, run_animation, date_from_utc,
-    replace_entitie, parse_exclude, parse_body, parse_awards,
+    help_args, ini_spreadsheets, HttpError, requests, run_animation,
+    parse_exclude, parse_body, parse_awards, PostEntry,
 )
 
 
@@ -100,7 +100,7 @@ print('Total new post to analyze:', len(all_post))
 ####################
 # analyze posts
 
-lines = []
+lines: list[PostEntry] = []
 for item in all_post.values():
     
     link_post = item['permalink']
@@ -131,16 +131,7 @@ for item in all_post.values():
             print('===============================')
             input()
     
-    lines.append([
-        date_from_utc(item['created_utc']),
-        'Fan-fic NoP1',
-        replace_entitie(item['title']),
-        item['author'],
-        'Mature' if item['over_18'] or (item['link_flair_text'] or '').lower() == 'nsfw' else '',
-        '',
-        link_post,
-        link_redirect,
-    ])
+    lines.append(PostEntry(item))
     
     oldest_post = item['name']
 
@@ -153,6 +144,8 @@ print('Data extracted from r/NatureofPredators.', 'New lines added:', len(lines)
 
 if not lines:
     exit()
+
+lines = [e.to_list() for e in lines]
 
 ####################
 # update Google Sheets
