@@ -1,11 +1,9 @@
 import os.path, time, random
-from collections import defaultdict
 
 from common import (
-    ARGS, APP, DOMAIN_EXCLUDE, DOMAIN_STORY_HOST, SUBREDDITS,
-    help_args, ini_spreadsheets, HttpError, requests,
-    run_animation, write_lines, read_lines,
-    parse_exclude, parse_body, parse_awards, PostEntry,
+    ARGS, APP, SUBREDDITS, ini_spreadsheets, HttpError,
+    help_args, requests, run_animation, write_lines, read_lines,
+    get_filtered_post, post_is_to_old, parse_content,
 )
 
 
@@ -63,8 +61,7 @@ for args_idx in range(args_length):
     print()
     author = args[args_idx]
     
-    lines: list[PostEntry] = []
-    all_post = defaultdict(dict)
+    all_post = []
     
     # get all posts of author
     async def get_all_post():
@@ -82,16 +79,11 @@ for args_idx in range(args_length):
                 
                 for r in tbl:
                     r = r['data']
-                    
-                    parse_exclude(r)
-                    parse_body(r, 'md')
-                    parse_awards(r)
-                    
-                    r['permalink'] = 'https://www.reddit.com' + r['permalink']
-                    
+                    if post_is_to_old(r) and not r['pinned']:
+                        loop = False
                     if r['subreddit'] in SUBREDDITS:
-                        all_post[r['subreddit']][r['name']] = {k:r[k] for k in sorted(r.keys())}
-                    
+                        parse_content(r)
+                        all_post.append(r)
                     params['after'] = r['name']
             else:
                 loop = False
@@ -99,38 +91,9 @@ for args_idx in range(args_length):
     
     run_animation(get_all_post, f'Loading Reddit post for {author}'+ (f' [{args_idx+1}/{args_length}]' if args_length > 1 else '') )
     
-    # filtre posts
-    for subreddit in SUBREDDITS:
-        self_domain = f'self.{subreddit}'
-        for item in reversed(all_post.get(subreddit, {}).values()):
-            if item.get('created_utc', 0) < 1649689768:
-                continue
-            
-            link_post = item['permalink']
-            if link_post in list_url_data:
-                continue
-            
-            if subreddit == 'NatureofPredators' and (item['link_flair_text'] or '').lower() not in ['', 'fanfic', 'nsfw']:
-                continue
-            
-            link_redirect = ''
-            domain = item.get('domain', self_domain)
-            if domain in DOMAIN_STORY_HOST:
-                link_redirect = item['url_overridden_by_dest']
-            elif domain in DOMAIN_EXCLUDE:
-                if item.get('selftext'):
-                    pass
-                else:
-                    continue
-            elif domain != self_domain:
-                continue
-            
-            lines.append(PostEntry(item))
+    lines = [e.to_string() for e in get_filtered_post(all_post, list_url_data)]
     
     # write posts
-    lines.sort(key=lambda x:x.created)
-    lines = [e.to_string() for e in lines]
-    
     if special == '*':
         subdir = 'multi-authors'
     else:

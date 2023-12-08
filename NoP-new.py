@@ -1,8 +1,8 @@
 import os.path
+
 from common import (
-    ARGS, APP, DOMAIN_EXCLUDE, DOMAIN_STORY_HOST,
-    help_args, ini_spreadsheets, HttpError, requests, run_animation,
-    parse_exclude, parse_body, parse_awards, PostEntry,
+    ARGS, APP, SUBREDDITS_DOMAIN, ini_spreadsheets, HttpError,
+    help_args, requests, run_animation, get_filtered_post,
 )
 
 
@@ -61,11 +61,11 @@ print()
 ####################
 # read subreddit
 
-all_post = {}
+all_post = []
 async def read_subreddit():
     import time
     base_url = 'https://www.reddit.com/r/NatureofPredators/new/.json'
-    params = {'sort':'new', 'limit':100, 'after':'', 'before':oldest_post}
+    params = {'sort':'new', 'limit':100, 'before':oldest_post}
     count = 0
     loop = True
     
@@ -78,15 +78,7 @@ async def read_subreddit():
             
             for r in tbl:
                 r = r['data']
-                
-                parse_exclude(r)
-                parse_body(r, 'md')
-                parse_awards(r)
-                
-                r['permalink'] = 'https://www.reddit.com' + r['permalink']
-                
-                all_post[r['name']] = {k:r[k] for k in sorted(r.keys())}
-                
+                all_post.append(r)
                 params['after'] = r['name']
         
         if len(tbl) < params['limit']:
@@ -94,46 +86,22 @@ async def read_subreddit():
         time.sleep(1)
 
 run_animation(read_subreddit, 'Loading new post on post r/NatureofPredators')
-all_post = {k:all_post[k] for k in sorted(all_post.keys())}
 print('Total new post to analyze:', len(all_post))
+
+if not all_post:
+    exit()
 
 ####################
 # analyze posts
 
-lines: list[PostEntry] = []
-for item in all_post.values():
-    
-    link_post = item['permalink']
-    if link_post in list_url_data:
-        continue
-    
-    if (item['link_flair_text'] or '').lower() not in ['', 'fanfic', 'nsfw']:
-        continue
-    
-    link_redirect = ''
-    self_domain = 'self.NatureofPredators'
-    domain = item.get('domain', self_domain)
-    if domain != self_domain:
-        if domain in ['self.NatureofPredators', 'self.HFY', 'self.NatureOfPredatorsNSFW']:
-            link_post = 'https://www.reddit.com' + item['url_overridden_by_dest']
-        elif domain in DOMAIN_STORY_HOST:
-            link_redirect = item['url_overridden_by_dest']
-        elif domain in DOMAIN_EXCLUDE:
-            if item.get('selftext'):
-                pass
-            else:
-                continue
-        
-        else:
-            print('Crossposted', domain)
-            print('===============================')
-            print(item)
-            print('===============================')
-            input()
-    
-    lines.append(PostEntry(item))
-    
-    oldest_post = item['name']
+oldest_post = all_post[0]['name']
+self_domain = 'self.NatureofPredators'
+for item in all_post:
+    domain = item['domain']
+    if domain != self_domain and domain in SUBREDDITS_DOMAIN:
+        item['permalink'] = item['url_overridden_by_dest']
+
+lines = get_filtered_post(all_post, list_url_data)
 
 ##with open('- NoP new subreddit.csv', 'at', newline='\n', encoding='utf-8') as f:
 ##    if lines:

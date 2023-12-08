@@ -1,3 +1,4 @@
+from typing import Any
 import requests as _requests
 
 from google_api_client import SpreadSheetsClient, HttpError
@@ -50,6 +51,7 @@ DOMAIN_STORY_HOST = [
 ]
 
 SUBREDDITS = ['HFY', 'NatureofPredators', 'NatureOfPredatorsNSFW']
+SUBREDDITS_DOMAIN = [f'self.{e}' for e in SUBREDDITS]
 
 
 def make_dirname(path):
@@ -216,6 +218,15 @@ def parse_awards(post):
     
     return post
 
+def parse_content(post):
+    parse_exclude(post)
+    parse_body(post, 'md')
+    parse_awards(post)
+    
+    if not post['permalink'].startswith('https://www.reddit.com'):
+        post['permalink'] = 'https://www.reddit.com' + post['permalink']
+    
+    return post
 
 def replace_entitie(text):
     return text.replace('&lt;', '<').replace('&gt;', '>').replace('&amp;', '&').replace('&#39;', "'")
@@ -230,12 +241,11 @@ def parse_rawhtml(text):
     return re.sub(r'<a href="https://preview.redd.it/([^"]+)">https://preview.redd.it/\1</a>', r'<img src="https://preview.redd.it/\1"/>', html)
 
 
-
 class PostEntry():
     
     DATETIME_FORMAT = '%m/%d/%Y'
     
-    def __init__(self, post_item):
+    def __init__(self, post_item: dict['str', Any]):
         from datetime import datetime
         
         if post_item.get('domain', None) in DOMAIN_STORY_HOST:
@@ -274,3 +284,39 @@ class PostEntry():
     
     def __str__(self) -> str:
         return self.__class__.__name__+'('+','.join([self.created.isoformat(), repr(self.title), repr(self.link)])+')'
+
+def post_is_to_old(post_item) -> bool:
+    return post_item['created_utc'] < 1649689768
+
+def get_filtered_post(source_data: list[dict], exclude_url: list[str]) -> list[PostEntry]:
+    rslt = []
+    
+    for item in source_data:
+        if post_is_to_old(item):
+            continue
+        
+        if item['subreddit'] not in SUBREDDITS:
+            continue
+        
+        parse_content(item)
+        
+        if item['permalink'] in exclude_url:
+            continue
+        
+        subreddit = item['subreddit']
+        if subreddit == 'NatureofPredators' and (item['link_flair_text'] or '').lower() not in ['', 'fanfic', 'nsfw']:
+            continue
+        
+        domain = item['domain']
+        if domain in SUBREDDITS_DOMAIN or domain in DOMAIN_STORY_HOST:
+            pass
+        elif domain != f'self.{subreddit}':
+            if item.get('selftext'):
+                pass
+            else:
+                continue
+        
+        rslt.append(PostEntry(item))
+    
+    rslt.sort(key=lambda x:x.created)
+    return rslt
