@@ -110,7 +110,7 @@ for args_idx in range(args_length):
             if link_post in list_url_data:
                 continue
             
-            if subreddit == 'NatureofPredators' and (item['link_flair_text'] or '').lower() not in ['fanfic', 'nsfw']:
+            if subreddit == 'NatureofPredators' and (item['link_flair_text'] or '').lower() not in ['', 'fanfic', 'nsfw']:
                 continue
             
             link_redirect = ''

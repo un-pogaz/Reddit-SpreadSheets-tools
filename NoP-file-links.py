@@ -77,7 +77,7 @@ for file in args:
             
             link_post = item['permalink']
             
-            if subreddit == 'NatureofPredators' and (item['link_flair_text'] or '').lower() not in ['fanfic', 'nsfw']:
+            if subreddit == 'NatureofPredators' and (item['link_flair_text'] or '').lower() not in ['', 'fanfic', 'nsfw']:
                 continue
             
             link_redirect = ''

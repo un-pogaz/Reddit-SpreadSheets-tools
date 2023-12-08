@@ -107,7 +107,7 @@ for item in all_post.values():
     if link_post in list_url_data:
         continue
     
-    if (item['link_flair_text'] or '').lower() not in ['fanfic', 'nsfw']:
+    if (item['link_flair_text'] or '').lower() not in ['', 'fanfic', 'nsfw']:
         continue
     
     link_redirect = ''
