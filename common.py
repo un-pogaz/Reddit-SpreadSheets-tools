@@ -6,10 +6,15 @@ from google_api_client import SpreadSheetsClient, HttpError
 SAMPLE_SPREADSHEET_ID = "1nOtYmv_d6Qt1tCX_63uE2yWVFs6-G5x_XJ778lD9qyU"
 
 def ini_spreadsheets() -> SpreadSheetsClient:
-    return SpreadSheetsClient(
-        'credentials.json',
-        'token.json',
-    ).new_spread_sheets(SAMPLE_SPREADSHEET_ID)
+    if hasattr(ini_spreadsheets, '_client'):
+        rslt = ini_spreadsheets._client
+    else:
+        ini_spreadsheets._client = rslt = SpreadSheetsClient(
+            'credentials.json',
+            'token.json',
+        ).new_spread_sheets(SAMPLE_SPREADSHEET_ID)
+    
+    return rslt
 
 requests = _requests.Session()
 requests.headers.update({'User-Agent':'un_pogaz/NatureofPredators:sheet:new_posts'})
