@@ -1,7 +1,18 @@
-from common import ini_spreadsheets, HttpError
+import os.path
 
+from common import ARGS, APP, help_args, ini_spreadsheets, HttpError
+
+
+if help_args():
+    print()
+    print(os.path.basename(APP), '[option]')
+    print()
+    print("  -y --yes-duplicate     Don't ask to delete duplicate rows")
+    exit()
 
 spreadsheets = ini_spreadsheets()
+
+ask_duplicate = '-y' in ARGS or '--yes-duplicate' in ARGS
 
 try:
     
@@ -32,11 +43,12 @@ try:
     
     print()
     print('', len(line_to_delete), 'lines to delete.')
-    print('Update of the sheets?')
-    r = input('>')
-    if not r or not r.lower()[0] == 'y':
-        print('Aborted.')
-        exit()
+    if not ask_duplicate:
+        print('Update of the sheets?')
+        r = input('>')
+        if not r or not r.lower()[0] == 'y':
+            print('Aborted.')
+            exit()
     
     print('Google Sheets: deleting lines...')
     spreadsheets.batchClear([f'pending!{l}:{l}' for l in line_to_delete])
