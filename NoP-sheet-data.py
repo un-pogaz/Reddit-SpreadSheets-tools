@@ -3,11 +3,10 @@ from collections import defaultdict
 
 from common import (
     ARGS, APP, DOMAIN_EXCLUDE, DOMAIN_STORY_HOST, SUBREDDITS,
-    help_args, ini_spreadsheets, requests, run_animation,
+    help_args, ini_spreadsheets, HttpError, requests, run_animation,
     write_lines, read_lines, datetime, date_from_utc,
-    )
-from google_api_client import HttpError
-from reddit_common import replace_entitie, parse_exclude, parse_body, parse_awards
+    replace_entitie, parse_exclude, parse_body, parse_awards,
+)
 
 
 args = []

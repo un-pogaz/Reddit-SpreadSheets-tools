@@ -1,8 +1,8 @@
 import os.path, re
 
 from common import (
-    ARGS, APP,
-    help_args, read_lines, read_text, write_lines,
+    ARGS, APP, help_args,
+    read_lines, read_text, write_lines,
 )
 
 

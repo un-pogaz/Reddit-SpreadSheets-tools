@@ -1,5 +1,4 @@
-from common import ini_spreadsheets
-from google_api_client import HttpError
+from common import ini_spreadsheets, HttpError
 
 
 spreadsheets = ini_spreadsheets()

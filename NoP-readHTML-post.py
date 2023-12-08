@@ -2,11 +2,10 @@ import os.path, re
 from collections import defaultdict
 
 from common import (
-    ARGS, APP,
-    help_args, ini_spreadsheets,
-    read_lines, read_text, write_lines,
+    ARGS, APP, help_args,
+    ini_spreadsheets, HttpError,
+    read_text, write_lines,
 )
-from google_api_client import HttpError
 
 
 args = []

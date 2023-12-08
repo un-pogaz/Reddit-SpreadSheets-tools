@@ -1,9 +1,8 @@
 from common import (
     DOMAIN_EXCLUDE, DOMAIN_STORY_HOST,
-    ini_spreadsheets, requests, run_animation, date_from_utc,
-    )
-from reddit_common import replace_entitie, parse_exclude, parse_body, parse_awards
-from google_api_client import HttpError
+    ini_spreadsheets, HttpError, requests, run_animation, date_from_utc,
+    replace_entitie, parse_exclude, parse_body, parse_awards,
+)
 
 
 spreadsheets = ini_spreadsheets()

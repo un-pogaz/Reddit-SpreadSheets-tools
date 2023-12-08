@@ -5,8 +5,8 @@ from common import (
     ARGS, APP, DOMAIN_EXCLUDE, DOMAIN_STORY_HOST, SUBREDDITS,
     help_args, requests, run_animation,
     write_lines, read_lines, datetime, date_from_utc,
-    )
-from reddit_common import replace_entitie, parse_exclude, parse_body, parse_awards
+    replace_entitie, parse_exclude, parse_body, parse_awards,
+)
 
 
 args = []
