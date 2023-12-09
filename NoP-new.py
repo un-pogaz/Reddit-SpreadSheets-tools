@@ -124,7 +124,6 @@ try:
     
     start = len(spreadsheets.get(f"pending!A:H"))+2
     end = start+len(lines)
-    print('start, end', start, end)
     
     spreadsheets.update(f"pending!{start}:{end}", lines)
     spreadsheets.update(oldest_post_cell, [[oldest_post]])
