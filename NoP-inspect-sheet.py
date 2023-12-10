@@ -1,3 +1,5 @@
+from collections import defaultdict
+
 from common import ini_spreadsheets, HttpError, write_lines
 
 
@@ -45,16 +47,33 @@ try:
     table = spreadsheets.get('data!A:G')
     row_length = len(table[0])
     not_full_row = []
+    url_map = defaultdict(list)
     for idx, r in enumerate(table, 1):
         if len(r) != row_length:
             not_full_row.append(idx)
+        
+        if len(r)>6:
+            url_map[r[6]].append(idx)
     
     if not_full_row:
         print('Row not fulled:')
-        for r in not_full_row:
-            print(f' {r}:{r}')
+        for l in not_full_row:
+            print(f' {l}:{l}')
     else:
         print('All rows are OK.')
+    
+    url_duplicate = {k:v for k,v in url_map.items() if len(v)>1}
+    
+    print()
+    if url_duplicate:
+        print('Duplicate url:')
+    else:
+        print('No duplicate url.')
+    
+    for url,lines in url_duplicate.items():
+        print(url)
+        for l in lines:
+            print(f' {l}:{l}')
     
 except HttpError as err:
     print(err)
