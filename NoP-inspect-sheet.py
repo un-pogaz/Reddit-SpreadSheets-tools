@@ -55,6 +55,7 @@ try:
         if len(r)>6:
             url_map[r[6]].append(idx)
     
+    print('Total data rows:', len(table))
     if not_full_row:
         print('Row not fulled:')
         for l in not_full_row:
