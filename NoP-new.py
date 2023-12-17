@@ -32,8 +32,9 @@ else:
         rslt = spreadsheets.get(oldest_post_cell)
         
         try:
-            while not isinstance(rslt, str):
-                rslt = rslt[0]
+            rslt = rslt[0][0]
+            if not rslt.startswith('t3_'):
+                rslt = 't3_'+rslt
         except:
             rslt = ''
         rslt = rslt.strip()
@@ -105,7 +106,7 @@ lines = get_filtered_post(all_post, list_url_data)
 
 ##with open('- NoP new subreddit.csv', 'at', newline='\n', encoding='utf-8') as f:
 ##    if lines:
-##        f.write('\n'.join(['\t'.join(l) for l in lines]))
+##        f.write('\n'.join([e.to_string() for e in lines]))
 ##        f.write('\n')
 
 print('Data extracted from r/NatureofPredators.', 'New lines added:', len(lines))
