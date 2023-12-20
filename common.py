@@ -258,7 +258,7 @@ class PostEntry():
         
         self._post_item = post_item
         self.created = datetime.fromtimestamp(post_item['created_utc'])
-        self.timeline = 'Fan-fic NoP1'
+        self.timeline = ''
         self.title = replace_entitie(post_item['title'])
         self.authors = post_item['author']
         self.content_warning = cw
@@ -315,7 +315,11 @@ def get_filtered_post(source_data: list[dict], exclude_url: list[str]) -> list[P
             else:
                 continue
         
-        rslt.append(PostEntry(item))
+        entry = PostEntry(item)
+        if subreddit == 'HFY' or subreddit == 'NatureofPredators' and (item['link_flair_text'] or '').lower() in ['fanfic', 'nsfw']:
+            entry.timeline = 'Fan-fic NoP1'
+        
+        rslt.append(entry)
     
     rslt.sort(key=lambda x:x.created)
     return rslt
