@@ -318,6 +318,8 @@ def get_filtered_post(source_data: list[dict], exclude_url: list[str]) -> list[P
         entry = PostEntry(item)
         if subreddit == 'HFY' or subreddit == 'NatureofPredators' and (item['link_flair_text'] or '').lower() in ['fanfic', 'nsfw']:
             entry.timeline = 'Fan-fic NoP1'
+        if not entry.timeline:
+            entry.timeline = 'none'
         
         rslt.append(entry)
     
