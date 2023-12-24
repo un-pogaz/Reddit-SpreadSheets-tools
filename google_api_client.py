@@ -60,13 +60,20 @@ class GoogleApiClient():
         # time.
         if os.path.exists(token_json):
             self._creds = Credentials.from_authorized_user_file(token_json, scopes)
+        
+        def run_local_server():
+            flow = InstalledAppFlow.from_client_secrets_file(credentials_oauth2, scopes)
+            self._creds = flow.run_local_server(port=0)
+        
         # If there are no (valid) credentials available, let the user log in.
         if not self._creds or not self._creds.valid:
-            if self._creds and self._creds.expired and self._creds.refresh_token:
-                self._creds.refresh(Request())
-            else:
-                flow = InstalledAppFlow.from_client_secrets_file(credentials_oauth2, scopes)
-                self._creds = flow.run_local_server(port=0)
+            try:
+                if self._creds and self._creds.expired and self._creds.refresh_token:
+                    self._creds.refresh(Request())
+                else:
+                    run_local_server()
+            except:
+                run_local_server()
             # Save the credentials for the next run
             with open(token_json, 'w') as token:
                 token.write(self._creds.to_json())
