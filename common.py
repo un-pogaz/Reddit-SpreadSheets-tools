@@ -325,3 +325,44 @@ def get_filtered_post(source_data: list[dict], exclude_url: list[str]) -> list[P
     
     rslt.sort(key=lambda x:x.created)
     return rslt
+
+def read_subreddit(subreddit: str, oldest_post: str|None, exclude_url: list[str]) -> tuple[list[PostEntry], str]:
+    all_post = []
+    base_url = f'https://www.reddit.com/r/{subreddit}/new/.json'
+    
+    async def read_posts():
+        import time
+        params = {'sort':'new', 'limit':100, 'before':oldest_post}
+        count = 0
+        loop = True
+        
+        while loop:
+            tbl = requests.get(base_url, params=params, timeout=1000).json().get('data', {}).get('children', {})
+            if tbl:
+                count = count + len(tbl)
+                run_animation.extra = str(count)
+                loop = True
+                
+                for r in tbl:
+                    r = r['data']
+                    all_post.append(r)
+                    params['after'] = r['name']
+            
+            if len(tbl) < params['limit']:
+                loop = False
+            time.sleep(1)
+    
+    run_animation(read_posts, f'Loading new post on post r/{subreddit}')
+    print('Total new post to analyze:', len(all_post))
+    
+    recent_post = all_post[0]['name']
+    self_domain = f'self.{subreddit}'
+    for item in all_post:
+        domain = item['domain']
+        if domain != self_domain and domain in SUBREDDITS_DOMAIN:
+            item['permalink'] = item['url_overridden_by_dest']
+    
+    lines = get_filtered_post(all_post, exclude_url)
+    print(f'Data extracted from r/{subreddit}.', 'New lines added:', len(lines))
+    
+    return recent_post, lines
