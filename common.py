@@ -366,7 +366,11 @@ def read_subreddit(subreddit: str, oldest_post: str|None, exclude_url: list[str]
     run_animation(read_posts, f'Loading new post on post r/{subreddit}')
     print('Total new post to analyze:', len(all_post))
     
-    recent_post = all_post[0]['name']
+    if all_post:
+        recent_post = all_post[0]['name']
+    else:
+        recent_post = oldest_post
+    
     self_domain = f'self.{subreddit}'
     for item in all_post:
         domain = item['domain']
