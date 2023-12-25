@@ -1,7 +1,7 @@
 import os.path, re
 from collections import defaultdict
 
-from common import ARGS, APP, help_args, ini_spreadsheets, HttpError, read_text, write_lines
+from common import ARGS, APP, help_args, get_url_data, read_text, write_lines
 
 
 args = []
@@ -17,16 +17,7 @@ if not args or help_args():
     print('ERROR: Need a file as parameter!')
     exit()
 
-spreadsheets = ini_spreadsheets()
-
-try:
-    list_url_data = spreadsheets.get('data!G:G')[1:]
-    list_url_data = set(r[0] for r in list_url_data if r)
-except HttpError as err:
-    list_url_data = []
-    print(err)
-    input()
-
+list_url_data = get_url_data()
 
 dic_url_data = defaultdict(set)
 for url in list_url_data:

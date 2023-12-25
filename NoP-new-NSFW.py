@@ -1,9 +1,6 @@
 import os.path
 
-from common import (
-    ARGS, APP, ini_spreadsheets, HttpError,
-    help_args, read_subreddit,
-)
+from common import ARGS, APP, help_args, read_subreddit, get_url_data
 
 
 if help_args():
@@ -13,8 +10,6 @@ if help_args():
     print('  id_post (optional) id of the oldest post to check back')
     exit()
 
-spreadsheets = ini_spreadsheets()
-
 oldest_post = ARGS[0] if ARGS else None
 
 if oldest_post:
@@ -23,13 +18,7 @@ if oldest_post:
         oldest_post = 't3_'+oldest_post
     print('Oldest post to check', oldest_post)
 
-try:
-    list_url_data = spreadsheets.get('data!G:G')[1:]
-    list_url_data = set(r[0] for r in list_url_data if r)
-except HttpError as err:
-    list_url_data = []
-    print(err)
-    input()
+list_url_data = get_url_data()
 print()
 
 oldest_post, lines = read_subreddit('NatureOfPredatorsNSFW', oldest_post, list_url_data)

@@ -1,9 +1,9 @@
 import os.path, time, random
 
 from common import (
-    ARGS, APP, SUBREDDITS, ini_spreadsheets, HttpError,
+    ARGS, APP, SUBREDDITS,
     help_args, requests, run_animation, write_lines, read_lines,
-    get_filtered_post, post_is_to_old, parse_content,
+    get_filtered_post, post_is_to_old, parse_content, get_url_data,
 )
 
 
@@ -47,15 +47,7 @@ if special and not args:
     exit()
 
 if exclude and args:
-    print('Google Sheets: retrive all url of present post...')
-    spreadsheets = ini_spreadsheets()
-    try:
-        list_url_data = spreadsheets.get('data!G:G')[1:]
-        list_url_data = set(r[0] for r in list_url_data if r)
-    except HttpError as err:
-        list_url_data = []
-        print(err)
-        input()
+    list_url_data = get_url_data()
 
 args_length = len(args)
 for args_idx in range(args_length):

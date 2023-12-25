@@ -1,9 +1,6 @@
 import os.path
 
-from common import (
-    ARGS, APP, ini_spreadsheets, HttpError,
-    help_args, read_subreddit,
-)
+from common import ARGS, APP, ini_spreadsheets, HttpError, help_args, read_subreddit, get_url_data
 
 
 if help_args():
@@ -49,14 +46,7 @@ else:
         print(err)
         input()
 
-try:
-    list_url_data = spreadsheets.get('data!G:G')[1:]
-    list_url_data = set(r[0] for r in list_url_data if r)
-except HttpError as err:
-    list_url_data = []
-    print(err)
-    input()
-
+list_url_data = get_url_data()
 print()
 
 oldest_post, lines = read_subreddit('NatureofPredators', oldest_post, list_url_data)
