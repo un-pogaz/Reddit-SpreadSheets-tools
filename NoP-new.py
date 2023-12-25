@@ -1,6 +1,6 @@
 import os.path
 
-from common import ARGS, APP, ini_spreadsheets, HttpError, help_args, read_subreddit, get_url_data
+from common import ARGS, APP, ini_spreadsheets, HttpError, help_args, read_subreddit
 
 
 if help_args():
@@ -46,10 +46,9 @@ else:
         print(err)
         input()
 
-list_url_data = get_url_data()
 print()
 
-oldest_post, lines = read_subreddit('NatureofPredators', oldest_post, list_url_data)
+oldest_post, lines = read_subreddit(subreddit='NatureofPredators', oldest_post=oldest_post, exclude_url=True)
 
 ##with open('- NoP new subreddit.csv', 'at', newline='\n', encoding='utf-8') as f:
 ##    if lines:

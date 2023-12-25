@@ -3,7 +3,7 @@ import os.path, time, random
 from common import (
     ARGS, APP, SUBREDDITS,
     help_args, requests, run_animation, write_lines, read_lines,
-    get_filtered_post, post_is_to_old, parse_content, get_url_data,
+    get_filtered_post, post_is_to_old, parse_content,
 )
 
 
@@ -31,7 +31,6 @@ if exclude:
 special = args[0] if args and args[0] in ['*','?'] else None
 
 authors_lst = []
-list_url_data = []
 list_authors_empty = []
 list_authors_error = []
 
@@ -45,9 +44,6 @@ elif special == '*':
 if special and not args:
     print(f'{authors_file} is empty.')
     exit()
-
-if exclude and args:
-    list_url_data = get_url_data()
 
 args_length = len(args)
 for args_idx in range(args_length):
@@ -84,7 +80,7 @@ for args_idx in range(args_length):
     
     run_animation(get_all_post, f'Loading Reddit post for {author}'+ (f' [{args_idx+1}/{args_length}]' if args_length > 1 else '') )
     
-    lines = [e.to_string() for e in get_filtered_post(all_post, list_url_data)]
+    lines = [e.to_string() for e in get_filtered_post(source_data=all_post, exclude_url=exclude)]
     
     # write posts
     if special == '*':

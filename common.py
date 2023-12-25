@@ -287,8 +287,17 @@ class PostEntry():
 def post_is_to_old(post_item: dict) -> bool:
     return post_item['created_utc'] < 1649689768
 
-def get_filtered_post(source_data: list[dict], exclude_url: list[str]) -> list[PostEntry]:
+def get_filtered_post(source_data: list[dict], exclude_url: list[str]|bool) -> list[PostEntry]:
+    """If exclude_url is True, get the exclude_url list from the spreadsheets"""
+    
     rslt = []
+    
+    if exclude_url is True:
+        exclude_url = get_url_data()
+    if hasattr(exclude_url, '__iter__'):
+        exclude_url = set(exclude_url)
+    else:
+        exclude_url = []
     
     for item in source_data:
         if post_is_to_old(item):
@@ -326,7 +335,9 @@ def get_filtered_post(source_data: list[dict], exclude_url: list[str]) -> list[P
     rslt.sort(key=lambda x:x.created)
     return rslt
 
-def read_subreddit(subreddit: str, oldest_post: str|None, exclude_url: list[str]) -> tuple[list[PostEntry], str]:
+def read_subreddit(subreddit: str, oldest_post: str|None, exclude_url: list[str]|bool) -> tuple[list[PostEntry], str]:
+    """If exclude_url is True, get the exclude_url list from the spreadsheets"""
+    
     all_post = []
     base_url = f'https://www.reddit.com/r/{subreddit}/new/.json'
     

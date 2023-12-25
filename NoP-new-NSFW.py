@@ -1,6 +1,6 @@
 import os.path
 
-from common import ARGS, APP, help_args, read_subreddit, get_url_data
+from common import ARGS, APP, help_args, read_subreddit
 
 
 if help_args():
@@ -18,10 +18,9 @@ if oldest_post:
         oldest_post = 't3_'+oldest_post
     print('Oldest post to check', oldest_post)
 
-list_url_data = get_url_data()
 print()
 
-oldest_post, lines = read_subreddit('NatureOfPredatorsNSFW', oldest_post, list_url_data)
+oldest_post, lines = read_subreddit(subreddit='NatureOfPredatorsNSFW', oldest_post=oldest_post, exclude_url=True)
 
 with open('- NoP-NSFW new subreddit.csv', 'at', newline='\n', encoding='utf-8') as f:
     if lines:
