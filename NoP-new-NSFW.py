@@ -1,7 +1,7 @@
 import os.path
 
 from common import (
-    ARGS, APP, SUBREDDITS_DOMAIN,
+    ARGS, APP, SUBREDDITS_DOMAIN, ini_spreadsheets, HttpError,
     help_args, requests, run_animation, get_filtered_post,
 )
 
@@ -13,6 +13,8 @@ if help_args():
     print('  id_post (optional) id of the oldest post to check back')
     exit()
 
+spreadsheets = ini_spreadsheets()
+
 ####################
 # get oldest_post
 
@@ -23,7 +25,15 @@ if oldest_post:
     if not oldest_post.startswith('t3_'):
         oldest_post = 't3_'+oldest_post
     print('Oldest post to check', oldest_post)
-    print()
+
+try:
+    list_url_data = spreadsheets.get('data!G:G')[1:]
+    list_url_data = set(r[0] for r in list_url_data if r)
+except HttpError as err:
+    list_url_data = []
+    print(err)
+    input()
+print()
 
 
 ####################
@@ -53,7 +63,7 @@ async def read_subreddit():
             loop = False
         time.sleep(1)
 
-run_animation(read_subreddit, 'Loading new post on post r/NatureofPredators')
+run_animation(read_subreddit, 'Loading new post on post r/NatureOfPredatorsNSFW')
 print('Total new post to analyze:', len(all_post))
 
 if not all_post:
@@ -63,13 +73,13 @@ if not all_post:
 # analyze posts
 
 oldest_post = all_post[0]['name']
-self_domain = 'self.NatureofPredators'
+self_domain = 'self.NatureOfPredatorsNSFW'
 for item in all_post:
     domain = item['domain']
     if domain != self_domain and domain in SUBREDDITS_DOMAIN:
         item['permalink'] = item['url_overridden_by_dest']
 
-lines = get_filtered_post(all_post, [])
+lines = get_filtered_post(all_post, list_url_data)
 
 with open('- NoP-NSFW new subreddit.csv', 'at', newline='\n', encoding='utf-8') as f:
     if lines:
