@@ -384,7 +384,7 @@ def read_subreddit(subreddit: str, oldest_post: str|None, exclude_url: list[str]
 
 def get_url_data() -> set:
     spreadsheets = ini_spreadsheets()
-    print('Google Sheets: retrive all url of present post...')
+    print('Google Sheets: retrieve all url of present post...')
     try:
         rslt = spreadsheets.get('data!G:G')[1:]
         rslt = set(r[0] for r in rslt if r)

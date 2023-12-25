@@ -25,7 +25,7 @@ if oldest_post:
     print('Oldest post to check', oldest_post)
 else:
     try:
-        print('Google Sheets: retrive the oldest post to check')
+        print('Google Sheets: retrieve the oldest post to check')
         rslt = spreadsheets.get(oldest_post_cell)
         
         try:
@@ -40,7 +40,7 @@ else:
             oldest_post = rslt
             print('Google Sheets: oldest post to check', oldest_post)
         else:
-            print('Google Sheets: retrive last post')
+            print('Google Sheets: no oldest post to check')
         
     except HttpError as err:
         print(err)

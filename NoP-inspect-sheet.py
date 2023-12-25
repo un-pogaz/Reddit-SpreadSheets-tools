@@ -6,9 +6,8 @@ from common import ini_spreadsheets, HttpError, write_lines
 spreadsheets = ini_spreadsheets()
 
 try:
-    print('Google Sheets: retrive all authors')
+    print('Google Sheets: retrieve data...')
     
-    print()
     def write_authors_list(sheet_name) -> list[str]:
         data = spreadsheets.get(sheet_name+'!D:D')
         
@@ -27,6 +26,11 @@ try:
     
     authors_full = set(write_authors_list('data'))
     authors_pending = set(write_authors_list('pending'))
+    table = spreadsheets.get('data!A:G')
+    print()
+    
+    #############
+    #parsing data
     
     authors_common = sorted(authors_pending.intersection(authors_full))
     write_lines('authors_common.txt', authors_common)
@@ -34,7 +38,7 @@ try:
     authors_difference = sorted(authors_pending.difference(authors_full))
     write_lines('authors_difference.txt', authors_difference)
     
-    print('All authors has retrived.')
+    print('All authors was retrieved.')
     map_count = {
         'Authors':authors_full,
         'Pending':authors_pending,
@@ -44,7 +48,6 @@ try:
     print(*[k+': '+str(len(v))+'.' for k,v in map_count.items()])
     
     print()
-    table = spreadsheets.get('data!A:G')
     row_length = len(table[0])
     not_full_row = []
     url_map = defaultdict(list)
