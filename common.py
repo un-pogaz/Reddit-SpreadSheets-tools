@@ -10,9 +10,9 @@ def ini_spreadsheets() -> SpreadSheetsClient:
         rslt = ini_spreadsheets._client
     else:
         ini_spreadsheets._client = rslt = SpreadSheetsClient(
-            'credentials.json',
-            'token.json',
-        ).new_spread_sheets(SAMPLE_SPREADSHEET_ID)
+            credentials_oauth2 = 'credentials.json',
+            token_json = 'token.json',
+        ).new_spreadsheets(SAMPLE_SPREADSHEET_ID)
     
     return rslt
 
