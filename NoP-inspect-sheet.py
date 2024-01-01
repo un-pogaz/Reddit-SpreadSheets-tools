@@ -1,9 +1,9 @@
 from collections import defaultdict
 
-from common import ini_spreadsheets, HttpError, write_lines
+from common import init_spreadsheets, HttpError, write_lines
 
 
-spreadsheets = ini_spreadsheets()
+spreadsheets = init_spreadsheets()
 
 try:
     print('Google Sheets: retrieve data...')

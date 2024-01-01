@@ -1,6 +1,6 @@
 import os.path
 
-from common import ARGS, APP, ini_spreadsheets, HttpError, help_args, read_subreddit
+from common import ARGS, APP, init_spreadsheets, HttpError, help_args, read_subreddit
 
 
 if help_args():
@@ -10,7 +10,7 @@ if help_args():
     print('  id_post (optional) id of the oldest post to check back')
     exit()
 
-spreadsheets = ini_spreadsheets()
+spreadsheets = init_spreadsheets()
 
 ####################
 # get oldest_post

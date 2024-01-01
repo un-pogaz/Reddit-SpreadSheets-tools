@@ -1,6 +1,6 @@
 import os.path
 
-from common import ARGS, APP, help_args, ini_spreadsheets, HttpError
+from common import ARGS, APP, help_args, init_spreadsheets, HttpError
 
 
 if help_args():
@@ -10,7 +10,7 @@ if help_args():
     print("  -y --yes-duplicate     Don't ask to delete duplicate rows")
     exit()
 
-spreadsheets = ini_spreadsheets()
+spreadsheets = init_spreadsheets()
 
 ask_duplicate = '-y' in ARGS or '--yes-duplicate' in ARGS
 

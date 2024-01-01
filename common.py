@@ -5,11 +5,11 @@ from google_api_client import SpreadSheetsClient, HttpError
 # The ID of the spreadsheet.
 SAMPLE_SPREADSHEET_ID = "1nOtYmv_d6Qt1tCX_63uE2yWVFs6-G5x_XJ778lD9qyU"
 
-def ini_spreadsheets() -> SpreadSheetsClient:
-    if hasattr(ini_spreadsheets, '_client'):
-        rslt = ini_spreadsheets._client
+def init_spreadsheets() -> SpreadSheetsClient:
+    if hasattr(init_spreadsheets, '_client'):
+        rslt = init_spreadsheets._client
     else:
-        ini_spreadsheets._client = rslt = SpreadSheetsClient(
+        init_spreadsheets._client = rslt = SpreadSheetsClient(
             credentials_oauth2 = 'credentials.json',
             token_json = 'token.json',
         ).new_spreadsheets(SAMPLE_SPREADSHEET_ID)
@@ -383,7 +383,7 @@ def read_subreddit(subreddit: str, oldest_post: str|None, exclude_url: list[str]
     return recent_post, lines
 
 def get_url_data() -> set:
-    spreadsheets = ini_spreadsheets()
+    spreadsheets = init_spreadsheets()
     print('Google Sheets: retrieve all url of present post...')
     try:
         rslt = spreadsheets.get('data!G:G')[1:]
