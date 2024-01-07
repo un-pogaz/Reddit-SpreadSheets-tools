@@ -287,7 +287,7 @@ class PostEntry():
 def post_is_to_old(post_item: dict) -> bool:
     return post_item['created_utc'] < 1649689768
 
-def get_filtered_post(source_data: list[dict], exclude_url: list[str]|bool) -> list[PostEntry]:
+def get_filtered_post(source_data: list[dict], exclude_url: list[str]|bool, special_timelines: dict[str ,list]|bool) -> list[PostEntry]:
     """If exclude_url is True, get the exclude_url list from the spreadsheets"""
     
     rslt = []
@@ -298,6 +298,16 @@ def get_filtered_post(source_data: list[dict], exclude_url: list[str]|bool) -> l
         exclude_url = set(exclude_url)
     else:
         exclude_url = []
+    
+    if special_timelines is True:
+        special_timelines = get_special_timelines()
+    if not isinstance(special_timelines, dict):
+        special_timelines = {}
+    
+    title_timelines = {}
+    for t,lst in special_timelines.items():
+        for l in lst:
+            title_timelines[l.lower()] = t
     
     for item in source_data:
         if post_is_to_old(item):
@@ -330,12 +340,18 @@ def get_filtered_post(source_data: list[dict], exclude_url: list[str]|bool) -> l
         if not entry.timeline:
             entry.timeline = 'none'
         
+        title_lower = entry.title.lower()
+        for k in title_timelines:
+            if k in title_lower:
+                entry.timeline = title_timelines[k]
+                break
+        
         rslt.append(entry)
     
     rslt.sort(key=lambda x:x.created)
     return rslt
 
-def read_subreddit(subreddit: str, oldest_post: str|None, exclude_url: list[str]|bool) -> tuple[list[PostEntry], str]:
+def read_subreddit(subreddit: str, oldest_post: str|None, exclude_url: list[str]|bool, special_timelines: dict[str ,list]|bool) -> tuple[list[PostEntry], str]:
     """If exclude_url is True, get the exclude_url list from the spreadsheets"""
     
     all_post = []
@@ -377,7 +393,7 @@ def read_subreddit(subreddit: str, oldest_post: str|None, exclude_url: list[str]
         if domain != self_domain and domain in SUBREDDITS_DOMAIN:
             item['permalink'] = item['url_overridden_by_dest']
     
-    lines = get_filtered_post(all_post, exclude_url)
+    lines = get_filtered_post(source_data=all_post, exclude_url=exclude_url, special_timelines=special_timelines)
     print(f'Data extracted from r/{subreddit}.', 'New lines added:', len(lines))
     
     return recent_post, lines
@@ -390,6 +406,25 @@ def get_url_data() -> set:
         rslt = set(r[0] for r in rslt if r)
     except HttpError as err:
         rslt = set()
+        print(err)
+        input()
+    return rslt
+
+def get_special_timelines() -> dict[str ,list]:
+    spreadsheets = init_spreadsheets()
+    print('Google Sheets: retrieve special timelines...')
+    try:
+        rslt = {}
+        data = spreadsheets.get('pending!A:C')[2:]
+        for r in data:
+            if len(r) != 3:
+                continue
+            
+            if not r[0] and r[1] and r[1] not in rslt:
+                rslt[r[1]] = r[2].splitlines()
+    
+    except HttpError as err:
+        rslt = {}
         print(err)
         input()
     return rslt

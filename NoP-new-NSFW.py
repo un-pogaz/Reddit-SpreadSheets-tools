@@ -20,7 +20,7 @@ if oldest_post:
 
 print()
 
-oldest_post, lines = read_subreddit(subreddit='NatureOfPredatorsNSFW', oldest_post=oldest_post, exclude_url=True)
+oldest_post, lines = read_subreddit(subreddit='NatureOfPredatorsNSFW', oldest_post=oldest_post, exclude_url=True, special_timelines=False)
 
 with open('- NoP-NSFW new subreddit.csv', 'at', newline='\n', encoding='utf-8') as f:
     if lines:

@@ -56,7 +56,7 @@ for file in args:
     
     run_animation(read_all_link, f'Reading links in "{file}"')
     
-    lines = [e.to_string() for e in get_filtered_post(source_data=all_post, exclude_url=False)]
+    lines = [e.to_string() for e in get_filtered_post(source_data=all_post, exclude_url=False, special_timelines=True)]
     
     write_lines(f'{basename}.csv', lines)
     
