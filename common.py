@@ -265,6 +265,7 @@ class PostEntry():
         self.statue = ''
         self.link = post_item['permalink']
         self.description = link_redirect
+        self.post_id = post_item['name']
     
     def to_list(self) -> list[str]:
         return [
@@ -382,11 +383,6 @@ def read_subreddit(subreddit: str, oldest_post: str|None, exclude_url: list[str]
     run_animation(read_posts, f'Loading new post on post r/{subreddit}')
     print('Total new post to analyze:', len(all_post))
     
-    if all_post:
-        recent_post = all_post[0]['name']
-    else:
-        recent_post = oldest_post
-    
     self_domain = f'self.{subreddit}'
     for item in all_post:
         domain = item['domain']
@@ -396,6 +392,11 @@ def read_subreddit(subreddit: str, oldest_post: str|None, exclude_url: list[str]
     lines = get_filtered_post(source_data=all_post, exclude_url=exclude_url, special_timelines=special_timelines)
     print(f'Data extracted from r/{subreddit}.', 'New lines added:', len(lines))
     
+    if lines:
+        recent_post = lines[-1].post_id
+    else:
+        recent_post = oldest_post
+        
     return recent_post, lines
 
 def get_url_data() -> set:
