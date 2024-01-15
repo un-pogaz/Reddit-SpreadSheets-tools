@@ -55,6 +55,7 @@ oldest_post, lines = read_subreddit(subreddit='NatureofPredators', oldest_post=o
 ##        f.write('\n')
 ##        f.write('\n'.join([e.to_string() for e in lines]))
 ##        f.write('\n')
+##exit()
 
 if not lines:
     exit()
