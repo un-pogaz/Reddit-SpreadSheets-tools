@@ -222,8 +222,11 @@ def parse_content(post: dict) -> str:
     parse_body(post, 'md')
     parse_awards(post)
     
-    if not post['permalink'].startswith('https://www.reddit.com'):
-        post['permalink'] = 'https://www.reddit.com' + post['permalink']
+    post['title'] = replace_entitie(post['title'])
+    
+    for k in ['permalink', 'url', 'url_overridden_by_dest']:
+        if k in post and post[k].startswith('/r/'):
+            post[k] = 'https://www.reddit.com' + post[k]
     
     return post
 
@@ -247,7 +250,12 @@ class PostEntry():
     def __init__(self, post_item: dict):
         from datetime import datetime
         
-        if post_item.get('domain', None) in DOMAIN_STORY_HOST:
+        if post_item['domain'].startswith('self.'):
+            permalink = post_item.get('url_overridden_by_dest') or post_item['permalink']
+        else:
+            permalink = post_item['permalink']
+        
+        if post_item['domain'] in DOMAIN_STORY_HOST:
             link_redirect = post_item['url_overridden_by_dest']
         else:
             link_redirect = ''
@@ -259,11 +267,11 @@ class PostEntry():
         self._post_item = post_item
         self.created = datetime.fromtimestamp(post_item['created_utc'])
         self.timeline = ''
-        self.title = replace_entitie(post_item['title'])
+        self.title = post_item['title']
         self.authors = post_item['author']
         self.content_warning = cw
         self.statue = ''
-        self.link = post_item['permalink']
+        self.link = permalink
         self.description = link_redirect
         self.post_id = post_item['name']
     
@@ -319,9 +327,6 @@ def get_filtered_post(source_data: list[dict], exclude_url: list[str]|bool, spec
         
         parse_content(item)
         
-        if item['permalink'] in exclude_url:
-            continue
-        
         subreddit = item['subreddit']
         if subreddit == 'NatureofPredators' and (item['link_flair_text'] or '').lower() not in ['', 'fanfic', 'nsfw']:
             continue
@@ -336,6 +341,9 @@ def get_filtered_post(source_data: list[dict], exclude_url: list[str]|bool, spec
                 continue
         
         entry = PostEntry(item)
+        if entry.link in exclude_url:
+            continue
+        
         if subreddit == 'HFY' or subreddit == 'NatureofPredators' and (item['link_flair_text'] or '').lower() in ['fanfic', 'nsfw']:
             entry.timeline = 'Fan-fic NoP1'
         if not entry.timeline:
@@ -382,12 +390,6 @@ def read_subreddit(subreddit: str, oldest_post: str|None, exclude_url: list[str]
     
     run_animation(read_posts, f'Loading new post on post r/{subreddit}')
     print('Total new post to analyze:', len(all_post))
-    
-    self_domain = f'self.{subreddit}'
-    for item in all_post:
-        domain = item['domain']
-        if domain != self_domain and domain in SUBREDDITS_DOMAIN:
-            item['permalink'] = item['url_overridden_by_dest']
     
     lines = get_filtered_post(source_data=all_post, exclude_url=exclude_url, special_timelines=special_timelines)
     print(f'Data extracted from r/{subreddit}.', 'New lines added:', len(lines))
