@@ -222,7 +222,7 @@ def parse_content(post: dict) -> str:
     parse_body(post, 'md')
     parse_awards(post)
     
-    post['title'] = replace_entitie(post['title'])
+    post['title'] = replace_entitie(post['title']).strip()
     
     for k in ['permalink', 'url', 'url_overridden_by_dest']:
         if k in post and post[k].startswith('/r/'):
@@ -277,7 +277,7 @@ class PostEntry():
     
     def to_list(self) -> list[str]:
         return [
-            self.created.strftime(self.DATETIME_FORMAT),
+            self.created.strftime(self.DATETIME_FORMAT).lstrip('0').replace('/0', '/'),
             self.timeline,
             self.title,
             self.authors,
