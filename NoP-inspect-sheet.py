@@ -48,6 +48,9 @@ try:
     print(*[k+': '+str(len(v))+'.' for k,v in map_count.items()])
     
     print()
+    print('Total data rows:', len(table))
+    
+    print()
     row_length = len(table[0])
     not_full_row = []
     url_map = defaultdict(list)
@@ -58,17 +61,17 @@ try:
         if len(r)>6:
             url_map[r[6]].append(idx)
     
-    print('Total data rows:', len(table))
     if not_full_row:
         print('Row not fulled:')
-        for l in not_full_row:
-            print(f' {l}:{l}')
     else:
-        print('All rows are OK.')
+        print('All rows are fulled.')
     
-    url_duplicate = {k:v for k,v in url_map.items() if len(v)>1}
+    for l in not_full_row:
+        print(f' {l}:{l}')
     
     print()
+    url_duplicate = {k:v for k,v in url_map.items() if len(v)>1}
+    
     if url_duplicate:
         print('Duplicate url:')
     else:
