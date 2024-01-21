@@ -45,7 +45,7 @@ try:
     print('', len(line_to_delete), 'lines to delete.')
     if not ask_duplicate:
         print('Update of the sheets?')
-        r = input('>')
+        r = input('>').strip()
         if not r or not r.lower()[0] == 'y':
             print('Aborted.')
             exit()
