@@ -368,7 +368,7 @@ def read_subreddit(subreddit: str, oldest_post: str|None, exclude_url: list[str]
     
     async def read_posts():
         import time
-        params = {'sort':'new', 'limit':100, 'before':oldest_post}
+        params = {'sort':'new', 'limit':100}
         count = 0
         loop = True
         
@@ -381,10 +381,13 @@ def read_subreddit(subreddit: str, oldest_post: str|None, exclude_url: list[str]
                 
                 for r in tbl:
                     r = r['data']
+                    if r['name'] == oldest_post:
+                        loop = False
+                        break
                     all_post.append(r)
                     params['after'] = r['name']
             
-            if len(tbl) < params['limit']:
+            if len(tbl) < params['limit'] or count >= 1000:
                 loop = False
             time.sleep(1)
     
