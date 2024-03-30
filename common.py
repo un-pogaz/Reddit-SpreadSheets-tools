@@ -299,6 +299,8 @@ def post_is_to_old(post_item: dict) -> bool:
 def get_filtered_post(source_data: list[dict], exclude_url: list[str]|bool, special_timelines: dict[str ,list]|bool) -> list[PostEntry]:
     """If exclude_url is True, get the exclude_url list from the spreadsheets"""
     
+    import re
+    
     rslt = []
     
     if exclude_url is True:
@@ -346,6 +348,19 @@ def get_filtered_post(source_data: list[dict], exclude_url: list[str]|bool, spec
         
         if subreddit == 'HFY' or subreddit == 'NatureofPredators' and (item['link_flair_text'] or '').lower() in ['fanfic', 'nsfw']:
             entry.timeline = 'Fan-fic NoP1'
+        
+        nop2_match = [
+            'Bissem',  'Ivrana',
+            'Krev',    'Avor',
+            'Resket',  'Tanet',
+            'Ulchid',  'Cieki',
+            'Trombil', 'Valle',
+            'Smigli',  'Omnol',
+            'Jaslip',  'Esquo',
+        ]
+        if re.search(r'\s('+'|'.join(nop2_match)+r')[^a-z]', item['selftext'], re.ASCII|re.IGNORECASE):
+            entry.timeline = 'Fan-fic NoP2-?'
+        
         if not entry.timeline:
             entry.timeline = 'none'
         
