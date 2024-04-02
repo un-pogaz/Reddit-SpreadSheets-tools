@@ -388,7 +388,7 @@ def read_subreddit(subreddit: str, oldest_post: str|None, exclude_url: list[str]
         while loop:
             tbl = requests.get(base_url, params=params, timeout=1000).json().get('data', {}).get('children', {})
             if tbl:
-                count = count + len(tbl)
+                count += len(tbl)
                 run_animation.extra = str(count)
                 loop = True
                 
