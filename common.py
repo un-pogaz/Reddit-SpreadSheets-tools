@@ -44,8 +44,6 @@ DOMAIN_EXCLUDE = [
 
 DOMAIN_STORY_HOST = [
     'archiveofourown.org',
-    'www.archiveofourown.org',
-    'royalroad.com',
     'www.royalroad.com',
 ]
 
