@@ -48,7 +48,13 @@ else:
 
 print()
 
-oldest_post, lines = read_subreddit(subreddit='NatureofPredators', oldest_post=oldest_post, exclude_url=True, special_timelines=True)
+oldest_post, lines = read_subreddit(
+    subreddit='NatureofPredators',
+    oldest_post=oldest_post,
+    exclude_url=True,
+    special_timelines=True,
+    special_checks=True,
+)
 
 ##with open('- NoP new subreddit.csv', 'at', newline='\n', encoding='utf-8') as f:
 ##    if lines:

@@ -80,7 +80,13 @@ for args_idx in range(args_length):
     
     run_animation(get_all_post, f'Loading Reddit post for {author}'+ (f' [{args_idx+1}/{args_length}]' if args_length > 1 else '') )
     
-    lines = [e.to_string() for e in get_filtered_post(source_data=all_post, exclude_url=exclude, special_timelines=True)]
+    lines = get_filtered_post(
+        source_data=all_post,
+        exclude_url=exclude,
+        special_timelines=True,
+        special_checks=True,
+    )
+    lines = [e.to_string() for e in lines]
     
     # write posts
     if special == '*':

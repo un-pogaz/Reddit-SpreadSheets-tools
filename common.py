@@ -1,3 +1,4 @@
+from collections import defaultdict
 import requests as _requests
 
 from google_api_client import SpreadSheetsClient, HttpError
@@ -49,6 +50,17 @@ DOMAIN_STORY_HOST = [
 
 SUBREDDITS = ['HFY', 'NatureofPredators', 'NatureOfPredatorsNSFW']
 SUBREDDITS_DOMAIN = [f'self.{e}' for e in SUBREDDITS]
+
+class SPECIAL_CHECKS:
+    CHAPTER_INSIDE = '<check inside post>'
+    AO3 = '{Ao3 link}'
+    
+    def items():
+        return [(k,v) for k,v in SPECIAL_CHECKS.__dict__.items() if not k.startswith('__') and isinstance(v, str)]
+    def keys():
+        return [k for k,v in SPECIAL_CHECKS.items()]
+    def values():
+        return [v for k,v in SPECIAL_CHECKS.items()]
 
 
 def make_dirname(path):
@@ -294,8 +306,13 @@ class PostEntry():
 def post_is_to_old(post_item: dict) -> bool:
     return post_item['created_utc'] < 1649689768
 
-def get_filtered_post(source_data: list[dict], exclude_url: list[str]|bool, special_timelines: dict[str ,list]|bool) -> list[PostEntry]:
-    """If exclude_url is True, get the exclude_url list from the spreadsheets"""
+def get_filtered_post(
+    source_data: list[dict],
+    exclude_url: list[str]|bool,
+    special_timelines: dict[str, list]|bool,
+    special_checks: dict[str, dict[str, bool]]|bool,
+) -> list[PostEntry]:
+    """If exclude_url is True, get the exclude_url list from the spreadsheets. Same for special_timelines and special_checks."""
     
     import re
     
@@ -317,6 +334,12 @@ def get_filtered_post(source_data: list[dict], exclude_url: list[str]|bool, spec
     for t,lst in special_timelines.items():
         for l in lst:
             title_timelines[l.lower()] = t
+    
+    if special_checks is True:
+        special_checks = get_special_checks()
+    if not isinstance(special_checks, dict):
+        special_checks = {}
+    special_checks = {k.lower():v for k,v in special_checks.items()}
     
     for item in source_data:
         if post_is_to_old(item):
@@ -368,13 +391,35 @@ def get_filtered_post(source_data: list[dict], exclude_url: list[str]|bool, spec
                 entry.timeline = title_timelines[k]
                 break
         
+        for k,v in special_checks.items():
+            if k in title_lower:
+                if v[SPECIAL_CHECKS.CHAPTER_INSIDE]:
+                    entry.title += ' '+ SPECIAL_CHECKS.CHAPTER_INSIDE
+                if v[SPECIAL_CHECKS.AO3]:
+                    ao3 = re.search(r'https://archiveofourown.org/works/\d+/chapters/\d+', item['selftext'], re.ASCII)
+                    if ao3:
+                        ao3 = ao3.group(0)
+                        if ao3 not in entry.description:
+                            if entry.description:
+                                entry.description += '\n'+ao3
+                            else:
+                                entry.description = ao3
+                    else:
+                        entry.title += ' '+ SPECIAL_CHECKS.AO3
+                break
+        
         rslt.append(entry)
     
     rslt.sort(key=lambda x:x.created)
     return rslt
 
-def read_subreddit(subreddit: str, oldest_post: str|None, exclude_url: list[str]|bool, special_timelines: dict[str ,list]|bool) -> tuple[list[PostEntry], str]:
-    """If exclude_url is True, get the exclude_url list from the spreadsheets"""
+def read_subreddit(
+    subreddit: str, oldest_post: str|None,
+    exclude_url: list[str]|bool,
+    special_timelines: dict[str, list]|bool,
+    special_checks: dict[str, dict[str, bool]]|bool,
+) -> tuple[str, list[PostEntry]]:
+    """If exclude_url is True, get the exclude_url list from the spreadsheets. Same for special_timelines and special_checks."""
     
     all_post = []
     base_url = f'https://www.reddit.com/r/{subreddit}/new/.json'
@@ -407,7 +452,12 @@ def read_subreddit(subreddit: str, oldest_post: str|None, exclude_url: list[str]
     run_animation(read_posts, f'Loading new post on post r/{subreddit}')
     print('Total new post to analyze:', len(all_post))
     
-    lines = get_filtered_post(source_data=all_post, exclude_url=exclude_url, special_timelines=special_timelines)
+    lines = get_filtered_post(
+        source_data=all_post,
+        exclude_url=exclude_url,
+        special_timelines=special_timelines,
+        special_checks=special_checks,
+    )
     print(f'Data extracted from r/{subreddit}.', 'New lines added:', len(lines))
     
     if lines:
@@ -446,4 +496,32 @@ def get_special_timelines() -> dict[str ,list]:
         rslt = {}
         print(err)
         input()
+    return rslt
+
+def get_special_checks() -> dict[str, dict[str, bool]]:
+    spreadsheets = init_spreadsheets()
+    print('Google Sheets: retrieve special checks...')
+    
+    try:
+        rslt = defaultdict(dict)
+        
+        data = spreadsheets.get('pending!A:D')[2:]
+        for r in data:
+            if len(r) != 4:
+                continue
+            if r[0] or r[1]:
+                continue
+            if '[xx]' not in r[2]:
+                continue
+            
+            title, checks = r[2].split('[xx]', maxsplit=1)
+            title, checks = title.strip(), checks.strip().lower()
+            for k in SPECIAL_CHECKS.values():
+                rslt[title][k] = k.lower() in checks
+            
+    except HttpError as err:
+        rslt = {}
+        print(err)
+        input()
+    
     return rslt
