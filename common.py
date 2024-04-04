@@ -252,6 +252,11 @@ def parse_rawhtml(text: str) -> str:
     html = html.removeprefix('<!-- SC_OFF -->').removesuffix('<!-- SC_ON -->')
     return re.sub(r'<a href="https://preview.redd.it/([^"]+)">https://preview.redd.it/\1</a>', r'<img src="https://preview.redd.it/\1"/>', html)
 
+def numeric_id(text_id) -> int:
+    # base 36 / 0123456789abcdefghijklmnopqrstuvwxyz
+    if not text_id:
+        return -1
+    return int(text_id.removeprefix('t3_'), base=36)
 
 class PostEntry():
     
@@ -304,7 +309,8 @@ class PostEntry():
         return self.__class__.__name__+'('+','.join([self.created.isoformat(), repr(self.title), repr(self.link)])+')'
 
 def post_is_to_old(post_item: dict) -> bool:
-    return post_item['created_utc'] < 1649689768
+    # https://www.reddit.com/r/HFY/comments/u19xpa/the_nature_of_predators/
+    return numeric_id(post_item['id']) < numeric_id('u19xpa')
 
 def get_filtered_post(
     source_data: list[dict],
@@ -440,7 +446,7 @@ def read_subreddit(
                 
                 for r in tbl:
                     r = r['data']
-                    if r['name'] == oldest_post:
+                    if numeric_id(r['name']) <= numeric_id(oldest_post):
                         loop = False
                         break
                     all_post.append(r)
