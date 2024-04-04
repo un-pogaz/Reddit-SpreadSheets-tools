@@ -51,16 +51,11 @@ DOMAIN_STORY_HOST = [
 SUBREDDITS = ['HFY', 'NatureofPredators', 'NatureOfPredatorsNSFW']
 SUBREDDITS_DOMAIN = [f'self.{e}' for e in SUBREDDITS]
 
-class SPECIAL_CHECKS:
-    CHAPTER_INSIDE = '<check inside post>'
-    AO3 = '{Ao3 link}'
-    
-    def items():
-        return [(k,v) for k,v in SPECIAL_CHECKS.__dict__.items() if not k.startswith('__') and isinstance(v, str)]
-    def keys():
-        return [k for k,v in SPECIAL_CHECKS.items()]
-    def values():
-        return [v for k,v in SPECIAL_CHECKS.items()]
+SPECIAL_CHECKS = {
+    '<check inside post>': None,
+    '{Ao3 link}': r'https://archiveofourown.org/works/\d+(/chapters/\d+)?',
+    '{RoyalRoad link}': r'https://www.royalroad.com/fiction/\d+/[\w\-]+/chapter/\d+/[\w\-]+',
+}
 
 
 def make_dirname(path):
@@ -316,7 +311,7 @@ def get_filtered_post(
     source_data: list[dict],
     exclude_url: list[str]|bool,
     special_timelines: dict[str, list]|bool,
-    special_checks: dict[str, dict[str, bool]]|bool,
+    special_checks: dict[str, dict[str, str]]|bool,
 ) -> list[PostEntry]:
     """If exclude_url is True, get the exclude_url list from the spreadsheets. Same for special_timelines and special_checks."""
     
@@ -399,19 +394,21 @@ def get_filtered_post(
         
         for k,v in special_checks.items():
             if k in title_lower:
-                if v[SPECIAL_CHECKS.CHAPTER_INSIDE]:
-                    entry.title += ' '+ SPECIAL_CHECKS.CHAPTER_INSIDE
-                if v[SPECIAL_CHECKS.AO3]:
-                    ao3 = re.search(r'https://archiveofourown.org/works/\d+/chapters/\d+', item['selftext'], re.ASCII)
-                    if ao3:
-                        ao3 = ao3.group(0)
-                        if ao3 not in entry.description:
+                for kk,vv in v.items():
+                    if vv is None:
+                        entry.title += ' '+ kk
+                        continue
+                    
+                    url = re.search(vv, item['selftext'], re.ASCII)
+                    if url:
+                        url = url.group(0)
+                        if url not in entry.description:
                             if entry.description:
-                                entry.description += '\n'+ao3
+                                entry.description += '\n'+url
                             else:
-                                entry.description = ao3
+                                entry.description = url
                     else:
-                        entry.title += ' '+ SPECIAL_CHECKS.AO3
+                        entry.title += ' '+ kk
                 break
         
         rslt.append(entry)
@@ -505,7 +502,7 @@ def get_special_timelines() -> dict[str ,list]:
         input()
     return rslt
 
-def get_special_checks() -> dict[str, dict[str, bool]]:
+def get_special_checks() -> dict[str, dict[str, str]]:
     spreadsheets = init_spreadsheets()
     print('Google Sheets: retrieve special checks...')
     
@@ -523,8 +520,9 @@ def get_special_checks() -> dict[str, dict[str, bool]]:
             
             title, checks = r[2].split('[xx]', maxsplit=1)
             title, checks = title.strip(), checks.strip().lower()
-            for k in SPECIAL_CHECKS.values():
-                rslt[title][k] = k.lower() in checks
+            for k,v in SPECIAL_CHECKS.items():
+                if k.lower() in checks:
+                    rslt[title][k] = v
             
     except HttpError as err:
         rslt = {}
