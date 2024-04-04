@@ -414,7 +414,8 @@ def get_filtered_post(
     return rslt
 
 def read_subreddit(
-    subreddit: str, oldest_post: str|None,
+    subreddit: str,
+    oldest_post: str|None,
     exclude_url: list[str]|bool,
     special_timelines: dict[str, list]|bool,
     special_checks: dict[str, dict[str, bool]]|bool,
