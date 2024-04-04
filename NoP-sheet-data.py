@@ -51,10 +51,10 @@ for args_idx in range(args_length):
     author = args[args_idx]
     
     all_post = []
+    base_url = f'https://www.reddit.com/user/{author}/submitted/.json'
     
     # get all posts of author
     async def get_all_post():
-        base_url = f'https://www.reddit.com/user/{author}/submitted/.json'
         params = {'sort':'new', 'limit':100}
         count = 0
         loop = True
