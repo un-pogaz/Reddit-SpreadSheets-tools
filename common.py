@@ -44,11 +44,6 @@ DOMAIN_EXCLUDE = [
     'i.kym-cdn.com',
 ]
 
-DOMAIN_STORY_HOST = [
-    'archiveofourown.org',
-    'www.royalroad.com',
-]
-
 SUBREDDITS = ['HFY', 'NatureofPredators', 'NatureOfPredatorsNSFW']
 SUBREDDITS_DOMAIN = [f'self.{e}' for e in SUBREDDITS]
 
@@ -253,15 +248,16 @@ class PostEntry():
     
     DATETIME_FORMAT = '%m/%d/%Y'
     
-    def __init__(self, post_item: dict):
+    def __init__(self, post_item: dict, *, domain_story_host: list[str]=None):
         from datetime import datetime
+        domain_story_host = domain_story_host or []
         
         if post_item['domain'].startswith('self.'):
             permalink = post_item.get('url_overridden_by_dest') or post_item['permalink']
         else:
             permalink = post_item['permalink']
         
-        if post_item['domain'] in DOMAIN_STORY_HOST:
+        if post_item['domain'] in domain_story_host:
             link_redirect = post_item['url_overridden_by_dest']
         else:
             link_redirect = ''
@@ -311,10 +307,12 @@ def get_filtered_post(
     check_inside_list: list[str]|bool =True,
     check_links_map: dict[str, list[str]]|bool =True,
     check_links_search: dict[str, str]|bool =True,
+    domain_story_host: list[str]|bool =True,
 ) -> list[PostEntry]:
     """
     If exclude_url is True, get the exclude_url list from the spreadsheets.
-    Same for special_timelines, check_inside_list, check_links_map and check_links_search.
+    Same for special_timelines, check_inside_list, check_links_map, check_links_search
+    and domain_story_host.
     """
     
     import re
@@ -335,6 +333,7 @@ def get_filtered_post(
         check_inside_list,
         check_links_map,
         check_links_search,
+        domain_story_host,
     ]
     for v in check_retrieve:
         if v is True:
@@ -374,6 +373,11 @@ def get_filtered_post(
     if not isinstance(check_links_search, dict):
         check_links_search = {}
     
+    # domain_story_host
+    if domain_story_host is True:
+        domain_story_host = parse_domain_story_host(script_user_data)
+    if not isinstance(domain_story_host, list):
+        domain_story_host = []
     
     for item in source_data:
         if post_is_to_old(item):
@@ -389,7 +393,7 @@ def get_filtered_post(
             continue
         
         domain = item['domain']
-        if domain in SUBREDDITS_DOMAIN or domain in DOMAIN_STORY_HOST:
+        if domain in SUBREDDITS_DOMAIN or domain in domain_story_host:
             pass
         elif domain != f'self.{subreddit}':
             if item.get('selftext'):
@@ -397,7 +401,7 @@ def get_filtered_post(
             else:
                 continue
         
-        entry = PostEntry(item)
+        entry = PostEntry(item, domain_story_host=domain_story_host)
         if entry.link in exclude_url:
             continue
         
@@ -463,10 +467,12 @@ def read_subreddit(
     check_inside_list: list[str]|bool =True,
     check_links_map: dict[str, list[str]]|bool =True,
     check_links_search: dict[str, str]|bool =True,
+    domain_story_host: list[str]|bool =True,
 ) -> tuple[str, list[PostEntry]]:
     """
     If exclude_url is True, get the exclude_url list from the spreadsheets.
-    Same for special_timelines, check_inside_list, check_links_map and check_links_search.
+    Same for special_timelines, check_inside_list, check_links_map, check_links_search
+    and domain_story_host.
     """
     
     all_post = []
@@ -507,6 +513,7 @@ def read_subreddit(
         check_inside_list=check_inside_list,
         check_links_map=check_links_map,
         check_links_search=check_links_search,
+        domain_story_host=domain_story_host,
     )
     print(f'Data extracted from r/{subreddit}.', 'New lines to add:', len(lines))
     
@@ -575,4 +582,10 @@ def parse_check_links_map(raw: dict[str, list[list[str]]]) -> dict[str, list[str
     rslt = {}
     for r in raw.get('check-links', []):
         rslt[r[0]] = r[1:]
+    return rslt
+
+def parse_domain_story_host(raw: dict[str, list[list[str]]]) -> list[str]:
+    rslt = []
+    for r in raw.get('domain-story-host', []):
+        rslt.append(r[0])
     return rslt
