@@ -212,7 +212,7 @@ def parse_body(post: dict, keep_body: bool|None) -> dict:
         
     return post
 
-awards_filter = ['name', 'description', 'award_type' ,'icon_url', 'static_icon_url']
+awards_filter = ['name', 'description', 'award_type', 'icon_url', 'static_icon_url']
 
 def parse_awards(post: dict) -> dict:
     awards = []
@@ -311,8 +311,9 @@ def post_is_to_old(post_item: dict) -> bool:
 
 def get_filtered_post(
     source_data: list[dict],
+    *,
     exclude_url: list[str]|bool,
-    special_timelines: dict[str, list]|bool,
+    special_timelines: dict[str, list[str]]|bool,
     special_checks: dict[str, dict[str, str]]|bool,
 ) -> list[PostEntry]:
     """If exclude_url is True, get the exclude_url list from the spreadsheets. Same for special_timelines and special_checks."""
@@ -421,8 +422,9 @@ def get_filtered_post(
 def read_subreddit(
     subreddit: str,
     oldest_post: str|None,
+    *,
     exclude_url: list[str]|bool,
-    special_timelines: dict[str, list]|bool,
+    special_timelines: dict[str, list[str]]|bool,
     special_checks: dict[str, dict[str, bool]]|bool,
 ) -> tuple[str, list[PostEntry]]:
     """If exclude_url is True, get the exclude_url list from the spreadsheets. Same for special_timelines and special_checks."""
