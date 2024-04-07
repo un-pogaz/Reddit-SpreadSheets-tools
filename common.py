@@ -536,11 +536,11 @@ def get_url_data() -> set:
         input()
     return rslt
 
-def get_user_data(*, msg=None) -> dict[str, list[list[str]]]:
+def get_user_data() -> dict[str, list[list[str]]]:
     """Get the rows assosiated to this data_type. Note: the cell containig the data_type is exlude."""
     
     spreadsheets = init_spreadsheets()
-    print('Google Sheets:', msg or 'retrieve user data...')
+    print('Google Sheets: retrieve the user data...')
     
     try:
         rslt = defaultdict(list)
