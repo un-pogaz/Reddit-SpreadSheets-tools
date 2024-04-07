@@ -41,7 +41,6 @@ DOMAIN_EXCLUDE = [
     'v.imgur.com',
     'forms.gle',
     'youtube.com',
-    'i.kym-cdn.com',
 ]
 
 SUBREDDITS = ['HFY', 'NatureofPredators', 'NatureOfPredatorsNSFW']
