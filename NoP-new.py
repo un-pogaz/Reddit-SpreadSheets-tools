@@ -4,6 +4,7 @@ from common import (
     APP,
     ARGS,
     HttpError,
+    get_script_user_data,
     help_args,
     init_spreadsheets,
     read_subreddit,
@@ -19,38 +20,54 @@ if help_args():
 spreadsheets = init_spreadsheets()
 
 ####################
-# get oldest_post
+# oldest_post
+
+def get_oldest_post() -> str:
+    for r in get_script_user_data('last-post', msg='retrieve the oldest post to check...'):
+        for d in r:
+            if d:
+                return d.strip()
+    return None
+
+def set_oldest_post(oldest_post: str):
+    spreadsheets = init_spreadsheets()
+    
+    oldest_post_row = None
+    oldest_post_idx_row = None
+    oldest_post_idx_column = None
+    
+    for idx_r,r in enumerate(spreadsheets.get('script-user-data'), 1):
+        if r and r[0] == 'last-post':
+            for idx_c,d in enumerate(r[1:], 1):
+                if d:
+                    oldest_post_row = r
+                    oldest_post_idx_row = idx_r
+                    oldest_post_idx_column = idx_c
+                    break
+    
+    if oldest_post_row:
+        oldest_post_row[oldest_post_idx_column] = (oldest_post or '').strip()
+        spreadsheets.update(f'script-user-data!{oldest_post_idx_row}:{oldest_post_idx_row}', [oldest_post_row])
+
 
 oldest_post = ARGS[0] if ARGS else None
-oldest_post_cell = "pending!A2"
 
 if oldest_post:
     print()
+    oldest_post = oldest_post.strip()
     if not oldest_post.startswith('t3_'):
         oldest_post = 't3_'+oldest_post
     print('Oldest post to check', oldest_post)
 else:
-    try:
-        print('Google Sheets: retrieve the oldest post to check')
-        rslt = spreadsheets.get(oldest_post_cell)
-        
-        try:
-            rslt = rslt[0][0]
-            if not rslt.startswith('t3_'):
-                rslt = 't3_'+rslt
-        except:
-            rslt = ''
-        rslt = rslt.strip()
-        
-        if rslt:
-            oldest_post = rslt
-            print('Google Sheets: oldest post to check', oldest_post)
-        else:
-            print('Google Sheets: no oldest post to check')
-        
-    except HttpError as err:
-        print(err)
-        input()
+    rslt = get_oldest_post()
+    
+    if rslt:
+        if not rslt.startswith('t3_'):
+            rslt = 't3_'+rslt
+        oldest_post = rslt
+        print('Google Sheets: oldest post to check', oldest_post)
+    else:
+        print('Google Sheets: no oldest post to check')
 
 print()
 
@@ -85,7 +102,7 @@ try:
     end = start+len(lines)
     
     spreadsheets.update(f"pending!{start}:{end}", lines)
-    spreadsheets.update(oldest_post_cell, [[oldest_post]])
+    set_oldest_post(oldest_post)
     
     print('Google Sheets: update completed')
     
