@@ -4,7 +4,6 @@ from common import (
     APP,
     ARGS,
     HttpError,
-    get_script_user_data,
     help_args,
     init_spreadsheets,
     read_subreddit,
@@ -23,8 +22,12 @@ if help_args():
 oldest_post = ARGS[0] if ARGS else None
 
 def get_oldest_post() -> str:
-    for r in get_script_user_data('last-post', msg='retrieve the oldest post to check...'):
-        for d in r:
+    spreadsheets = init_spreadsheets()
+    
+    for r in spreadsheets.get('script-user-data'):
+        if not r or r[0] != 'last-post':
+            continue
+        for d in r[1:]:
             if d:
                 return d.strip()
     return None
@@ -37,13 +40,14 @@ def set_oldest_post(oldest_post: str):
     oldest_post_idx_column = None
     
     for idx_r,r in enumerate(spreadsheets.get('script-user-data'), 1):
-        if r and r[0] == 'last-post':
-            for idx_c,d in enumerate(r[1:], 1):
-                if d:
-                    oldest_post_row = r
-                    oldest_post_idx_row = idx_r
-                    oldest_post_idx_column = idx_c
-                    break
+        if not r or r[0] != 'last-post':
+            continue
+        for idx_c,d in enumerate(r[1:], 1):
+            if d:
+                oldest_post_row = r
+                oldest_post_idx_row = idx_r
+                oldest_post_idx_column = idx_c
+                break
     
     if oldest_post_row:
         oldest_post_row[oldest_post_idx_column] = (oldest_post or '').strip()
@@ -73,8 +77,6 @@ oldest_post, lines = read_subreddit(
     subreddit='NatureofPredators',
     oldest_post=oldest_post,
     exclude_url=True,
-    special_timelines=True,
-    special_checks=True,
 )
 
 ##with open('- NoP new subreddit.csv', 'at', newline='\n', encoding='utf-8') as f:

@@ -312,11 +312,16 @@ def post_is_to_old(post_item: dict) -> bool:
 def get_filtered_post(
     source_data: list[dict],
     *,
-    exclude_url: list[str]|bool,
-    special_timelines: dict[str, list[str]]|bool,
-    special_checks: dict[str, dict[str, str]]|bool,
+    exclude_url: list[str]|bool =True,
+    special_timelines: dict[str, list[str]]|bool =True,
+    check_inside_list: list[str]|bool =True,
+    check_links_map: dict[str, list[str]]|bool =True,
+    check_links_search: dict[str, str]|bool =True,
 ) -> list[PostEntry]:
-    """If exclude_url is True, get the exclude_url list from the spreadsheets. Same for special_timelines and special_checks."""
+    """
+    If exclude_url is True, get the exclude_url list from the spreadsheets.
+    Same for special_timelines, check_inside_list, check_links_map and check_links_search.
+    """
     
     import re
     
@@ -329,21 +334,52 @@ def get_filtered_post(
     else:
         exclude_url = []
     
+    script_user_data = {}
+    
+    check_retrieve = [
+        special_timelines,
+        check_inside_list,
+        check_links_map,
+        check_links_search,
+    ]
+    for v in check_retrieve:
+        if v is True:
+            script_user_data = get_user_data()
+            break
+    
+    # special_timelines
     if special_timelines is True:
-        special_timelines = get_special_timelines()
+        special_timelines = parse_special_timelines(script_user_data)
     if not isinstance(special_timelines, dict):
         special_timelines = {}
     
     title_timelines = {}
-    for t,lst in special_timelines.items():
-        for l in lst:
-            title_timelines[l.lower()] = t
+    for timeline,lst in special_timelines.items():
+        for title in lst:
+            title_timelines[title.lower()] = timeline
     
-    if special_checks is True:
-        special_checks = get_special_checks()
-    if not isinstance(special_checks, dict):
-        special_checks = {}
-    special_checks = {k.lower():v for k,v in special_checks.items()}
+    # check_inside_list
+    if check_inside_list is True:
+        check_inside_list = parse_check_inside(script_user_data)
+    if not isinstance(check_inside_list, list):
+        check_inside_list = []
+    
+    title_check_inside = [t.lower() for t in check_inside_list]
+    
+    # check_links_map
+    if check_links_map is True:
+        check_links_map = parse_check_links_map(script_user_data)
+    if not isinstance(check_links_map, dict):
+        check_links_map = {}
+    
+    title_check_links_map = {t.lower():v for t,v in check_links_map.items()}
+    
+    # check_links_search
+    if check_links_search is True:
+        check_links_search = parse_check_links_search(script_user_data)
+    if not isinstance(check_links_search, dict):
+        check_links_search = {}
+    
     
     for item in source_data:
         if post_is_to_old(item):
@@ -389,30 +425,35 @@ def get_filtered_post(
         if not entry.timeline:
             entry.timeline = 'none'
         
-        title_lower = entry.title.lower()
-        for k in title_timelines:
-            if k in title_lower:
-                entry.timeline = title_timelines[k]
-                break
         
-        for k,v in special_checks.items():
-            if k in title_lower:
-                for kk,vv in v.items():
-                    if vv is None:
-                        entry.title += ' '+ kk
-                        continue
-                    
-                    url = re.search(vv, item['selftext'], re.ASCII)
-                    if url:
-                        url = url.group(0)
-                        if url not in entry.description:
-                            if entry.description:
-                                entry.description += '\n'+url
-                            else:
-                                entry.description = url
+        def get_entry(list_dict: list|dict):
+            title_lower = entry.title.lower()
+            for title in list_dict:
+                if title in title_lower:
+                    return title
+            return None
+        
+        #title_timelines
+        entry.timeline = title_timelines.get(get_entry(title_timelines), entry.timeline)
+        
+        #title_check_inside
+        if get_entry(title_check_inside):
+            entry.title += ' <check inside post>'
+        
+        #title_check_links_map, check_links_search
+        links_map = title_check_links_map.get(get_entry(title_check_links_map), [])
+        
+        for link_name in links_map:
+            url = re.search(check_links_search[link_name], item['selftext'], re.ASCII)
+            if url:
+                url = url.group(0)
+                if url not in entry.description:
+                    if entry.description:
+                        entry.description += '\n'+url
                     else:
-                        entry.title += ' '+ kk
-                break
+                        entry.description = url
+            else:
+                entry.title += f' {{{link_name} link}}'
         
         rslt.append(entry)
     
@@ -423,11 +464,16 @@ def read_subreddit(
     subreddit: str,
     oldest_post: str|None,
     *,
-    exclude_url: list[str]|bool,
-    special_timelines: dict[str, list[str]]|bool,
-    special_checks: dict[str, dict[str, bool]]|bool,
+    exclude_url: list[str]|bool =True,
+    special_timelines: dict[str, list[str]]|bool =True,
+    check_inside_list: list[str]|bool =True,
+    check_links_map: dict[str, list[str]]|bool =True,
+    check_links_search: dict[str, str]|bool =True,
 ) -> tuple[str, list[PostEntry]]:
-    """If exclude_url is True, get the exclude_url list from the spreadsheets. Same for special_timelines and special_checks."""
+    """
+    If exclude_url is True, get the exclude_url list from the spreadsheets.
+    Same for special_timelines, check_inside_list, check_links_map and check_links_search.
+    """
     
     all_post = []
     base_url = f'https://www.reddit.com/r/{subreddit}/new/.json'
@@ -464,7 +510,9 @@ def read_subreddit(
         source_data=all_post,
         exclude_url=exclude_url,
         special_timelines=special_timelines,
-        special_checks=special_checks,
+        check_inside_list=check_inside_list,
+        check_links_map=check_links_map,
+        check_links_search=check_links_search,
     )
     print(f'Data extracted from r/{subreddit}.', 'New lines to add:', len(lines))
     
@@ -474,6 +522,7 @@ def read_subreddit(
         recent_post = oldest_post
         
     return recent_post, lines
+
 
 def get_url_data() -> set:
     spreadsheets = init_spreadsheets()
@@ -487,58 +536,49 @@ def get_url_data() -> set:
         input()
     return rslt
 
-def get_script_user_data(data_type, *, msg=None) -> list[list[str]]:
+def get_user_data(*, msg=None) -> dict[str, list[list[str]]]:
     """Get the rows assosiated to this data_type. Note: the cell containig the data_type is exlude."""
     
     spreadsheets = init_spreadsheets()
-    print('Google Sheets:', msg or f'retrieve {data_type}...')
+    print('Google Sheets:', msg or 'retrieve user data...')
     
     try:
-        rslt = []
+        rslt = defaultdict(list)
         for r in spreadsheets.get('script-user-data'):
-            if r and r[0] == data_type:
-                r = r[1:]
-                if r:
-                    rslt.append(r)
-        
-    except HttpError as err:
-        rslt = []
-        print(err)
-        input()
-    
-    return rslt
-
-def get_special_timelines() -> dict[str, list[str]]:
-    rslt = defaultdict(list)
-    for r in get_script_user_data('timeline', msg='retrieve special timelines...'):
-        rslt[r[1]].append(r[0])
-    return rslt
-
-def get_special_checks() -> dict[str, dict[str, str]]:
-    spreadsheets = init_spreadsheets()
-    print('Google Sheets: retrieve special checks...')
-    
-    try:
-        rslt = defaultdict(dict)
-        
-        data = spreadsheets.get('pending!A:D')[2:]
-        for r in data:
-            if len(r) != 4:
-                continue
-            if r[0] or r[1]:
-                continue
-            if '[xx]' not in r[2]:
+            if not r:
                 continue
             
-            title, checks = r[2].split('[xx]', maxsplit=1)
-            title, checks = title.strip(), checks.strip().lower()
-            for k,v in SPECIAL_CHECKS.items():
-                if k.lower() in checks:
-                    rslt[title][k] = v
-            
+            t, r = r[0], r[1:]
+            if r:
+                rslt[t].append(r)
+        
     except HttpError as err:
         rslt = {}
         print(err)
         input()
     
+    return rslt
+
+def parse_special_timelines(raw: dict[str, list[list[str]]]) -> dict[str, list[str]]:
+    rslt = defaultdict(list)
+    for r in raw.get('timeline', []):
+        rslt[r[1]].append(r[0])
+    return rslt
+
+def parse_check_inside(raw: dict[str, list[list[str]]]) -> list[str]:
+    rslt = []
+    for r in raw.get('check-inside-post', []):
+        rslt.append(r[0])
+    return rslt
+
+def parse_check_links_search(raw: dict[str, list[list[str]]]) -> dict[str, str]:
+    rslt = {}
+    for r in raw.get('check-links-search', []):
+        rslt[r[0]] = r[1]
+    return rslt
+
+def parse_check_links_map(raw: dict[str, list[list[str]]]) -> dict[str, list[str]]:
+    rslt = {}
+    for r in raw.get('check-links', []):
+        rslt[r[0]] = r[1:]
     return rslt

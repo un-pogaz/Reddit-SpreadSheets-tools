@@ -67,8 +67,6 @@ for file in args:
     lines = get_filtered_post(
         source_data=all_post,
         exclude_url=False,
-        special_timelines=True,
-        special_checks=True,
     )
     lines = [e.to_string() for e in lines]
     

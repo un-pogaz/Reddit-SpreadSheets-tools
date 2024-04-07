@@ -92,8 +92,6 @@ for args_idx in range(args_length):
     lines = get_filtered_post(
         source_data=all_post,
         exclude_url=exclude,
-        special_timelines=True,
-        special_checks=True,
     )
     lines = [e.to_string() for e in lines]
     
