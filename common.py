@@ -464,7 +464,7 @@ def read_subreddit(
         special_timelines=special_timelines,
         special_checks=special_checks,
     )
-    print(f'Data extracted from r/{subreddit}.', 'New lines added:', len(lines))
+    print(f'Data extracted from r/{subreddit}.', 'New lines to add:', len(lines))
     
     if lines:
         recent_post = lines[-1].post_id
