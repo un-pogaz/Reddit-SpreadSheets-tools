@@ -52,12 +52,6 @@ DOMAIN_STORY_HOST = [
 SUBREDDITS = ['HFY', 'NatureofPredators', 'NatureOfPredatorsNSFW']
 SUBREDDITS_DOMAIN = [f'self.{e}' for e in SUBREDDITS]
 
-SPECIAL_CHECKS = {
-    '<check inside post>': None,
-    '{Ao3 link}': r'https://archiveofourown.org/works/\d+(/chapters/\d+)?',
-    '{RoyalRoad link}': r'https://www.royalroad.com/fiction/\d+/[\w\-]+/chapter/\d+/[\w\-]+',
-}
-
 
 def make_dirname(path):
     import os.path
