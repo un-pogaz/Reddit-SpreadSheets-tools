@@ -17,10 +17,10 @@ if help_args():
     print('  id_post (optional) id of the oldest post to check back')
     exit()
 
-spreadsheets = init_spreadsheets()
-
 ####################
 # oldest_post
+
+oldest_post = ARGS[0] if ARGS else None
 
 def get_oldest_post() -> str:
     for r in get_script_user_data('last-post', msg='retrieve the oldest post to check...'):
@@ -49,8 +49,6 @@ def set_oldest_post(oldest_post: str):
         oldest_post_row[oldest_post_idx_column] = (oldest_post or '').strip()
         spreadsheets.update(f'script-user-data!{oldest_post_idx_row}:{oldest_post_idx_row}', [oldest_post_row])
 
-
-oldest_post = ARGS[0] if ARGS else None
 
 if oldest_post:
     print()
@@ -96,6 +94,7 @@ lines = [e.to_list() for e in lines]
 
 try:
     print()
+    spreadsheets = init_spreadsheets()
     print('Google Sheets: send', len(lines), 'new entry to pending.')
     
     start = len(spreadsheets.get(f"pending!A:H"))+2
