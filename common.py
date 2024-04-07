@@ -506,23 +506,10 @@ def get_script_user_data(data_type, *, msg=None) -> list[list[str]]:
     
     return rslt
 
-def get_special_timelines() -> dict[str ,list]:
-    spreadsheets = init_spreadsheets()
-    print('Google Sheets: retrieve special timelines...')
-    try:
-        rslt = {}
-        data = spreadsheets.get('pending!A:C')[2:]
-        for r in data:
-            if len(r) != 3:
-                continue
-            
-            if not r[0] and r[1] and r[1] not in rslt:
-                rslt[r[1]] = r[2].splitlines()
-    
-    except HttpError as err:
-        rslt = {}
-        print(err)
-        input()
+def get_special_timelines() -> dict[str, list[str]]:
+    rslt = defaultdict(list)
+    for r in get_script_user_data('timeline', msg='retrieve special timelines...'):
+        rslt[r[1]].append(r[0])
     return rslt
 
 def get_special_checks() -> dict[str, dict[str, str]]:
