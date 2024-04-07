@@ -485,6 +485,27 @@ def get_url_data() -> set:
         input()
     return rslt
 
+def get_script_user_data(data_type, *, msg=None) -> list[list[str]]:
+    """Get the rows assosiated to this data_type. Note: the cell containig the data_type is exlude."""
+    
+    spreadsheets = init_spreadsheets()
+    print('Google Sheets:', msg or f'retrieve {data_type}...')
+    
+    try:
+        rslt = []
+        for r in spreadsheets.get('script-user-data'):
+            if r and r[0] == data_type:
+                r = r[1:]
+                if r:
+                    rslt.append(r)
+        
+    except HttpError as err:
+        rslt = []
+        print(err)
+        input()
+    
+    return rslt
+
 def get_special_timelines() -> dict[str ,list]:
     spreadsheets = init_spreadsheets()
     print('Google Sheets: retrieve special timelines...')
