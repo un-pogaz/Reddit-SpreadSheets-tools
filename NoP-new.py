@@ -53,6 +53,8 @@ def set_oldest_post(oldest_post: str):
     if oldest_post_row:
         oldest_post_row[oldest_post_idx_column] = (oldest_post or '').strip()
         spreadsheets.update(f'script-user-data!{oldest_post_idx_row}:{oldest_post_idx_row}', [oldest_post_row])
+    else:
+        print('ERROR: No last-post line found')
 
 
 if oldest_post:
