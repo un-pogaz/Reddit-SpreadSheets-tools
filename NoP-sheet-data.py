@@ -1,11 +1,20 @@
-import os.path, time, random
+import os.path
+import random
+import time
 
 from common import (
-    ARGS, APP, SUBREDDITS,
-    help_args, requests, run_animation, write_lines, read_lines,
-    get_filtered_post, post_is_to_old, parse_content,
+    APP,
+    ARGS,
+    SUBREDDITS,
+    get_filtered_post,
+    help_args,
+    parse_content,
+    post_is_to_old,
+    read_lines,
+    requests,
+    run_animation,
+    write_lines,
 )
-
 
 args = []
 for a in ARGS:

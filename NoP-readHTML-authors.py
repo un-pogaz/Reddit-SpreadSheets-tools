@@ -1,7 +1,7 @@
-import os.path, re
+import os.path
+import re
 
-from common import ARGS, APP, help_args, read_lines, read_text, write_lines
-
+from common import APP, ARGS, help_args, read_lines, read_text, write_lines
 
 args = []
 for a in ARGS:

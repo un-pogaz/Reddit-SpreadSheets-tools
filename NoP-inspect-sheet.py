@@ -1,7 +1,6 @@
 from collections import defaultdict
 
-from common import init_spreadsheets, HttpError, write_lines
-
+from common import HttpError, init_spreadsheets, write_lines
 
 spreadsheets = init_spreadsheets()
 

@@ -1,7 +1,6 @@
 import os.path
 
-from common import ARGS, APP, help_args, init_spreadsheets, HttpError
-
+from common import APP, ARGS, HttpError, help_args, init_spreadsheets
 
 if help_args():
     print()

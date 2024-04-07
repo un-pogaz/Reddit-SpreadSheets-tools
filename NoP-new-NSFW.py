@@ -1,7 +1,6 @@
 import os.path
 
-from common import ARGS, APP, help_args, read_subreddit
-
+from common import APP, ARGS, help_args, read_subreddit
 
 if help_args():
     print()

@@ -1,8 +1,8 @@
-import os.path, re
+import os.path
+import re
 from collections import defaultdict
 
-from common import ARGS, APP, help_args, get_url_data, read_text, write_lines
-
+from common import APP, ARGS, get_url_data, help_args, read_text, write_lines
 
 args = []
 for a in ARGS:

@@ -1,7 +1,8 @@
 from collections import defaultdict
+
 import requests as _requests
 
-from google_api_client import SpreadSheetsClient, HttpError
+from google_api_client import HttpError, SpreadSheetsClient
 
 # The ID of the spreadsheet.
 SAMPLE_SPREADSHEET_ID = "1nOtYmv_d6Qt1tCX_63uE2yWVFs6-G5x_XJ778lD9qyU"
@@ -114,7 +115,8 @@ def write_text(path: str, text: str):
 
 
 def run_animation(awaitable, text_wait: str, text_end: str=None):
-    import asyncio, time
+    import asyncio
+    import time
     global animation_run, msg_last
     run_animation.extra = ''
     msg_last = ''

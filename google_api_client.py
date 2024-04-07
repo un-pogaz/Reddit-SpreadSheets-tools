@@ -4,6 +4,7 @@ from google_auth_oauthlib.flow import InstalledAppFlow
 from googleapiclient.discovery import build
 from googleapiclient.errors import HttpError
 
+
 def _raw_input(value):
     return 'RAW' if value else 'USER_ENTERED'
 
@@ -57,6 +58,7 @@ class GoogleApiClient():
             scopes: str = None,
         ):
         import os.path
+
         import httplib2
         
         self._creds = None

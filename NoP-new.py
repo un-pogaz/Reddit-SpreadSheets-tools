@@ -1,7 +1,13 @@
 import os.path
 
-from common import ARGS, APP, init_spreadsheets, HttpError, help_args, read_subreddit
-
+from common import (
+    APP,
+    ARGS,
+    HttpError,
+    help_args,
+    init_spreadsheets,
+    read_subreddit,
+)
 
 if help_args():
     print()
