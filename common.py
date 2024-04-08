@@ -314,6 +314,7 @@ def get_filtered_post(
     and domain_story_host.
     """
     
+    from functools import cache
     import re
     
     rslt = []
@@ -325,23 +326,13 @@ def get_filtered_post(
     else:
         exclude_url = []
     
-    script_user_data = {}
-    
-    check_retrieve = [
-        special_timelines,
-        check_inside_list,
-        check_links_map,
-        check_links_search,
-        domain_story_host,
-    ]
-    for v in check_retrieve:
-        if v is True:
-            script_user_data = get_user_data()
-            break
+    @cache
+    def script_user_data():
+        return get_user_data()
     
     # special_timelines
     if special_timelines is True:
-        special_timelines = parse_special_timelines(script_user_data)
+        special_timelines = parse_special_timelines(script_user_data())
     if not isinstance(special_timelines, dict):
         special_timelines = {}
     
@@ -352,7 +343,7 @@ def get_filtered_post(
     
     # check_inside_list
     if check_inside_list is True:
-        check_inside_list = parse_check_inside(script_user_data)
+        check_inside_list = parse_check_inside(script_user_data())
     if not isinstance(check_inside_list, list):
         check_inside_list = []
     
@@ -360,7 +351,7 @@ def get_filtered_post(
     
     # check_links_map
     if check_links_map is True:
-        check_links_map = parse_check_links_map(script_user_data)
+        check_links_map = parse_check_links_map(script_user_data())
     if not isinstance(check_links_map, dict):
         check_links_map = {}
     
@@ -368,13 +359,13 @@ def get_filtered_post(
     
     # check_links_search
     if check_links_search is True:
-        check_links_search = parse_check_links_search(script_user_data)
+        check_links_search = parse_check_links_search(script_user_data())
     if not isinstance(check_links_search, dict):
         check_links_search = {}
     
     # domain_story_host
     if domain_story_host is True:
-        domain_story_host = parse_domain_story_host(script_user_data)
+        domain_story_host = parse_domain_story_host(script_user_data())
     if not isinstance(domain_story_host, list):
         domain_story_host = []
     
