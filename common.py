@@ -308,11 +308,12 @@ def get_filtered_post(
     check_links_search: dict[str, str]|bool =True,
     domain_story_host: list[str]|bool =True,
     chapter_regex: list[tuple[str, str]]|bool =True,
+    timeline_key_words: dict[str, list[str]]|bool =True,
 ) -> list[PostEntry]:
     """
     If exclude_url is True, get the exclude_url list from the spreadsheets.
     Same for special_timelines, check_inside_list, check_links_map, check_links_search,
-    domain_story_host and chapter_regex.
+    domain_story_host, chapter_regex, timeline_key_words.
     """
     
     from functools import cache
@@ -376,6 +377,12 @@ def get_filtered_post(
     if not isinstance(chapter_regex, list):
         chapter_regex = []
     
+    # timeline_key_words
+    if timeline_key_words is True:
+        timeline_key_words = build_timeline_key_words(script_user_data())
+    if not isinstance(timeline_key_words, dict):
+        timeline_key_words = {}
+    
     
     for item in source_data:
         if post_is_to_old(item):
@@ -406,20 +413,13 @@ def get_filtered_post(
         if subreddit == 'HFY' or subreddit == 'NatureofPredators' and (item['link_flair_text'] or '').lower() in ['fanfic', 'nsfw']:
             entry.timeline = 'Fan-fic NoP1'
         
-        nop2_match = [
-            'Bissem',  'Ivrana',
-            'Krev',    'Avor',
-            'Resket',  'Tanet',
-            'Ulchid',  'Cieki',
-            'Trombil', 'Valle',
-            'Smigli',  'Omnol',
-            'Jaslip',  'Esquo',
-        ]
-        if re.search(r'\s('+'|'.join(nop2_match)+r')s?[^a-z]', item['selftext'], re.ASCII|re.IGNORECASE):
-            entry.timeline = 'Fan-fic NoP2-?'
-        
         if not entry.timeline:
             entry.timeline = 'none'
+        
+        # timeline_key_words
+        for timeline,key_words in timeline_key_words.items():
+            if re.search(r'\s('+'|'.join(key_words)+r')s?[^a-z]', item['selftext'], re.ASCII|re.IGNORECASE):
+                entry.timeline = timeline
         
         
         def get_entry(list_dict: list|dict):
@@ -473,12 +473,12 @@ def read_subreddit(
     check_links_search: dict[str, str]|bool =True,
     domain_story_host: list[str]|bool =True,
     chapter_regex: list[tuple[str, str]]|bool =True,
+    timeline_key_words: dict[str, list[str]]|bool =True,
 ) -> tuple[str, list[PostEntry]]:
     """
     If exclude_url is True, get the exclude_url list from the spreadsheets.
     Same for special_timelines, check_inside_list, check_links_map, check_links_search
-    Same for special_timelines, check_inside_list, check_links_map, check_links_search,
-    domain_story_host and chapter_regex.
+    domain_story_host, chapter_regex, timeline_key_words.
     """
     
     all_post = []
@@ -521,6 +521,7 @@ def read_subreddit(
         check_links_search=check_links_search,
         domain_story_host=domain_story_host,
         chapter_regex=chapter_regex,
+        timeline_key_words=timeline_key_words,
     )
     print(f'Data extracted from r/{subreddit}.', 'New lines to add:', len(lines))
     
@@ -609,4 +610,10 @@ def build_chapter_regex(raw: dict[str, list[list[str]]]) -> list[tuple[str, str]
     
     for r in raw.get('chapter-regex', []):
         rslt.append((prefix+r[0]+suffix, r[1]))
+    return rslt
+
+def build_timeline_key_words(raw: dict[str, list[list[str]]]) -> dict[str, list[str]]:
+    rslt = defaultdict(list)
+    for r in raw.get('timeline-key-word', []):
+        rslt[r[0]].append(r[1])
     return rslt
