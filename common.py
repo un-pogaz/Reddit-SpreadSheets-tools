@@ -558,7 +558,7 @@ def get_user_data() -> dict[str, list[list[str]]]:
                 continue
             
             t, r = r[0], r[1:]
-            if r:
+            if t and r:
                 rslt[t].append(r)
         
     except HttpError as err:
