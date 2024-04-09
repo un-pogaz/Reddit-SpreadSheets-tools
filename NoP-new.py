@@ -24,7 +24,7 @@ oldest_post = ARGS[0] if ARGS else None
 def get_oldest_post() -> str:
     spreadsheets = init_spreadsheets()
     
-    print('Google Sheets: retrieve the oldest post to check...', oldest_post)
+    print('Google Sheets: retrieve the oldest post to check...')
     for r in spreadsheets.get('script-user-data'):
         if not r or r[0] != 'last-post':
             continue
