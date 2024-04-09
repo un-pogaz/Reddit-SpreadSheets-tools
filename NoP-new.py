@@ -102,7 +102,7 @@ try:
     spreadsheets = init_spreadsheets()
     print('Google Sheets: send', len(lines), 'new entry to pending.')
     
-    start = len(spreadsheets.get(f"pending!A:H"))+2
+    start = len(spreadsheets.get('pending'))+2
     end = start+len(lines)
     
     spreadsheets.update(f"pending!{start}:{end}", lines)
