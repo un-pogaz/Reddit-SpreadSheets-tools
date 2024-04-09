@@ -407,7 +407,7 @@ def get_filtered_post(
             'Smigli',  'Omnol',
             'Jaslip',  'Esquo',
         ]
-        if re.search(r'\s('+'|'.join(nop2_match)+r')[^a-z]', item['selftext'], re.ASCII|re.IGNORECASE):
+        if re.search(r'\s('+'|'.join(nop2_match)+r')s?[^a-z]', item['selftext'], re.ASCII|re.IGNORECASE):
             entry.timeline = 'Fan-fic NoP2-?'
         
         if not entry.timeline:
