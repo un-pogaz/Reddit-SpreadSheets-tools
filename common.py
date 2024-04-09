@@ -1,4 +1,5 @@
 from collections import defaultdict
+from functools import cache
 
 import requests as _requests
 
@@ -316,7 +317,6 @@ def get_filtered_post(
     domain_story_host, chapter_regex, timeline_key_words.
     """
     
-    from functools import cache
     import re
     
     rslt = []
@@ -328,13 +328,10 @@ def get_filtered_post(
     else:
         exclude_url = []
     
-    @cache
-    def script_user_data():
-        return get_user_data()
     
     # special_timelines
     if special_timelines is True:
-        special_timelines = build_special_timelines(script_user_data())
+        special_timelines = get_special_timelines()
     if not isinstance(special_timelines, dict):
         special_timelines = {}
     
@@ -345,7 +342,7 @@ def get_filtered_post(
     
     # check_inside_list
     if check_inside_list is True:
-        check_inside_list = build_check_inside(script_user_data())
+        check_inside_list = get_check_inside()
     if not isinstance(check_inside_list, list):
         check_inside_list = []
     
@@ -353,7 +350,7 @@ def get_filtered_post(
     
     # check_links_map
     if check_links_map is True:
-        check_links_map = build_check_links_map(script_user_data())
+        check_links_map = get_check_links_map()
     if not isinstance(check_links_map, dict):
         check_links_map = {}
     
@@ -361,25 +358,25 @@ def get_filtered_post(
     
     # check_links_search
     if check_links_search is True:
-        check_links_search = build_check_links_search(script_user_data())
+        check_links_search = get_check_links_search()
     if not isinstance(check_links_search, dict):
         check_links_search = {}
     
     # domain_story_host
     if domain_story_host is True:
-        domain_story_host = build_domain_story_host(script_user_data())
+        domain_story_host = get_domain_story_host()
     if not isinstance(domain_story_host, list):
         domain_story_host = []
     
     # chapter_regex
     if chapter_regex is True:
-        chapter_regex = build_chapter_regex(script_user_data())
+        chapter_regex = get_chapter_regex()
     if not isinstance(chapter_regex, list):
         chapter_regex = []
     
     # timeline_key_words
     if timeline_key_words is True:
-        timeline_key_words = build_timeline_key_words(script_user_data())
+        timeline_key_words = get_timeline_key_words()
     if not isinstance(timeline_key_words, dict):
         timeline_key_words = {}
     
@@ -545,9 +542,8 @@ def get_url_data() -> set:
         input()
     return rslt
 
+@cache
 def get_user_data() -> dict[str, list[list[str]]]:
-    """Get the rows assosiated to this data_type. Note: the cell containig the data_type is exlude."""
-    
     spreadsheets = init_spreadsheets()
     print('Google Sheets: retrieve the user data...')
     
@@ -568,52 +564,52 @@ def get_user_data() -> dict[str, list[list[str]]]:
     
     return rslt
 
-def build_special_timelines(raw: dict[str, list[list[str]]]) -> dict[str, list[str]]:
+def get_special_timelines() -> dict[str, list[str]]:
     rslt = defaultdict(list)
-    for r in raw.get('timeline', []):
+    for r in get_user_data().get('timeline', []):
         rslt[r[1]].append(r[0])
     return rslt
 
-def build_check_inside(raw: dict[str, list[list[str]]]) -> list[str]:
+def get_check_inside() -> list[str]:
     rslt = []
-    for r in raw.get('check-inside-post', []):
+    for r in get_user_data().get('check-inside-post', []):
         rslt.append(r[0])
     return rslt
 
-def build_check_links_search(raw: dict[str, list[list[str]]]) -> dict[str, str]:
+def get_check_links_search() -> dict[str, str]:
     rslt = {}
-    for r in raw.get('check-links-search', []):
+    for r in get_user_data().get('check-links-search', []):
         rslt[r[0]] = r[1]
     return rslt
 
-def build_check_links_map(raw: dict[str, list[list[str]]]) -> dict[str, list[str]]:
+def get_check_links_map() -> dict[str, list[str]]:
     rslt = {}
-    for r in raw.get('check-links', []):
+    for r in get_user_data().get('check-links', []):
         rslt[r[0]] = r[1:]
     return rslt
 
-def build_domain_story_host(raw: dict[str, list[list[str]]]) -> list[str]:
+def get_domain_story_host() -> list[str]:
     rslt = []
-    for r in raw.get('domain-story-host', []):
+    for r in get_user_data().get('domain-story-host', []):
         rslt.append(r[0])
     return rslt
 
-def build_chapter_regex(raw: dict[str, list[list[str]]]) -> list[tuple[str, str]]:
+def get_chapter_regex() -> list[tuple[str, str]]:
     rslt = []
     prefix, suffix = '', ''
-    for r in raw.get('chapter-regex-prefix', []):
+    for r in get_user_data().get('chapter-regex-prefix', []):
         prefix = r[0]
         break
-    for r in raw.get('chapter-regex-suffix', []):
+    for r in get_user_data().get('chapter-regex-suffix', []):
         suffix = r[0]
         break
     
-    for r in raw.get('chapter-regex', []):
+    for r in get_user_data().get('chapter-regex', []):
         rslt.append((prefix+r[0]+suffix, r[1]))
     return rslt
 
-def build_timeline_key_words(raw: dict[str, list[list[str]]]) -> dict[str, list[str]]:
+def get_timeline_key_words() -> dict[str, list[str]]:
     rslt = defaultdict(list)
-    for r in raw.get('timeline-key-word', []):
+    for r in get_user_data().get('timeline-key-word', []):
         rslt[r[0]].append(r[1])
     return rslt
