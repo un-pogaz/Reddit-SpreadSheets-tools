@@ -597,7 +597,7 @@ def build_domain_story_host(raw: dict[str, list[list[str]]]) -> list[str]:
         rslt.append(r[0])
     return rslt
 
-def build_chapter_regex(raw: dict[str, list[list[str]]]) -> list[str]:
+def build_chapter_regex(raw: dict[str, list[list[str]]]) -> list[tuple[str, str]]:
     rslt = []
     prefix, suffix = '', ''
     for r in raw.get('chapter-regex-prefix', []):
