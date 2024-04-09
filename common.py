@@ -144,7 +144,7 @@ exclude_items = [
     'media', 'media_embed', 'secure_media', 'secure_media_embed', 'media_metadata', 'gallery_data',
     
     'awarders', 'quarantine', 'likes', 'wls', 'pwls', 'clicked', 'visited',
-    'is_crosspostable', 'num_crossposts', 'crosspost_parent', 'crosspost_parent_list',
+    'is_crosspostable', 'num_crossposts',
     'subreddit_subscribers', 'stickied', 'parent_whitelist_status', 'whitelist_status', 'contest_mode',
     'is_robot_indexable', 'no_follow', 'view_count', 'suggested_sort', 'allow_live_comments',
     'link_flair_richtext', 'link_flair_template_id', 'hide_score', 'is_created_from_ads_ui',
@@ -162,6 +162,9 @@ def parse_exclude(post: dict) -> dict:
     for d in exclude_items:
         if d in post:
             del post[d]
+    
+    for child in post.get('crosspost_parent_list', []):
+        parse_content(child)
     
     return post
 
@@ -213,7 +216,7 @@ def parse_awards(post: dict) -> dict:
     
     return post
 
-def parse_content(post: dict) -> str:
+def parse_content(post: dict) -> dict:
     parse_exclude(post)
     parse_body(post, 'md')
     parse_awards(post)
@@ -385,12 +388,12 @@ def get_filtered_post(
         if post_is_to_old(item):
             continue
         
-        if item['subreddit'] not in SUBREDDITS:
+        subreddit = item['subreddit']
+        if subreddit not in SUBREDDITS:
             continue
         
         parse_content(item)
         
-        subreddit = item['subreddit']
         if subreddit == 'NatureofPredators' and (item['link_flair_text'] or '').lower() not in ['', 'fanfic', 'nsfw']:
             continue
         
@@ -398,7 +401,7 @@ def get_filtered_post(
         if domain in SUBREDDITS_DOMAIN or domain in domain_story_host:
             pass
         elif domain != f'self.{subreddit}':
-            if item.get('selftext'):
+            if item.get('selftext') or item.get('crosspost_parent_list', [{}])[0].get('selftext'):
                 pass
             else:
                 continue
