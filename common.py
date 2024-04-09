@@ -307,11 +307,12 @@ def get_filtered_post(
     check_links_map: dict[str, list[str]]|bool =True,
     check_links_search: dict[str, str]|bool =True,
     domain_story_host: list[str]|bool =True,
+    chapter_regex: list[tuple[str, str]]|bool =True,
 ) -> list[PostEntry]:
     """
     If exclude_url is True, get the exclude_url list from the spreadsheets.
-    Same for special_timelines, check_inside_list, check_links_map, check_links_search
-    and domain_story_host.
+    Same for special_timelines, check_inside_list, check_links_map, check_links_search,
+    domain_story_host and chapter_regex.
     """
     
     from functools import cache
@@ -368,6 +369,13 @@ def get_filtered_post(
         domain_story_host = build_domain_story_host(script_user_data())
     if not isinstance(domain_story_host, list):
         domain_story_host = []
+    
+    # chapter_regex
+    if chapter_regex is True:
+        chapter_regex = build_chapter_regex(script_user_data())
+    if not isinstance(chapter_regex, list):
+        chapter_regex = []
+    
     
     for item in source_data:
         if post_is_to_old(item):
@@ -443,6 +451,12 @@ def get_filtered_post(
             else:
                 entry.title += f' {{{link_name} link}}'
         
+        # chapter_regex
+        for search,replace in chapter_regex:
+            if re.search(search, entry.title, flags=re.ASCII|re.IGNORECASE):
+                entry.title = re.sub(search, ' '+replace+' ', entry.title, flags=re.ASCII|re.IGNORECASE, count=1).strip().replace('  ', ' ')
+                break
+        
         rslt.append(entry)
     
     rslt.sort(key=lambda x:x.created)
@@ -458,11 +472,13 @@ def read_subreddit(
     check_links_map: dict[str, list[str]]|bool =True,
     check_links_search: dict[str, str]|bool =True,
     domain_story_host: list[str]|bool =True,
+    chapter_regex: list[tuple[str, str]]|bool =True,
 ) -> tuple[str, list[PostEntry]]:
     """
     If exclude_url is True, get the exclude_url list from the spreadsheets.
     Same for special_timelines, check_inside_list, check_links_map, check_links_search
-    and domain_story_host.
+    Same for special_timelines, check_inside_list, check_links_map, check_links_search,
+    domain_story_host and chapter_regex.
     """
     
     all_post = []
@@ -504,6 +520,7 @@ def read_subreddit(
         check_links_map=check_links_map,
         check_links_search=check_links_search,
         domain_story_host=domain_story_host,
+        chapter_regex=chapter_regex,
     )
     print(f'Data extracted from r/{subreddit}.', 'New lines to add:', len(lines))
     
@@ -578,4 +595,18 @@ def build_domain_story_host(raw: dict[str, list[list[str]]]) -> list[str]:
     rslt = []
     for r in raw.get('domain-story-host', []):
         rslt.append(r[0])
+    return rslt
+
+def build_chapter_regex(raw: dict[str, list[list[str]]]) -> list[str]:
+    rslt = []
+    prefix, suffix = '', ''
+    for r in raw.get('chapter-regex-prefix', []):
+        prefix = r[0]
+        break
+    for r in raw.get('chapter-regex-suffix', []):
+        suffix = r[0]
+        break
+    
+    for r in raw.get('chapter-regex', []):
+        rslt.append((prefix+r[0]+suffix, r[1]))
     return rslt
