@@ -613,5 +613,5 @@ def get_chapter_regex() -> list[tuple[str, str]]:
 def get_timeline_key_words() -> dict[str, list[str]]:
     rslt = defaultdict(list)
     for r in get_user_data().get('timeline-key-word', []):
-        rslt[r[0]].append(r[1])
+        rslt[r[1]].append(r[0])
     return rslt
