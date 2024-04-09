@@ -332,7 +332,7 @@ def get_filtered_post(
     
     # special_timelines
     if special_timelines is True:
-        special_timelines = parse_special_timelines(script_user_data())
+        special_timelines = build_special_timelines(script_user_data())
     if not isinstance(special_timelines, dict):
         special_timelines = {}
     
@@ -343,7 +343,7 @@ def get_filtered_post(
     
     # check_inside_list
     if check_inside_list is True:
-        check_inside_list = parse_check_inside(script_user_data())
+        check_inside_list = build_check_inside(script_user_data())
     if not isinstance(check_inside_list, list):
         check_inside_list = []
     
@@ -351,7 +351,7 @@ def get_filtered_post(
     
     # check_links_map
     if check_links_map is True:
-        check_links_map = parse_check_links_map(script_user_data())
+        check_links_map = build_check_links_map(script_user_data())
     if not isinstance(check_links_map, dict):
         check_links_map = {}
     
@@ -359,13 +359,13 @@ def get_filtered_post(
     
     # check_links_search
     if check_links_search is True:
-        check_links_search = parse_check_links_search(script_user_data())
+        check_links_search = build_check_links_search(script_user_data())
     if not isinstance(check_links_search, dict):
         check_links_search = {}
     
     # domain_story_host
     if domain_story_host is True:
-        domain_story_host = parse_domain_story_host(script_user_data())
+        domain_story_host = build_domain_story_host(script_user_data())
     if not isinstance(domain_story_host, list):
         domain_story_host = []
     
@@ -550,31 +550,31 @@ def get_user_data() -> dict[str, list[list[str]]]:
     
     return rslt
 
-def parse_special_timelines(raw: dict[str, list[list[str]]]) -> dict[str, list[str]]:
+def build_special_timelines(raw: dict[str, list[list[str]]]) -> dict[str, list[str]]:
     rslt = defaultdict(list)
     for r in raw.get('timeline', []):
         rslt[r[1]].append(r[0])
     return rslt
 
-def parse_check_inside(raw: dict[str, list[list[str]]]) -> list[str]:
+def build_check_inside(raw: dict[str, list[list[str]]]) -> list[str]:
     rslt = []
     for r in raw.get('check-inside-post', []):
         rslt.append(r[0])
     return rslt
 
-def parse_check_links_search(raw: dict[str, list[list[str]]]) -> dict[str, str]:
+def build_check_links_search(raw: dict[str, list[list[str]]]) -> dict[str, str]:
     rslt = {}
     for r in raw.get('check-links-search', []):
         rslt[r[0]] = r[1]
     return rslt
 
-def parse_check_links_map(raw: dict[str, list[list[str]]]) -> dict[str, list[str]]:
+def build_check_links_map(raw: dict[str, list[list[str]]]) -> dict[str, list[str]]:
     rslt = {}
     for r in raw.get('check-links', []):
         rslt[r[0]] = r[1:]
     return rslt
 
-def parse_domain_story_host(raw: dict[str, list[list[str]]]) -> list[str]:
+def build_domain_story_host(raw: dict[str, list[list[str]]]) -> list[str]:
     rslt = []
     for r in raw.get('domain-story-host', []):
         rslt.append(r[0])
