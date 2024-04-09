@@ -530,6 +530,7 @@ def read_subreddit(
     return recent_post, lines
 
 
+@cache
 def get_url_data() -> set:
     spreadsheets = init_spreadsheets()
     print('Google Sheets: retrieve all url of present post...')
