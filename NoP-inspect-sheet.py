@@ -37,7 +37,6 @@ try:
     authors_difference = sorted(authors_pending.difference(authors_full))
     write_lines('authors_difference.txt', authors_difference)
     
-    print('All authors was retrieved.')
     map_count = {
         'Authors':authors_full,
         'Pending':authors_pending,
