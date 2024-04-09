@@ -421,14 +421,14 @@ def get_filtered_post(
                     return title
             return None
         
-        #title_timelines
+        # title_timelines
         entry.timeline = title_timelines.get(get_entry(title_timelines), entry.timeline)
         
-        #title_check_inside
+        # title_check_inside
         if get_entry(title_check_inside):
             entry.title += ' <check inside post>'
         
-        #title_check_links_map, check_links_search
+        # title_check_links_map, check_links_search
         links_map = title_check_links_map.get(get_entry(title_check_links_map), [])
         
         for link_name in links_map:
