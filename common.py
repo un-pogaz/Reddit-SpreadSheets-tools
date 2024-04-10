@@ -8,14 +8,12 @@ from google_api_client import HttpError, SpreadSheetsClient
 # The ID of the spreadsheet.
 SAMPLE_SPREADSHEET_ID = "1nOtYmv_d6Qt1tCX_63uE2yWVFs6-G5x_XJ778lD9qyU"
 
+@cache
 def init_spreadsheets() -> SpreadSheetsClient:
-    if hasattr(init_spreadsheets, '_client'):
-        rslt = init_spreadsheets._client
-    else:
-        init_spreadsheets._client = rslt = SpreadSheetsClient(
-            credentials_oauth2 = 'credentials.json',
-            token_json = 'token.json',
-        ).new_spreadsheets(SAMPLE_SPREADSHEET_ID)
+    rslt = SpreadSheetsClient(
+        credentials_oauth2 = 'credentials.json',
+        token_json = 'token.json',
+    ).new_spreadsheets(SAMPLE_SPREADSHEET_ID)
     
     return rslt
 
