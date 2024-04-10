@@ -1,23 +1,19 @@
+import argparse
 import os.path
 import re
 from collections import defaultdict
 
-from common import APP, ARGS, get_url_data, help_args, read_text, write_lines
+from common import get_url_data, read_text, write_lines
 
-args = []
-for a in ARGS:
-    a = a.strip('/')
-    if a:
-        args.append(a)
+args = argparse.ArgumentParser()
+args.add_argument('-u', '--url', '--exclude-url', dest='exclude_url', action='store_true', help='Exclude the post where the url is already in the spreadsheets.')
+args.add_argument('file', type=str, nargs='+', help='File path of html containing urls to check.')
+args = args.parse_args()
 
-if not args or help_args():
-    print()
-    print(os.path.basename(APP), 'file [file ...]')
-    print()
-    print('ERROR: Need a file as parameter!')
-    exit()
-
-list_url_data = get_url_data()
+if args.exclude_url:
+    list_url_data = get_url_data()
+else:
+    list_url_data = []
 
 dic_url_data = defaultdict(set)
 for url in list_url_data:
@@ -25,9 +21,16 @@ for url in list_url_data:
     if 'r' in tbl and len(tbl) >= 7:
         dic_url_data[tbl[4]].add(tbl[6])
 
-total_line = set()
-for file in args:
+for file in args.file:
+    if not os.path.exists(file):
+        print("The path don't exist:", file)
+        continue
+    if os.path.isdir(file):
+        print("The path is a folder:", file)
+        continue
+    
     print(f'Analyze "{file}"...')
+    basename = os.path.splitext(file)[0]
     lines = []
     
     text = read_text(file, '')
@@ -38,9 +41,5 @@ for file in args:
             lines.append(f'https://www.reddit.com/r/{subreddit}/comments/{post_id}/')
     
     lines = set(lines)
-    total_line.update(lines)
+    write_lines(f'{basename}.txt', lines)
     print(f'Data extracted from "{file}".', 'Post found:', len(lines))
-
-
-write_lines('search-HTML-post.txt', sorted(total_line))
-print('Links not in sheet:', len(total_line))

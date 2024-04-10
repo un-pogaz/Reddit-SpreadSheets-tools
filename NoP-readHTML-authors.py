@@ -1,27 +1,23 @@
+import argparse
 import os.path
 import re
 
-from common import APP, ARGS, help_args, read_lines, read_text, write_lines
+from common import read_text, write_lines
 
-args = []
-for a in ARGS:
-    a = a.strip('/')
-    if a:
-        args.append(a)
+args = argparse.ArgumentParser()
+args.add_argument('file', type=str, nargs='+', help='File path of html containing authors to retrive.')
+args = args.parse_args()
 
-if not args or help_args():
-    print()
-    print(os.path.basename(APP), 'file [file ...]')
-    print()
-    print('ERROR: Need a file as parameter!')
-    exit()
-
-filename = 'authors_others.txt'
-total_lines = set(read_lines(filename))
-authors_data_lower = [l.lower() for l in read_lines('authors_data.txt')]
-
-for file in args:
+for file in args.file:
+    if not os.path.exists(file):
+        print("The path don't exist:", file)
+        continue
+    if os.path.isdir(file):
+        print("The path is a folder:", file)
+        continue
+    
     print(f'Analyze "{file}"...')
+    basename = os.path.splitext(file)[0]
     lines = []
     
     text = read_text(file, '')
@@ -29,14 +25,6 @@ for file in args:
         lines.append(m.group(1))
     
     lines = set(lines)
-    total_lines.update(lines)
     
+    write_lines(f'{basename}.txt', lines)
     print(f'Data extracted from "{file}".', 'Authors found:', len(lines))
-
-rslt = []
-for l in total_lines:
-    if l.lower() not in authors_data_lower:
-        rslt.append(l)
-
-write_lines(filename, rslt)
-print('Authors not in sheet:', len(rslt))

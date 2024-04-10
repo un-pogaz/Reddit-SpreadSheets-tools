@@ -22,16 +22,6 @@ def init_spreadsheets() -> SpreadSheetsClient:
 requests = _requests.Session()
 requests.headers.update({'User-Agent':'un_pogaz/NatureofPredators:sheet:new_posts'})
 
-ARGS = (lambda :(__import__("sys").argv[1:]))()
-APP = (lambda :(__import__("sys").argv[0]))()
-
-def help_args() -> bool:
-    for h in ['-h', '--help', '/?']:
-        if h in ARGS:
-            return True
-    
-    return False
-
 
 DOMAIN_EXCLUDE = [
     'reddit.com',

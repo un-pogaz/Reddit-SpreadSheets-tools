@@ -1,25 +1,17 @@
-import os.path
+import argparse
 
-from common import (
-    APP,
-    ARGS,
-    HttpError,
-    help_args,
-    init_spreadsheets,
-    read_subreddit,
-)
+from common import HttpError, init_spreadsheets, read_subreddit
 
-if help_args():
-    print()
-    print(os.path.basename(APP), '[id_post]')
-    print()
-    print('  id_post (optional) id of the oldest post to check back')
-    exit()
+args = argparse.ArgumentParser(description='')
+args.add_argument('-u', '--url', '--dont-exclude-url', dest='exclude_url', action='store_false', help="Don't exclude the post where the url is already in the spreadsheets.")
+grps = args.add_mutually_exclusive_group()
+grps.add_argument('--csv', help='Ouput into a CSV file', action='store_true', default=None)
+grps.add_argument('--csv-file', type=str, help='Path of the CSV file to output', dest='csv')
+args.add_argument('oldest_post_id', type=str, nargs='?', help='id of the oldest post to check. If empty, go to the limit of the reddit API (1000 posts).')
+args = args.parse_args()
 
 ####################
 # oldest_post
-
-oldest_post = ARGS[0] if ARGS else None
 
 def get_oldest_post() -> str:
     spreadsheets = init_spreadsheets()
@@ -57,20 +49,19 @@ def set_oldest_post(oldest_post: str):
         print('ERROR: No last-post line found')
 
 
-if oldest_post:
-    print()
-    oldest_post = oldest_post.strip()
-    if not oldest_post.startswith('t3_'):
-        oldest_post = 't3_'+oldest_post
-    print('Oldest post to check', oldest_post)
+if args.oldest_post_id:
+    args.oldest_post_id = args.oldest_post_id.strip()
+    if not args.oldest_post_id.startswith('t3_'):
+        args.oldest_post_id = 't3_'+args.oldest_post_id
+    print('Oldest post to check', args.oldest_post_id)
 else:
     rslt = get_oldest_post()
     
     if rslt:
         if not rslt.startswith('t3_'):
             rslt = 't3_'+rslt
-        oldest_post = rslt
-        print('Google Sheets: oldest post to check', oldest_post)
+        args.oldest_post_id = rslt
+        print('Google Sheets: oldest post to check', args.oldest_post_id)
     else:
         print('Google Sheets: no oldest post to check')
 
@@ -78,16 +69,20 @@ print()
 
 oldest_post, lines = read_subreddit(
     subreddit='NatureofPredators',
-    oldest_post=oldest_post,
-    exclude_url=True,
+    oldest_post=args.oldest_post_id,
+    exclude_url=args.exclude_url,
 )
 
-##with open('- NoP new subreddit.csv', 'at', newline='\n', encoding='utf-8') as f:
-##    if lines:
-##        f.write('\n')
-##        f.write('\n'.join([e.to_string() for e in lines]))
-##        f.write('\n')
-##exit()
+if args.csv:
+    if args.csv is True:
+        args.csv = '- NoP new subreddit.csv'
+    
+    with open(args.csv, 'at', newline='\n', encoding='utf-8') as f:
+        if lines:
+            f.write('\n')
+            f.write('\n'.join([e.to_string() for e in lines]))
+            f.write('\n')
+    exit()
 
 if not lines:
     exit()
@@ -113,4 +108,3 @@ try:
 except HttpError as err:
     print(err)
     input()
-

@@ -1,60 +1,27 @@
-import os.path
+import argparse
 import random
 import time
 
 from common import (
-    APP,
-    ARGS,
     SUBREDDITS,
     get_filtered_post,
-    help_args,
     parse_content,
     post_is_to_old,
-    read_lines,
     requests,
     run_animation,
     write_lines,
 )
 
-args = []
-for a in ARGS:
-    a = a.strip('/')
-    if a:
-        args.append(a)
-
-authors_file = 'authors_others.txt'
-authors_count = 10
-if not args or help_args():
-    print()
-    print(os.path.basename(APP), 'author [author ...]')
-    print()
-    print('ERROR: Need a author as parameter!')
-    print(f"  pass - as first argument to exclude url's already present on the sheet")
-    print(f'  pass ? to read {authors_count} lines from {authors_file}')
-    print(f'  pass * to read all lines from {authors_file}')
-    exit()
-
-exclude = args[0] == '-'
-if exclude:
-    args = args[1:]
-special = args[0] if args and args[0] in ['*','?'] else None
+args = argparse.ArgumentParser()
+args.add_argument('-u', '--url', '--exclude-url', dest='exclude_url', action='store_true', help='Exclude the post where the url is already in the spreadsheets.')
+args.add_argument('author', type=str, nargs='+', help='Authors to retrive.')
+args = args.parse_args()
 
 authors_lst = []
 list_authors_empty = []
 list_authors_error = []
 
-if special == '?':
-    authors_lst = read_lines(authors_file, [])
-    args = authors_lst[:authors_count]
-
-elif special == '*':
-    args = read_lines(authors_file, [])
-
-if special and not args:
-    print(f'{authors_file} is empty.')
-    exit()
-
-args_length = len(args)
+args_length = len(args.author)
 for args_idx in range(args_length):
     print()
     author = args[args_idx]
@@ -91,19 +58,12 @@ for args_idx in range(args_length):
     
     lines = get_filtered_post(
         source_data=all_post,
-        exclude_url=exclude,
+        exclude_url=args.exclude_url,
     )
     lines = [e.to_string() for e in lines]
     
-    # write posts
-    if special == '*':
-        subdir = 'multi-authors'
-    else:
-        subdir = '.'
-    os.makedirs(subdir, exist_ok=True)
-    
-    if lines or not special:
-        write_lines(os.path.join(subdir, f'{author}.csv'), lines)
+    if lines:
+        write_lines(f'{author}.csv', lines)
     else:
         if not all_post:
             lst = list_authors_error
@@ -112,17 +72,14 @@ for args_idx in range(args_length):
             lst = list_authors_empty
             filename = f'- empty author.txt'
         lst.append(author)
-        write_lines(os.path.join(subdir, filename), lst)
+        write_lines(filename, lst)
     
     msg = '' if all_post else '!!ERROR!!'
     print(f'Data extracted u/{author}.', 'Post found:', len(lines), msg)
     
-    if special == '*':
+    if args_length > 10:
         i = random.randint(8,22)
         msg = f'Waiting {i} seconds (to appease reddit)...'
         print(msg, end='\r')
         time.sleep(i+round(random.random(),1))
         print(' '*len(msg), end='\r')
-
-if special == '?':
-    write_lines(authors_file, authors_lst[authors_count:])

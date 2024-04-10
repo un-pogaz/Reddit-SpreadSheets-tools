@@ -1,31 +1,20 @@
-import os.path
+import argparse
 
-from common import APP, ARGS, help_args, read_subreddit
+from common import HttpError, init_spreadsheets, read_subreddit
 
-if help_args():
-    print()
-    print(os.path.basename(APP), '[id_post]')
-    print()
-    print('  id_post (optional) id of the oldest post to check back')
-    exit()
-
-oldest_post = ARGS[0] if ARGS else None
-
-if oldest_post:
-    print()
-    if not oldest_post.startswith('t3_'):
-        oldest_post = 't3_'+oldest_post
-    print('Oldest post to check', oldest_post)
-
-print()
+args = argparse.ArgumentParser(description='')
+args.add_argument('-u', '--url', '--dont-exclude-url', dest='exclude_url', action='store_false', help="Don't exclude the post where the url is already in the spreadsheets.")
+args.add_argument('--csv-file', type=str, nargs='?', help='Path of the CSV file to output', default='- NoP-NSFW new subreddit.csv')
+args.add_argument('oldest_post_id', type=str, nargs='?', help='id of the oldest post to check. If empty, go to the limit of the reddit API (1000 posts).')
+args = args.parse_args()
 
 oldest_post, lines = read_subreddit(
     subreddit='NatureOfPredatorsNSFW',
-    oldest_post=oldest_post,
-    exclude_url=True,
+    oldest_post=args.oldest_post_id,
+    exclude_url=args.exclude_url,
 )
 
-with open('- NoP-NSFW new subreddit.csv', 'at', newline='\n', encoding='utf-8') as f:
+with open(args.csv_file, 'at', newline='\n', encoding='utf-8') as f:
     if lines:
         f.write('\n')
         f.write('\n'.join([e.to_string() for e in lines]))

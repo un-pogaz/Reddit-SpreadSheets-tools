@@ -1,12 +1,10 @@
+import argparse
 import os.path
 import random
 import time
 
 from common import (
-    APP,
-    ARGS,
     get_filtered_post,
-    help_args,
     parse_content,
     read_lines,
     requests,
@@ -14,22 +12,20 @@ from common import (
     write_lines,
 )
 
-args = []
-for a in ARGS:
-    a = a.strip('/')
-    if a:
-        args.append(a)
+args = argparse.ArgumentParser(description='')
+args.add_argument('-u', '--url', '--exclude-url', dest='exclude_url', action='store_true', help='Exclude the post where the url is already in the spreadsheets.')
+args.add_argument('file', type=str, nargs='+', help='File path of txt containing urls to check.')
+args = args.parse_args()
 
-if not args or help_args():
-    print(os.path.basename(APP), 'file [file ...]')
+for file in args.file:
     print()
-    print('ERROR: Need a file as parameter!')
-    exit()
-
-
-
-for file in args:
-    print()
+    if not os.path.exists(file):
+        print("The path don't exist:", file)
+        continue
+    if os.path.isdir(file):
+        print("The path is a folder:", file)
+        continue
+    
     basename = os.path.splitext(file)[0]
     lines = []
     all_post = []
@@ -66,7 +62,7 @@ for file in args:
     
     lines = get_filtered_post(
         source_data=all_post,
-        exclude_url=False,
+        exclude_url=args.exclude_url,
     )
     lines = [e.to_string() for e in lines]
     
