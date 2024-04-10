@@ -5,9 +5,9 @@ from collections import defaultdict
 
 from common import get_url_data, read_text, write_lines
 
-args = argparse.ArgumentParser()
-args.add_argument('-u', '--url', '--exclude-url', dest='exclude_url', action='store_true', help='Exclude the post where the url is already in the spreadsheets.')
-args.add_argument('file', type=str, nargs='+', help='File path of html containing urls to check.')
+args = argparse.ArgumentParser(description='Get the reddit urls inside HTML files')
+args.add_argument('-u', '--url', '--exclude-url', dest='exclude_url', action='store_true', help='Exclude where the url is already in the spreadsheets')
+args.add_argument('file', type=str, nargs='+', help='File path of html containing urls to check')
 args = args.parse_args()
 
 if args.exclude_url:

@@ -12,9 +12,9 @@ from common import (
     write_lines,
 )
 
-args = argparse.ArgumentParser(description='')
-args.add_argument('-u', '--url', '--exclude-url', dest='exclude_url', action='store_true', help='Exclude the post where the url is already in the spreadsheets.')
-args.add_argument('file', type=str, nargs='+', help='File path of txt containing urls to check.')
+args = argparse.ArgumentParser(description='Retrive the data from a list of link')
+args.add_argument('-u', '--url', '--exclude-url', dest='exclude_url', action='store_true', help='Exclude where the url post is already in the spreadsheets')
+args.add_argument('file', type=str, nargs='+', help='File path of txt containing urls to check')
 args = args.parse_args()
 
 for file in args.file:

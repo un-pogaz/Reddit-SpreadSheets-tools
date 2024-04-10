@@ -4,8 +4,8 @@ import re
 
 from common import read_text, write_lines
 
-args = argparse.ArgumentParser()
-args.add_argument('file', type=str, nargs='+', help='File path of html containing authors to retrive.')
+args = argparse.ArgumentParser(description='Get the authors inside HTML files')
+args.add_argument('file', type=str, nargs='+', help='File path of HTML to analyze')
 args = args.parse_args()
 
 for file in args.file:

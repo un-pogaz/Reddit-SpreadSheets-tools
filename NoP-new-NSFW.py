@@ -2,9 +2,9 @@ import argparse
 
 from common import HttpError, init_spreadsheets, read_subreddit
 
-args = argparse.ArgumentParser(description='')
-args.add_argument('-u', '--url', '--dont-exclude-url', dest='exclude_url', action='store_false', help="Don't exclude the post where the url is already in the spreadsheets.")
-args.add_argument('--csv-file', type=str, nargs='?', help='Path of the CSV file to output', default='- NoP-NSFW new subreddit.csv')
+args = argparse.ArgumentParser(description='Retrive the data from r/NatureOfPredatorsNSFW')
+args.add_argument('-u', '--url', '--dont-exclude-url', dest='exclude_url', action='store_false', help="Don't exclude exclude where the url post is already in the spreadsheets")
+args.add_argument('--csv-file', type=str, nargs='?', default='- NoP-NSFW new subreddit.csv', help='Path of the CSV file to output')
 args.add_argument('oldest_post_id', type=str, nargs='?', help='id of the oldest post to check. If empty, go to the limit of the reddit API (1000 posts).')
 args = args.parse_args()
 

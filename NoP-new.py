@@ -2,11 +2,11 @@ import argparse
 
 from common import HttpError, init_spreadsheets, read_subreddit
 
-args = argparse.ArgumentParser(description='')
-args.add_argument('-u', '--url', '--dont-exclude-url', dest='exclude_url', action='store_false', help="Don't exclude the post where the url is already in the spreadsheets.")
+args = argparse.ArgumentParser(description='Retrive the data from r/NatureofPredators, and push it to the spreadsheets')
+args.add_argument('-u', '--url', '--dont-exclude-url', dest='exclude_url', action='store_false', help="Don't exclude where the url post is already in the spreadsheets")
 grps = args.add_mutually_exclusive_group()
-grps.add_argument('--csv', help='Ouput into a CSV file', action='store_true', default=None)
-grps.add_argument('--csv-file', type=str, help='Path of the CSV file to output', dest='csv')
+grps.add_argument('--csv', action='store_true', default=None, help='Output into a CSV file')
+grps.add_argument('--csv-file', type=str, dest='csv', help='Path of the CSV file to output')
 args.add_argument('oldest_post_id', type=str, nargs='?', help='id of the oldest post to check. If empty, go to the limit of the reddit API (1000 posts).')
 args = args.parse_args()
 
