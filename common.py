@@ -258,15 +258,15 @@ class PostEntry():
             cw = 'Adult'
         
         self._post_item = post_item
-        self.created = datetime.fromtimestamp(post_item['created_utc'])
-        self.timeline = ''
-        self.title = post_item['title']
-        self.authors = post_item['author']
-        self.content_warning = cw
-        self.statue = ''
-        self.link = permalink
-        self.description = link_redirect
-        self.post_id = post_item['name']
+        self.created: datetime = datetime.fromtimestamp(post_item['created_utc'])
+        self.timeline: str = ''
+        self.title: str = post_item['title']
+        self.authors: str = post_item['author']
+        self.content_warning: str = cw
+        self.statue: str = ''
+        self.link: str = permalink
+        self.description: str = link_redirect
+        self.post_id: str = post_item['name']
     
     def to_list(self) -> list[str]:
         return [
