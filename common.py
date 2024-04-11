@@ -338,15 +338,11 @@ def get_filtered_post(
     if not isinstance(check_inside_list, list):
         check_inside_list = []
     
-    title_check_inside = [t.lower() for t in check_inside_list]
-    
     # check_links_map
     if check_links_map is True:
         check_links_map = get_check_links_map()
     if not isinstance(check_links_map, dict):
         check_links_map = {}
-    
-    title_check_links_map = {t.lower():v for t,v in check_links_map.items()}
     
     # check_links_search
     if check_links_search is True:
@@ -377,8 +373,6 @@ def get_filtered_post(
         co_authors = get_co_authors()
     if not isinstance(co_authors, dict):
         co_authors = {}
-    
-    title_co_authors = {t.lower():v for t,v in co_authors.items()}
     
     for item in source_data:
         if post_is_to_old(item):
@@ -418,11 +412,11 @@ def get_filtered_post(
                 entry.timeline = timeline
         
         
-        def get_entry(list_dict: list|dict, default=None):
+        def get_entry(list_dict: list[str]|dict[str, str], default=None):
             title_lower = entry.title.lower()
             rslt = None
             for title in list_dict:
-                if title in title_lower:
+                if title.lower() in title_lower:
                     rslt = title
                     break
             if isinstance(list_dict, dict):
@@ -434,12 +428,12 @@ def get_filtered_post(
         # title_timelines
         entry.timeline = get_entry(title_timelines, entry.timeline)
         
-        # title_check_inside
-        if get_entry(title_check_inside):
+        # check_inside_list
+        if get_entry(check_inside_list):
             entry.title += ' <check inside post>'
         
-        # title_check_links_map, check_links_search
-        for link_name in get_entry(title_check_links_map, []):
+        # check_links_map, check_links_search
+        for link_name in get_entry(check_links_map, []):
             url = re.search(check_links_search[link_name], item['selftext'], re.ASCII)
             if url:
                 url = url.group(0)
@@ -457,9 +451,9 @@ def get_filtered_post(
                 entry.title = re.sub(search, ' '+replace+' ', entry.title, flags=re.ASCII|re.IGNORECASE, count=1).strip().replace('  ', ' ')
                 break
         
-        # title_co_authors
+        # co_authors
         lst_authors = [entry.authors]
-        for co_author in get_entry(title_co_authors, []):
+        for co_author in get_entry(co_authors, []):
             if co_author not in lst_authors:
                 lst_authors.append(co_author)
         entry.authors = ' & '.join(lst_authors)
