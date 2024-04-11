@@ -408,6 +408,8 @@ def get_filtered_post(
         
         # timeline_key_words
         for timeline,key_words in timeline_key_words.items():
+            if not key_words or not timeline:
+                continue
             if re.search(r'\s('+'|'.join(key_words)+r')s?[^a-z]', item['selftext'], re.ASCII|re.IGNORECASE):
                 entry.timeline = timeline
         
@@ -416,6 +418,8 @@ def get_filtered_post(
             title_lower = entry.title.lower()
             rslt = None
             for title in list_dict:
+                if not title:
+                    continue
                 if title.lower() in title_lower:
                     rslt = title
                     break
@@ -434,6 +438,8 @@ def get_filtered_post(
         
         # check_links_map, check_links_search
         for link_name in get_entry(check_links_map, []):
+            if not link_name:
+                continue
             url = re.search(check_links_search[link_name], item['selftext'], re.ASCII)
             if url:
                 url = url.group(0)
@@ -447,6 +453,8 @@ def get_filtered_post(
         
         # chapter_regex
         for search,replace in chapter_regex:
+            if not search or not replace:
+                continue
             if re.search(search, entry.title, flags=re.ASCII|re.IGNORECASE):
                 entry.title = re.sub(search, ' '+replace+' ', entry.title, flags=re.ASCII|re.IGNORECASE, count=1).strip().replace('  ', ' ')
                 break
@@ -454,6 +462,8 @@ def get_filtered_post(
         # co_authors
         lst_authors = [entry.authors]
         for co_author in get_entry(co_authors, []):
+            if not co_author:
+                continue
             if co_author not in lst_authors:
                 lst_authors.append(co_author)
         entry.authors = ' & '.join(lst_authors)
@@ -571,34 +581,54 @@ def get_user_data() -> dict[str, list[list[str]]]:
     
     return rslt
 
+def is_fulled_row(row, length):
+    if len(row) < length:
+        return False
+    for idx in range(length):
+        if not row[idx]:
+            return False
+    return True
+
 def get_special_timelines() -> dict[str, list[str]]:
     rslt = defaultdict(list)
     for r in get_user_data().get('timeline', []):
+        if not is_fulled_row(r, 2):
+            continue
         rslt[r[1]].append(r[0])
     return rslt
 
 def get_check_inside() -> list[str]:
     rslt = []
     for r in get_user_data().get('check-inside-post', []):
+        if not r[0]:
+            continue
         rslt.append(r[0])
     return rslt
 
 def get_check_links_search() -> dict[str, str]:
     rslt = {}
     for r in get_user_data().get('domain-story-host', []):
-        if len(r) > 2:
-            rslt[r[1]] = r[2]
+        if not is_fulled_row(r, 2):
+            continue
+        rslt[r[1]] = r[2]
     return rslt
 
 def get_check_links_map() -> dict[str, list[str]]:
     rslt = {}
     for r in get_user_data().get('check-links', []):
-        rslt[r[0]] = r[1:]
+        if not r[0]:
+            continue
+        lst = [e for e in r[1:] if e]
+        if not lst:
+            continue
+        rslt[r[0]] = lst
     return rslt
 
 def get_domain_story_host() -> list[str]:
     rslt = []
     for r in get_user_data().get('domain-story-host', []):
+        if not r[0]:
+            continue
         rslt.append(r[0])
     return rslt
 
@@ -613,12 +643,16 @@ def get_chapter_regex() -> list[tuple[str, str]]:
         break
     
     for r in get_user_data().get('chapter-regex', []):
+        if not is_fulled_row(r, 2):
+            continue
         rslt.append((prefix+r[0]+suffix, r[1]))
     return rslt
 
 def get_timeline_key_words() -> dict[str, list[str]]:
     rslt = defaultdict(list)
     for r in get_user_data().get('timeline-key-word', []):
+        if not is_fulled_row(r, 2):
+            continue
         rslt[r[1]].append(r[0])
     return rslt
 
@@ -627,7 +661,11 @@ def get_co_authors() -> dict[str, list[str]]:
     for r in get_user_data().get('co-authors', []):
         if not r[0]:
             continue
-        lst = set()
-        _=[lst.update(e.split('&')) for e in r[1:]]
-        rslt[r[0]].extend(sorted([e.strip() for e in lst if e]))
+        lst = []
+        _=[lst.extend(e.split('&')) for e in r[1:]]
+        lst = [e.strip() for e in lst]
+        lst = set([e for e in lst if e])
+        if not lst:
+            continue
+        rslt[r[0]].extend(sorted(lst))
     return rslt
