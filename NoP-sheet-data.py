@@ -24,7 +24,7 @@ list_authors_error = []
 args_length = len(args.author)
 for args_idx in range(args_length):
     print()
-    author = args[args_idx]
+    author = args.author[args_idx]
     
     all_post = []
     base_url = f'https://www.reddit.com/user/{author}/submitted/.json'
