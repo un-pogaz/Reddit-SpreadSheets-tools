@@ -1,6 +1,6 @@
 from collections import defaultdict
 
-from common import HttpError, init_spreadsheets, write_lines
+from common import HttpError, init_spreadsheets, is_fulled_row, write_lines
 
 spreadsheets = init_spreadsheets()
 
@@ -49,13 +49,15 @@ try:
     print('Total data rows:', len(table))
     
     print()
-    row_length = len(table[0])
-    not_full_row = []
+    not_full_row = set()
+    no_link_row = set()
     url_map = defaultdict(list)
     url_wrong = {}
     for idx, r in enumerate(table, 1):
-        if len(r) != row_length:
-            not_full_row.append(idx)
+        if not is_fulled_row(r, 4):
+            not_full_row.add(idx)
+        if len(r) < 7:
+            url_map.add(idx)
         
         if len(r)>6:
             url = r[6]
@@ -68,8 +70,8 @@ try:
     else:
         print('All rows are fulled.')
     
-    for l in not_full_row:
-        print(f' {l}:{l}')
+    for l in sorted(not_full_row.union(url_map)):
+        print(f' {l}:{l}', '<no link>' if (l not in not_full_row and l in url_map) else '')
     
     print()
     url_duplicate = {k:v for k,v in url_map.items() if len(v)>1}
