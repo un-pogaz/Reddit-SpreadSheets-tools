@@ -431,9 +431,7 @@ def get_filtered_post(
             entry.title += ' <check inside post>'
         
         # title_check_links_map, check_links_search
-        links_map = get_entry(title_check_links_map, [])
-        
-        for link_name in links_map:
+        for link_name in get_entry(title_check_links_map, []):
             url = re.search(check_links_search[link_name], item['selftext'], re.ASCII)
             if url:
                 url = url.group(0)
