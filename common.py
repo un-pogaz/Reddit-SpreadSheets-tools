@@ -301,11 +301,12 @@ def get_filtered_post(
     domain_story_host: list[str]|bool =True,
     chapter_regex: list[tuple[str, str]]|bool =True,
     timeline_key_words: dict[str, list[str]]|bool =True,
+    co_authors: dict[str, list[str]]|bool =True,
 ) -> list[PostEntry]:
     """
     If exclude_url is True, get the exclude_url list from the spreadsheets.
     Same for special_timelines, check_inside_list, check_links_map, check_links_search,
-    domain_story_host, chapter_regex, timeline_key_words.
+    domain_story_host, chapter_regex, timeline_key_words, co_authors.
     """
     
     import re
@@ -371,6 +372,13 @@ def get_filtered_post(
     if not isinstance(timeline_key_words, dict):
         timeline_key_words = {}
     
+    # co_authors
+    if co_authors is True:
+        co_authors = get_co_authors()
+    if not isinstance(co_authors, dict):
+        co_authors = {}
+    
+    title_co_authors = {t.lower():v for t,v in co_authors.items()}
     
     for item in source_data:
         if post_is_to_old(item):
@@ -449,6 +457,13 @@ def get_filtered_post(
                 entry.title = re.sub(search, ' '+replace+' ', entry.title, flags=re.ASCII|re.IGNORECASE, count=1).strip().replace('  ', ' ')
                 break
         
+        # title_co_authors
+        lst_authors = [entry.authors]
+        for co_author in get_entry(title_co_authors, []):
+            if co_author not in lst_authors:
+                lst_authors.append(co_author)
+        entry.authors = ' & '.join(lst_authors)
+        
         rslt.append(entry)
     
     rslt.sort(key=lambda x:x.created)
@@ -466,11 +481,12 @@ def read_subreddit(
     domain_story_host: list[str]|bool =True,
     chapter_regex: list[tuple[str, str]]|bool =True,
     timeline_key_words: dict[str, list[str]]|bool =True,
+    co_authors: dict[str, list[str]]|bool =True,
 ) -> tuple[str, list[PostEntry]]:
     """
     If exclude_url is True, get the exclude_url list from the spreadsheets.
     Same for special_timelines, check_inside_list, check_links_map, check_links_search
-    domain_story_host, chapter_regex, timeline_key_words.
+    domain_story_host, chapter_regex, timeline_key_words, co_authors.
     """
     
     all_post = []
@@ -514,6 +530,7 @@ def read_subreddit(
         domain_story_host=domain_story_host,
         chapter_regex=chapter_regex,
         timeline_key_words=timeline_key_words,
+        co_authors=co_authors,
     )
     print(f'Data extracted from r/{subreddit}.', 'New lines to add:', len(lines))
     
@@ -609,4 +626,14 @@ def get_timeline_key_words() -> dict[str, list[str]]:
     rslt = defaultdict(list)
     for r in get_user_data().get('timeline-key-word', []):
         rslt[r[1]].append(r[0])
+    return rslt
+
+def get_co_authors() -> dict[str, list[str]]:
+    rslt = defaultdict(list)
+    for r in get_user_data().get('co-authors', []):
+        if not r[0]:
+            continue
+        lst = set()
+        _=[lst.update(e.split('&')) for e in r[1:]]
+        rslt[r[0]].extend(sorted([e.strip() for e in lst if e]))
     return rslt
