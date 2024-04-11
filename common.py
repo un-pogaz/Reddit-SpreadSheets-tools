@@ -410,22 +410,28 @@ def get_filtered_post(
                 entry.timeline = timeline
         
         
-        def get_entry(list_dict: list|dict):
+        def get_entry(list_dict: list|dict, default=None):
             title_lower = entry.title.lower()
+            rslt = None
             for title in list_dict:
                 if title in title_lower:
-                    return title
-            return None
+                    rslt = title
+                    break
+            if isinstance(list_dict, dict):
+                rslt = list_dict.get(rslt)
+            if rslt is None:
+                rslt = default
+            return rslt
         
         # title_timelines
-        entry.timeline = title_timelines.get(get_entry(title_timelines), entry.timeline)
+        entry.timeline = get_entry(title_timelines, entry.timeline)
         
         # title_check_inside
         if get_entry(title_check_inside):
             entry.title += ' <check inside post>'
         
         # title_check_links_map, check_links_search
-        links_map = title_check_links_map.get(get_entry(title_check_links_map), [])
+        links_map = get_entry(title_check_links_map, [])
         
         for link_name in links_map:
             url = re.search(check_links_search[link_name], item['selftext'], re.ASCII)
