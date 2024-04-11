@@ -330,7 +330,7 @@ def get_filtered_post(
     title_timelines = {}
     for timeline,lst in special_timelines.items():
         for title in lst:
-            title_timelines[title.lower()] = timeline
+            title_timelines[title] = timeline
     
     # check_inside_list
     if check_inside_list is True:
