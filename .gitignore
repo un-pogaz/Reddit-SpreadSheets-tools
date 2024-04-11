@@ -2,5 +2,5 @@
 !*.py
 !*.bat
 !.git*
-
+!README.md
 !requirements.txt
