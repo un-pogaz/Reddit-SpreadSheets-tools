@@ -410,7 +410,7 @@ def get_filtered_post(
         for timeline,key_words in timeline_key_words.items():
             if not key_words or not timeline:
                 continue
-            if re.search(r'\s('+'|'.join(key_words)+r')s?[^a-z]', item['selftext'], re.ASCII|re.IGNORECASE):
+            if re.search(r'\s('+'|'.join(key_words)+r')s?[^a-z]', item.get('selftext', ''), re.ASCII|re.IGNORECASE):
                 entry.timeline = timeline
         
         
