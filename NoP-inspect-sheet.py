@@ -56,10 +56,10 @@ try:
     for idx, r in enumerate(table, 1):
         if not is_fulled_row(r, 4):
             not_full_row.add(idx)
-        if len(r) < 7:
-            url_map.add(idx)
+        if len(r) <= 6 or len(r) > 6 and not r[6]:
+            no_link_row.add(idx)
         
-        if len(r)>6:
+        if len(r) > 6:
             url = r[6]
             url_map[url].append(idx)
             if 'new.reddit' in url or 'old.reddit' in url:
@@ -70,8 +70,8 @@ try:
     else:
         print('All rows are fulled.')
     
-    for l in sorted(not_full_row.union(url_map)):
-        print(f' {l}:{l}', '<no link>' if (l not in not_full_row and l in url_map) else '')
+    for l in sorted(not_full_row.union(no_link_row)):
+        print(f' {l}:{l}', '<no link>' if (l not in not_full_row and l in no_link_row) else '')
     
     print()
     url_duplicate = {k:v for k,v in url_map.items() if len(v)>1}
