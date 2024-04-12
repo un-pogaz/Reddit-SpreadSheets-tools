@@ -25,7 +25,7 @@ try:
     
     authors_full = set(write_authors_list('data'))
     authors_pending = set(write_authors_list('pending'))
-    table = spreadsheets.get('data!A:G')
+    table = spreadsheets.get('data')
     print()
     
     #############
