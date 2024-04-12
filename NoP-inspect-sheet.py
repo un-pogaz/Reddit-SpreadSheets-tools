@@ -1,6 +1,6 @@
 from collections import defaultdict
 
-from common import HttpError, init_spreadsheets, is_fulled_row, write_lines
+from common import HttpError, init_spreadsheets, write_lines
 
 spreadsheets = init_spreadsheets()
 
@@ -49,15 +49,23 @@ try:
     print('Total data rows:', len(table))
     
     print()
-    not_full_row = set()
-    no_link_row = set()
+    not_fulled_row = defaultdict(list)
     url_map = defaultdict(list)
     url_wrong = {}
     for idx, r in enumerate(table, 1):
-        if not is_fulled_row(r, 4):
-            not_full_row.add(idx)
-        if len(r) <= 6 or len(r) > 6 and not r[6]:
-            no_link_row.add(idx)
+        
+        def cell_is_empty(cell, text):
+            if len(r) < cell or not bool(r[cell-1]):
+                not_fulled_row[idx].append(text)
+        
+        if r:
+            cell_is_empty(1, 'date')
+            cell_is_empty(2, 'timeline')
+            cell_is_empty(3, 'title')
+            cell_is_empty(4, 'authors')
+            cell_is_empty(7, 'link')
+        else:
+            not_fulled_row[idx] = 'empty row'
         
         if len(r) > 6:
             url = r[6]
@@ -65,13 +73,17 @@ try:
             if 'new.reddit' in url or 'old.reddit' in url:
                 url_wrong[idx] = url
     
-    if not_full_row:
+    if not_fulled_row:
         print('Row not fulled:')
     else:
         print('All rows are fulled.')
     
-    for l in sorted(not_full_row.union(no_link_row)):
-        print(f' {l}:{l}', '<no link>' if (l not in not_full_row and l in no_link_row) else '')
+    for l in sorted(not_fulled_row.keys()):
+        if isinstance(not_fulled_row[l], str):
+            msg = not_fulled_row[l]
+        else:
+            msg = 'missing: '+ ', '.join(not_fulled_row[l])
+        print(f' {l}:{l} <{msg}>')
     
     print()
     url_duplicate = {k:v for k,v in url_map.items() if len(v)>1}
