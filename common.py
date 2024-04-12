@@ -266,6 +266,7 @@ class PostEntry():
         self.statue: str = ''
         self.link: str = permalink
         self.description: str = link_redirect
+        self.link_redirect: str = link_redirect
         self.post_id: str = post_item['name']
     
     def to_list(self) -> list[str]:
@@ -438,11 +439,15 @@ def get_filtered_post(
         
         # check_links_map, check_links_search
         for link_name in get_entry(check_links_map, []):
+            if entry.link_redirect:
+                # is a link post, no text to analyze
+                break
             if not link_name:
                 continue
-            url = re.search(check_links_search[link_name], item['selftext'], re.ASCII)
+            url = re.search(check_links_search.get(link_name, ''), item.get('selftext', ''), re.ASCII)
             if url:
                 url = url.group(0)
+            if url:
                 if url not in entry.description:
                     if entry.description:
                         entry.description += '\n'+url
