@@ -608,7 +608,7 @@ def get_check_inside() -> list[str]:
 def get_check_links_search() -> dict[str, str]:
     rslt = {}
     for r in get_user_data().get('domain-story-host', []):
-        if not is_fulled_row(r, 2):
+        if not is_fulled_row(r, 3):
             continue
         rslt[r[1]] = r[2]
     return rslt
