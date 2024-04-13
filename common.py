@@ -456,14 +456,6 @@ def get_filtered_post(
             else:
                 entry.title += f' {{{link_name} link}}'
         
-        # chapter_regex
-        for search,replace in chapter_regex:
-            if not search or not replace:
-                continue
-            if re.search(search, entry.title, flags=re.ASCII|re.IGNORECASE):
-                entry.title = re.sub(search, ' '+replace+' ', entry.title, flags=re.ASCII|re.IGNORECASE, count=1).strip().replace('  ', ' ')
-                break
-        
         # co_authors
         lst_authors = [entry.authors]
         for co_author in get_entry(co_authors, []):
@@ -472,6 +464,14 @@ def get_filtered_post(
             if co_author not in lst_authors:
                 lst_authors.append(co_author)
         entry.authors = ' & '.join(lst_authors)
+        
+        # chapter_regex
+        for search,replace in chapter_regex:
+            if not search or not replace:
+                continue
+            if re.search(search, entry.title, flags=re.ASCII|re.IGNORECASE):
+                entry.title = re.sub(search, ' '+replace+' ', entry.title, flags=re.ASCII|re.IGNORECASE, count=1).strip().replace('  ', ' ')
+                break
         
         rslt.append(entry)
     
