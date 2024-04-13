@@ -674,7 +674,8 @@ def get_co_authors() -> dict[str, list[str]]:
         if not r[0]:
             continue
         lst = []
-        _=[lst.extend(e.split('&')) for e in r[1:]]
+        for e in r[1:]:
+            lst.extend(e.split('&'))
         lst = [e.strip() for e in lst]
         lst = set([e for e in lst if e])
         if not lst:
