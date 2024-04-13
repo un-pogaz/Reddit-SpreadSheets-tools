@@ -392,10 +392,17 @@ def get_filtered_post(
         if domain in SUBREDDITS_DOMAIN or domain in domain_story_host:
             pass
         elif domain != f'self.{subreddit}':
-            if item.get('selftext') or item.get('crosspost_parent_list', [{}])[0].get('selftext'):
-                pass
-            else:
-                continue
+            if not item.get('selftext'):
+                crosspost_parent_list = item.get('crosspost_parent_list', [])
+                if not crosspost_parent_list:
+                    continue
+                if not crosspost_parent_list[0].get('selftext'):
+                    continue
+        
+        if not item.get('selftext'):
+            crosspost_parent_list = item.get('crosspost_parent_list', [])
+            if crosspost_parent_list:
+                item['selftext'] = crosspost_parent_list[0].get('selftext')
         
         entry = PostEntry(item, domain_story_host=domain_story_host)
         if entry.link in exclude_url:
