@@ -483,6 +483,17 @@ def get_filtered_post(
         rslt.append(entry)
     
     rslt.sort(key=lambda x:x.created)
+    
+    index_duplicate = []
+    url_duplicate = defaultdict(list)
+    for idx,entry in enumerate(rslt):
+        url_duplicate[entry.link].append(idx)
+    url_duplicate = {k:v for k,v in url_duplicate.items() if len(v)>1}
+    for v in url_duplicate.values():
+        index_duplicate.extend(v[1:])
+    for idx in sorted(index_duplicate, reverse=True):
+        del rslt[idx]
+    
     return rslt
 
 def read_subreddit(
