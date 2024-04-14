@@ -388,23 +388,20 @@ def get_filtered_post(
         if subreddit == 'NatureofPredators' and (item['link_flair_text'] or '').lower() not in ['', 'fanfic', 'nsfw']:
             continue
         
+        post_text = (item.get('selftext') or '').strip()
+        if not post_text:
+            crosspost_parent_list = item.get('crosspost_parent_list', [])
+            if crosspost_parent_list:
+                post_text = crosspost_parent_list[0].get('selftext', '')
+        post_text = (post_text or '').strip()
+        
         domain = item['domain']
         if domain in SUBREDDITS_DOMAIN or domain in domain_story_host:
             pass
         elif domain != f'self.{subreddit}':
-            if not item.get('selftext'):
-                crosspost_parent_list = item.get('crosspost_parent_list', [])
-                if not crosspost_parent_list:
-                    continue
-                if not crosspost_parent_list[0].get('selftext'):
-                    continue
+            if not post_text:
+                continue
         
-        if not item.get('selftext'):
-            crosspost_parent_list = item.get('crosspost_parent_list', [])
-            if crosspost_parent_list:
-                item['selftext'] = crosspost_parent_list[0].get('selftext', '')
-        if not item.get('selftext'):
-            item['selftext'] = ''
         
         entry = PostEntry(item, domain_story_host=domain_story_host)
         if entry.link in exclude_url:
@@ -420,7 +417,7 @@ def get_filtered_post(
         for timeline,key_words in timeline_key_words.items():
             if not key_words or not timeline:
                 continue
-            if re.search(r'\s('+'|'.join(key_words)+r')s?[^a-z]', item.get('selftext', ''), re.ASCII|re.IGNORECASE):
+            if re.search(r'\s('+'|'.join(key_words)+r')s?[^a-z]', post_text, re.ASCII|re.IGNORECASE):
                 entry.timeline = timeline
         
         
@@ -453,7 +450,7 @@ def get_filtered_post(
                 break
             if not link_name:
                 continue
-            url = re.search(check_links_search.get(link_name, ''), item.get('selftext', ''), re.ASCII)
+            url = re.search(check_links_search.get(link_name, ''), post_text, re.ASCII)
             if url:
                 url = url.group(0)
             if url:
