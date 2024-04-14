@@ -402,7 +402,9 @@ def get_filtered_post(
         if not item.get('selftext'):
             crosspost_parent_list = item.get('crosspost_parent_list', [])
             if crosspost_parent_list:
-                item['selftext'] = crosspost_parent_list[0].get('selftext')
+                item['selftext'] = crosspost_parent_list[0].get('selftext', '')
+        if not item.get('selftext'):
+            item['selftext'] = ''
         
         entry = PostEntry(item, domain_story_host=domain_story_host)
         if entry.link in exclude_url:
@@ -461,7 +463,7 @@ def get_filtered_post(
                     else:
                         entry.description = url
             else:
-                entry.title += f' {{{link_name} link}}'
+                entry.title += ' {'+link_name+' link}'
         
         # co_authors
         lst_authors = [entry.authors]
