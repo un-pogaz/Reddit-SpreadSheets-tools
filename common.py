@@ -235,6 +235,12 @@ def numeric_id(text_id) -> int:
         return -1
     return int(text_id.removeprefix('t3_'), base=36)
 
+def parse_post_id(post_id: str):
+    post_id = post_id.strip()
+    if not post_id.startswith('t3_'):
+        post_id = 't3_'+post_id
+    return post_id
+
 class PostEntry():
     
     DATETIME_FORMAT = '%m/%d/%Y'
@@ -566,6 +572,70 @@ def read_subreddit(
         recent_post = oldest_post
         
     return recent_post, lines
+
+
+def _last_post_name(nsfw: bool):
+    return 'last-post' + ('-nsfw' if nsfw else '')
+
+def get_oldest_post_id(nsfw: bool) -> str:
+    spreadsheets = init_spreadsheets()
+    last_post_name = _last_post_name(nsfw=nsfw)
+    
+    print('Google Sheets: retrieve the oldest post to check...')
+    for r in spreadsheets.get('script-user-data'):
+        if not r or r[0] != last_post_name:
+            continue
+        for d in r[1:]:
+            if d:
+                return parse_post_id(d)
+    return None
+
+def set_oldest_post_id(oldest_post: str, nsfw: bool):
+    spreadsheets = init_spreadsheets()
+    last_post_name = _last_post_name(nsfw=nsfw)
+    
+    oldest_post_row = None
+    oldest_post_idx_row = None
+    oldest_post_idx_column = None
+    
+    for idx_r,r in enumerate(spreadsheets.get('script-user-data'), 1):
+        if not r or r[0] != last_post_name:
+            continue
+        for idx_c,d in enumerate(r[1:], 1):
+            if d:
+                oldest_post_row = r
+                oldest_post_idx_row = idx_r
+                oldest_post_idx_column = idx_c
+                break
+    
+    if oldest_post_row:
+        oldest_post_row[oldest_post_idx_column] = parse_post_id(oldest_post or '')
+        spreadsheets.update(f'script-user-data!{oldest_post_idx_row}:{oldest_post_idx_row}', [oldest_post_row])
+    else:
+        print('ERROR: No last-post line found')
+
+def append_new_entrys(new_posts: list[PostEntry], oldest_post: str, nsfw: bool):
+    if not new_posts:
+        return
+    
+    new_posts = [e.to_list() for e in new_posts]
+    
+    try:
+        print()
+        spreadsheets = init_spreadsheets()
+        print('Google Sheets: send', len(new_posts), 'new entry to pending.')
+        
+        start = len(spreadsheets.get('pending'))+2
+        end = start+len(new_posts)
+        
+        spreadsheets.update(f"pending!{start}:{end}", new_posts)
+        set_oldest_post_id(oldest_post, nsfw=nsfw)
+        
+        print('Google Sheets: update completed')
+        
+    except HttpError as err:
+        print(err)
+        input()
 
 
 @cache
