@@ -407,9 +407,8 @@ def get_filtered_post(
         domain = item['domain']
         if domain in SUBREDDITS_DOMAIN or domain in domain_story_host:
             pass
-        elif domain != f'self.{subreddit}':
-            if not post_text:
-                continue
+        elif not post_text:
+            continue
         
         
         entry = PostEntry(item, domain_story_host=domain_story_host)
