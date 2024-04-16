@@ -3,11 +3,9 @@ import argparse
 from common import HttpError, init_spreadsheets, parse_post_id, read_subreddit
 
 args = argparse.ArgumentParser(description='Retrive the data from r/NatureofPredators, and push it to the spreadsheets')
-args.add_argument('-u', '--url', '--dont-exclude-url', dest='exclude_url', action='store_false', help="Don't exclude where the url post is already in the spreadsheets")
-args.add_argument('--nsfw', action='store_true', help='Instect the NSFW sub')
-grps = args.add_mutually_exclusive_group()
-grps.add_argument('--csv', action='store_true', default=None, help='Output into a CSV file')
-grps.add_argument('--csv-file', type=str, dest='csv', help='Path of the CSV file to output')
+args.add_argument('-a', '--all', '--dont-exclude-url', dest='exclude_url', action='store_false', help="Retrive all entry, don't exclude where the url of the post is already in the spreadsheets")
+args.add_argument('--nsfw', action='store_true', help='Inspect the NSFW sub')
+args.add_argument('-csv', '--csv', type=str, nargs='?', default=False, help='Output into a CSV file')
 args.add_argument('oldest_post_id', type=str, nargs='?', help='id of the oldest post to check. If empty, go to the limit of the reddit API (1000 posts).')
 args = args.parse_args()
 
@@ -77,20 +75,16 @@ oldest_post, lines = read_subreddit(
     exclude_url=args.exclude_url,
 )
 
-lines = [e.to_list() for e in lines]
-
-if args.csv:
-    if args.csv is True:
-        args.csv = '- NoP new subreddit.csv'
-    
-    with open(args.csv, 'at', newline='\n', encoding='utf-8') as f:
-        if lines:
-            f.write('\n')
-            f.write('\n'.join(lines))
-            f.write('\n')
+if not lines:
     exit()
 
-if not lines:
+if args.csv is None:
+    args.csv = '- NoP new subreddit.csv'
+if args.csv:
+    with open(args.csv, 'at', newline='\n', encoding='utf-8') as f:
+        f.write('\n')
+        f.write('\n'.join([e.to_string() for e in lines]))
+        f.write('\n')
     exit()
 
 try:
@@ -101,7 +95,7 @@ try:
     start = len(spreadsheets.get('pending'))+2
     end = start+len(lines)
     
-    spreadsheets.update(f"pending!{start}:{end}", lines)
+    spreadsheets.update(f"pending!{start}:{end}", [e.to_list() for e in lines])
     set_oldest_post_id(oldest_post)
     
     print('Google Sheets: update completed')
