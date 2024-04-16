@@ -70,7 +70,7 @@ try:
         if len(r) > 6:
             url = r[6]
             url_map[url].append(idx)
-            if 'new.reddit' in url or 'old.reddit' in url:
+            if '.reddit' in url and 'www.reddit' not in url:
                 url_wrong[idx] = url
     
     if not_fulled_row:
