@@ -6,19 +6,17 @@ This repository contain various python scripts to fill and manage the [Fan-fic's
 
 <hr/>
 
-`NoP-new.py` is the main script to retrive and push the lasted new fan-fic's posted on the [r/NatureofPredators](https://new.reddit.com/r/NatureofPredators/) subreddit.
+`new.py` is the main script to retrive and push the lasted new fan-fic's posted on the [r/NatureofPredators](https://new.reddit.com/r/NatureofPredators/) subreddit.
 
-`NoP-new-NSFW.py` is to retrive the lasted new fan-fic's posted on the spiccy sub (yes, there is one).
+`sheet-data.py` is to retrive the posts create by specified authors.
 
-`NoP-sheet-data.py` is to retrive the posts create by specified authors.
+`inspect-sheet.py` little script to check if some error are present in the spreadsheets.
 
-`NoP-inspect-sheet.py` little script to check if some error are present in the spreadsheets.
+`file-links.py` retrive the data from file containing a list of urls.
 
-`NoP-file-links.py` retrive the data from file containing a list of urls.
+`readHTML-authors.py` retrive all the reddits usernames inside a HTML file.
 
-`NoP-readHTML-authors.py` retrive all the reddits usernames inside a HTML file.
-
-`NoP-readHTML-post.py` retrive all the reddits urls inside a HTML file.
+`readHTML-post.py` retrive all the reddits urls inside a HTML file.
 
 <br/>
 
