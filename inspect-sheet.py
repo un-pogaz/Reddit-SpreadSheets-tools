@@ -1,10 +1,24 @@
 import argparse
 from collections import defaultdict
+from datetime import datetime, timedelta
 
 from common import HttpError, init_spreadsheets, write_lines
 
+def check_positive(value):
+    try:
+        value = int(value)
+    except:
+        raise argparse.ArgumentTypeError(f'invalid positive int value: {repr(value)}')
+    if value < 0:
+        raise argparse.ArgumentTypeError(f'invalid positive int value: {value}')
+    return value
+
 args = argparse.ArgumentParser(description='Inspect the spreadsheets to look up invalide data')
 args.add_argument('--write-authors', action='store_true', help='Write the authors files')
+args.add_argument(
+    '--entry-older', nargs='?', type=check_positive, metavar='INT', default=False,
+    help='Analyze if post "On going" are to old (in month). If no parameter, default is 6 month.'
+)
 args = args.parse_args()
 
 spreadsheets = init_spreadsheets()
@@ -60,10 +74,14 @@ try:
     not_fulled_row = defaultdict(list)
     url_map = defaultdict(list)
     url_wrong = {}
+    authors_date = {}
     for idx, r in enumerate(table, 1):
+        if idx == 1:
+            continue
+        lr = len(r)
         
         def cell_is_empty(cell, text):
-            if len(r) < cell or not bool(r[cell-1]):
+            if lr < cell or not bool(r[cell-1]):
                 not_fulled_row[idx].append(text)
         
         if r:
@@ -75,11 +93,18 @@ try:
         else:
             not_fulled_row[idx] = 'empty row'
         
-        if len(r) > 6:
+        if lr > 6:
             url = r[6]
             url_map[url].append(idx)
             if '.reddit' in url and 'www.reddit' not in url:
                 url_wrong[idx] = url
+        
+        if args.entry_older and lr > 5 and r[0] and r[5] == 'On going':
+            date = datetime.strptime(r[0], '%m/%d/%Y')
+            for a in r[3].split('&'):
+                a = a.strip()
+                if a not in authors_date or authors_date[a] < date:
+                     authors_date[a] = date
     
     if not_fulled_row:
         print('Row not fulled:')
@@ -116,7 +141,19 @@ try:
     for l,url in url_wrong.items():
         print(f' {l}:{l} => {url}')
     
-    print()
+    if args.entry_older:
+        print()
+        
+        old = datetime.now() - timedelta(days=30*args.entry_older)
+        authors_date = {k:v for k,v in authors_date.items() if v < old}
+        
+        if authors_date:
+            print(f'Entry older that {args.entry_older} month:')
+        else:
+            print(f'No entry older that {args.entry_older} month.')
+            
+        for k,v in sorted(authors_date.items(), key=lambda x:x[1]):
+            print(f' {k} [last post: {v:%Y/%m/%d}]')
 
 except HttpError as err:
     print(err)
