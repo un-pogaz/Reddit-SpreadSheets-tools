@@ -1,13 +1,18 @@
+import argparse
 from collections import defaultdict
 
 from common import HttpError, init_spreadsheets, write_lines
+
+args = argparse.ArgumentParser(description='Inspect the spreadsheets to look up invalide data')
+args.add_argument('--write-authors', action='store_true', help='Write the authors files')
+args = args.parse_args()
 
 spreadsheets = init_spreadsheets()
 
 try:
     print('Google Sheets: retrieve data...')
     
-    def write_authors_list(sheet_name) -> list[str]:
+    def write_authors_list(sheet_name) -> set[str]:
         data = spreadsheets.get(sheet_name+'!D:D')
         
         rslt = []
@@ -17,25 +22,24 @@ try:
             d = d[0]
             if d:
                 rslt.extend([a.split('(')[0].strip() for a in d.split('&')])
-        rslt = list(set(rslt))
+        rslt = set(rslt)
         
-        write_lines(f'authors_{sheet_name}.txt', sorted(rslt))
+        if args.write_authors:
+            write_lines(f'authors_{sheet_name}.txt', sorted(rslt))
         
         return rslt
     
-    authors_full = set(write_authors_list('data'))
-    authors_pending = set(write_authors_list('pending'))
+    authors_full = write_authors_list('data')
+    authors_pending = write_authors_list('pending')
     table = spreadsheets.get('data')
-    print()
-    
-    #############
-    #parsing data
     
     authors_common = sorted(authors_pending.intersection(authors_full))
-    write_lines('authors_common.txt', authors_common)
+    if args.write_authors:
+        write_lines('authors_common.txt', authors_common)
     
     authors_difference = sorted(authors_pending.difference(authors_full))
-    write_lines('authors_difference.txt', authors_difference)
+    if args.write_authors:
+        write_lines('authors_difference.txt', authors_difference)
     
     map_count = {
         'Authors':authors_full,
@@ -43,8 +47,12 @@ try:
         'Common':authors_common,
         'Difference':authors_difference,
     }
+    print()
     print(*[k+': '+str(len(v))+'.' for k,v in map_count.items()])
     
+    
+    #############
+    #parsing data
     print()
     print('Total data rows:', len(table))
     

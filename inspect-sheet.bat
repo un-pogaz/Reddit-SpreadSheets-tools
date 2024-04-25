@@ -2,8 +2,8 @@
 title %~n0.py CLI
 
 :loop
-python "%~dp0\%~n0.py" %cmd%
 echo.
-set cmd=""
+set cmd=
 set /p cmd=%~n0.py 
+python "%~dp0\%~n0.py" %cmd%
 goto loop
