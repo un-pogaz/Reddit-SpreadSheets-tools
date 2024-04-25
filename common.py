@@ -608,7 +608,6 @@ def get_user_data() -> dict[str, list[list[str]]]:
         rslt = {}
         print(err)
         input()
-    
     return rslt
 
 def is_fulled_row(row, length):
