@@ -6,7 +6,7 @@ This repository contain various python scripts to fill and manage the [Fan-fic's
 
 <hr/>
 
-`new.py` is the main script to retrive and push the lasted new fan-fic's posted on the [r/NatureofPredators](https://new.reddit.com/r/NatureofPredators/) subreddit.
+`new-posts.py` is the main script to retrive and push the lasted new fan-fic's posted on the [r/NatureofPredators](https://new.reddit.com/r/NatureofPredators/) subreddit.
 
 `sheet-data.py` is to retrive the posts create by specified authors.
 
