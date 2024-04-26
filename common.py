@@ -394,7 +394,7 @@ def get_filtered_post(
         
         parse_content(item)
         
-        if subreddit == 'NatureofPredators' and (item['link_flair_text'] or '').lower() not in ['', 'fanfic', 'nsfw']:
+        if subreddit == 'NatureofPredators' and (item['link_flair_text'] or '').lower() not in ['', 'fanfic', 'nsfw', 'roleplay']:
             continue
         
         post_text = (item.get('selftext') or '').strip()
