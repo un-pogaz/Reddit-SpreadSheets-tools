@@ -543,8 +543,8 @@ def read_subreddit(
                     r = r['data']
                     if numeric_id(r['name']) <= numeric_id(oldest_post):
                         loop = False
-                        break
-                    all_post.append(r)
+                    else:
+                        all_post.append(r)
                     params['after'] = r['name']
             
             if len(tbl) < params['limit'] or count >= 1000:
