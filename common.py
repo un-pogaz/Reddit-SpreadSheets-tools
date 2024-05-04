@@ -302,7 +302,7 @@ def get_filtered_post(
     *,
     exclude_url: list[str]|bool =True,
     special_timelines: dict[str, list[str]]|bool =True,
-    check_inside_list: list[str]|bool =True,
+    chapter_inside_post: list[str]|bool =True,
     check_links_map: dict[str, list[str]]|bool =True,
     check_links_search: dict[str, str]|bool =True,
     domain_story_host: list[str]|bool =True,
@@ -312,7 +312,7 @@ def get_filtered_post(
 ) -> list[PostEntry]:
     """
     If exclude_url is True, get the exclude_url list from the spreadsheets.
-    Same for special_timelines, check_inside_list, check_links_map, check_links_search,
+    Same for special_timelines, chapter_inside_post, check_links_map, check_links_search,
     domain_story_host, chapter_regex, timeline_key_words, co_authors.
     """
     
@@ -339,11 +339,11 @@ def get_filtered_post(
         for title in lst:
             title_timelines[title] = timeline
     
-    # check_inside_list
-    if check_inside_list is True:
-        check_inside_list = get_check_inside()
-    if not isinstance(check_inside_list, list):
-        check_inside_list = []
+    # chapter_inside_post
+    if chapter_inside_post is True:
+        chapter_inside_post = get_chapter_inside_post()
+    if not isinstance(chapter_inside_post, list):
+        chapter_inside_post = []
     
     # check_links_map
     if check_links_map is True:
@@ -447,9 +447,9 @@ def get_filtered_post(
         # title_timelines
         entry.timeline = get_entry(title_timelines, entry.timeline)
         
-        # check_inside_list
-        if get_entry(check_inside_list):
-            entry.title += ' <check inside post>'
+        # chapter_inside_post
+        if get_entry(chapter_inside_post):
+            entry.title += ' <chapter inside post>'
         
         # check_links_map, check_links_search
         for link_name in get_entry(check_links_map, []):
@@ -509,7 +509,7 @@ def read_subreddit(
     *,
     exclude_url: list[str]|bool =True,
     special_timelines: dict[str, list[str]]|bool =True,
-    check_inside_list: list[str]|bool =True,
+    chapter_inside_post: list[str]|bool =True,
     check_links_map: dict[str, list[str]]|bool =True,
     check_links_search: dict[str, str]|bool =True,
     domain_story_host: list[str]|bool =True,
@@ -519,7 +519,7 @@ def read_subreddit(
 ) -> tuple[str, list[PostEntry]]:
     """
     If exclude_url is True, get the exclude_url list from the spreadsheets.
-    Same for special_timelines, check_inside_list, check_links_map, check_links_search
+    Same for special_timelines, chapter_inside_post, check_links_map, check_links_search
     domain_story_host, chapter_regex, timeline_key_words, co_authors.
     """
     
@@ -558,7 +558,7 @@ def read_subreddit(
         source_data=all_post,
         exclude_url=exclude_url,
         special_timelines=special_timelines,
-        check_inside_list=check_inside_list,
+        chapter_inside_post=chapter_inside_post,
         check_links_map=check_links_map,
         check_links_search=check_links_search,
         domain_story_host=domain_story_host,
@@ -626,9 +626,9 @@ def get_special_timelines() -> dict[str, list[str]]:
         rslt[r[1]].append(r[0])
     return rslt
 
-def get_check_inside() -> list[str]:
+def get_chapter_inside_post() -> list[str]:
     rslt = []
-    for r in get_user_data().get('check-inside-post', []):
+    for r in get_user_data().get('chapter-inside-post', []):
         if not r[0]:
             continue
         rslt.append(r[0])
