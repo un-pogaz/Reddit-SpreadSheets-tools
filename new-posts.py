@@ -69,7 +69,7 @@ else:
         print('Google Sheets: no oldest post to check found')
 print()
 
-oldest_post, lines = read_subreddit(
+lines = read_subreddit(
     subreddit=subreddit,
     oldest_post=args.oldest_post_id,
     exclude_url=args.exclude_url,
@@ -96,7 +96,7 @@ try:
     end = start+len(lines)
     
     spreadsheets.update(f"pending!{start}:{end}", [e.to_list() for e in lines])
-    set_oldest_post_id(oldest_post)
+    set_oldest_post_id(lines[-1].post_id)
     
     print('Google Sheets: update completed')
     

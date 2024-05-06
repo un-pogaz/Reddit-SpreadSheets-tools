@@ -516,7 +516,7 @@ def read_subreddit(
     chapter_regex: list[tuple[str, str]]|bool =True,
     timeline_key_words: dict[str, list[str]]|bool =True,
     co_authors: dict[str, list[str]]|bool =True,
-) -> tuple[str, list[PostEntry]]:
+) -> list[PostEntry]:
     """
     If exclude_url is True, get the exclude_url list from the spreadsheets.
     Same for special_timelines, chapter_inside_post, check_links_map, check_links_search
@@ -568,12 +568,7 @@ def read_subreddit(
     )
     print(f'Data extracted from r/{subreddit}.', 'New lines to add:', len(lines))
     
-    if lines:
-        recent_post = lines[-1].post_id
-    else:
-        recent_post = oldest_post
-        
-    return recent_post, lines
+    return lines
 
 
 @cache
