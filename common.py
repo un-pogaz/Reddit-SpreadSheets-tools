@@ -389,13 +389,13 @@ def get_filtered_post(
         if subreddit not in SUBREDDITS:
             continue
         
+        if subreddit == 'NatureofPredators' and (item['link_flair_text'] or '').lower() not in ['', 'fanfic', 'nsfw', 'roleplay']:
+            continue
+        
         if item.get('poll_data'):
             continue
         
         parse_content(item)
-        
-        if subreddit == 'NatureofPredators' and (item['link_flair_text'] or '').lower() not in ['', 'fanfic', 'nsfw', 'roleplay']:
-            continue
         
         post_text = (item.get('selftext') or '').strip()
         if not post_text:
