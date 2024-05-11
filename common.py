@@ -1,3 +1,4 @@
+import re
 from collections import defaultdict
 from functools import cache
 
@@ -221,8 +222,6 @@ def replace_entitie(text: str) -> str:
     return text.replace('&lt;', '<').replace('&gt;', '>').replace('&amp;', '&').replace('&#39;', "'")
 
 def parse_rawhtml(text: str) -> str:
-    import re
-    
     if not text:
         return text
     html = replace_entitie(text).replace('\n\n', '\n').replace('<br>', '<br/>').replace('<hr>', '<hr/>')
@@ -249,10 +248,12 @@ class PostEntry():
         from datetime import datetime
         domain_story_host = domain_story_host or []
         
-        if post_item['domain'].startswith('self.'):
+        if post_item['domain'].startswith('self.') or post_item['domain'].endswith('.reddit.com'):
             permalink = post_item.get('url_overridden_by_dest') or post_item['permalink']
         else:
             permalink = post_item['permalink']
+        
+        permalink = re.sub(r'\w+.reddit.com', r'www.reddit.com', permalink)
         
         if post_item['domain'] in domain_story_host:
             link_redirect = post_item['url_overridden_by_dest']
@@ -315,8 +316,6 @@ def get_filtered_post(
     Same for special_timelines, chapter_inside_post, check_links_map, check_links_search,
     domain_story_host, chapter_regex, timeline_key_words, co_authors.
     """
-    
-    import re
     
     rslt = []
     
@@ -405,7 +404,7 @@ def get_filtered_post(
         post_text = (post_text or '').strip()
         
         domain = item['domain']
-        if domain in SUBREDDITS_DOMAIN or domain in domain_story_host:
+        if domain in SUBREDDITS_DOMAIN or domain in domain_story_host or domain.endswith('.reddit.com'):
             pass
         elif not post_text:
             continue
