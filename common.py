@@ -264,13 +264,18 @@ class PostEntry():
         if cw and post_item['subreddit'] == 'NatureOfPredatorsNSFW':
             cw = 'Adult'
         
+        if (post_item['link_flair_text'] or '').lower() == 'roleplay':
+            statue = 'Roleplay'
+        else:
+            statue = ''
+        
         self._post_item = post_item
         self.created: datetime = datetime.fromtimestamp(post_item['created_utc'])
         self.timeline: str = ''
         self.title: str = post_item['title']
         self.authors: str = post_item['author']
         self.content_warning: str = cw
-        self.statue: str = ''
+        self.statue: str = statue
         self.link: str = permalink
         self.description: str = link_redirect
         self.link_redirect: str = link_redirect
