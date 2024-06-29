@@ -73,6 +73,7 @@ print()
 not_fulled_row = defaultdict(list)
 url_map = defaultdict(list)
 url_wrong = {}
+url_params = {}
 authors_date = {}
 for idx, r in enumerate(table, 1):
     if idx == 1:
@@ -97,6 +98,8 @@ for idx, r in enumerate(table, 1):
         url_map[url].append(idx)
         if '.reddit' in url and 'www.reddit' not in url:
             url_wrong[idx] = url
+        if '?' in url:
+            url_params[idx] = url
     
     if args.entry_older and lr > 5 and r[0] and r[5] == 'On going':
         date = datetime.strptime(r[0], '%m/%d/%Y')
@@ -138,6 +141,16 @@ else:
     print('No wrong reddit url.')
 
 for l,url in url_wrong.items():
+    print(f' {l}:{l} => {url}')
+
+print()
+
+if url_params:
+    print('Parameter in reddit url:')
+else:
+    print('No parameter in reddit url.')
+
+for l,url in url_params.items():
     print(f' {l}:{l} => {url}')
 
 if args.entry_older:

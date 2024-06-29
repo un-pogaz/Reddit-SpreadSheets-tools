@@ -254,6 +254,7 @@ class PostEntry():
             permalink = post_item['permalink']
         
         permalink = re.sub(r'\w+.reddit.com', r'www.reddit.com', permalink)
+        permalink = re.sub(r'\?.*', '', permalink)
         
         if post_item['domain'] in domain_story_host:
             link_redirect = post_item['url_overridden_by_dest']
