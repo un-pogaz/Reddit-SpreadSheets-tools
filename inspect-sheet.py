@@ -46,6 +46,9 @@ authors_full = write_authors_list('data')
 authors_pending = write_authors_list('pending')
 table = spreadsheets.get('data')
 
+print()
+print('Total data rows:', len(table))
+
 authors_common = sorted(authors_pending.intersection(authors_full))
 if args.write_authors:
     write_lines('authors_common.txt', authors_common)
@@ -66,10 +69,6 @@ print(*[k+': '+str(len(v))+'.' for k,v in map_count.items()])
 
 #############
 #parsing data
-print()
-print('Total data rows:', len(table))
-
-print()
 not_fulled_row = defaultdict(list)
 url_map = defaultdict(list)
 url_wrong = {}
@@ -110,6 +109,7 @@ for idx, r in enumerate(table, 1):
 
 url_duplicate = {k:v for k,v in url_map.items() if len(v)>1}
 
+print()
 if not_fulled_row:
     print('Row not fulled:')
 else:
