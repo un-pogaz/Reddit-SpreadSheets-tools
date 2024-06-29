@@ -108,6 +108,8 @@ for idx, r in enumerate(table, 1):
             if a not in authors_date or authors_date[a] < date:
                  authors_date[a] = date
 
+url_duplicate = {k:v for k,v in url_map.items() if len(v)>1}
+
 if not_fulled_row:
     print('Row not fulled:')
 else:
@@ -120,38 +122,41 @@ for l in sorted(not_fulled_row.keys()):
         msg = 'missing: '+ ', '.join(not_fulled_row[l])
     print(f' {l}:{l} <{msg}>')
 
-print()
-url_duplicate = {k:v for k,v in url_map.items() if len(v)>1}
+# print url errors
+has_url_errors = bool(url_duplicate or url_wrong or url_params)
+
+def uprint(*args, **kargs):
+    print()
+    print(*args, **kargs)
 
 if url_duplicate:
-    print('Duplicate url:')
-else:
-    print('No duplicate url.')
+    uprint('Duplicate url:')
+elif has_url_errors:
+    uprint('No duplicate url.')
 
 for url,lines in url_duplicate.items():
     print(url)
     for l in lines:
         print(f' {l}:{l}')
 
-print()
-
 if url_wrong:
-    print('Wrong reddit url:')
-else:
-    print('No wrong reddit url.')
+    uprint('Wrong reddit url:')
+elif has_url_errors:
+    uprint('No wrong reddit url.')
 
 for l,url in url_wrong.items():
     print(f' {l}:{l} => {url}')
 
-print()
-
 if url_params:
-    print('Parameter in reddit url:')
-else:
-    print('No parameter in reddit url.')
+    uprint('Parameter in reddit url:')
+elif has_url_errors:
+    uprint('No parameter in reddit url.')
 
 for l,url in url_params.items():
     print(f' {l}:{l} => {url}')
+
+if not has_url_errors:
+    uprint('All url are valid.')
 
 if args.entry_older:
     print()
