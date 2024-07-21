@@ -679,12 +679,17 @@ def get_chapter_regex() -> list[tuple[str, str]]:
         if not is_fulled_row(r, 2):
             continue
         regex = r[0]
-        rslt.append((''.join([
-            prefix if not regex.startswith('^') else '',
-            regex,
-            suffix if not regex.endswith('$') else '',
-            ]), r[1])
-        )
+        
+        if not regex.startswith('^'):
+            if regex.startswith('*'):
+                regex = regex[1:]
+            else:
+                regex = prefix + regex
+        
+        if not regex.endswith('$'):
+            regex = regex + suffix
+        
+        rslt.append((regex, r[1]))
     return rslt
 
 def get_timeline_key_words() -> dict[str, list[str]]:
