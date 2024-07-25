@@ -493,8 +493,10 @@ def get_filtered_post(
             if not search or not replace:
                 continue
             if re.search(search, entry.title, flags=re.ASCII|re.IGNORECASE):
-                entry.title = re.sub(search, ' '+replace+' ', entry.title, flags=re.ASCII|re.IGNORECASE, count=1).strip().replace('  ', ' ')
+                entry.title = re.sub(search, ' '+replace+' ', entry.title, flags=re.ASCII|re.IGNORECASE, count=1)
                 break
+        
+        entry.title = re.sub(r'\s+', ' ', entry.title.strip())
         
         rslt.append(entry)
     
