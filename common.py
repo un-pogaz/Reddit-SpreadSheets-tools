@@ -669,29 +669,10 @@ def get_domain_story_host() -> list[str]:
 
 def get_chapter_regex() -> list[tuple[str, str]]:
     rslt = []
-    prefix, suffix = '', ''
-    for r in get_user_data().get('chapter-regex-prefix', []):
-        prefix = r[0]
-        break
-    for r in get_user_data().get('chapter-regex-suffix', []):
-        suffix = r[0]
-        break
-    
     for r in get_user_data().get('chapter-regex', []):
         if not is_fulled_row(r, 2):
             continue
-        regex = r[0]
-        
-        if not regex.startswith('^'):
-            if regex.startswith('*'):
-                regex = regex[1:]
-            else:
-                regex = prefix + regex
-        
-        if not regex.endswith('$'):
-            regex = regex + suffix
-        
-        rslt.append((regex, r[1]))
+        rslt.append((r[0], r[1]))
     return rslt
 
 def get_timeline_key_words() -> dict[str, list[str]]:
