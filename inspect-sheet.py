@@ -75,7 +75,7 @@ url_wrong = {}
 url_params = {}
 authors_date = {}
 for idx, r in enumerate(table, 1):
-    if idx == 1:
+    if idx <= 2:
         continue
     lr = len(r)
     
