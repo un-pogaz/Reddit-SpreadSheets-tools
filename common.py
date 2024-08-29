@@ -4,13 +4,13 @@ from functools import cache
 
 import requests as _requests
 
-from google_api_client import HttpError, SpreadSheetsClient
+from google_api_client import HttpError, SpreadSheetsClient, SpreadSheets
 
 # The ID of the spreadsheet.
 SAMPLE_SPREADSHEET_ID = "1nOtYmv_d6Qt1tCX_63uE2yWVFs6-G5x_XJ778lD9qyU"
 
 @cache
-def init_spreadsheets() -> SpreadSheetsClient:
+def init_spreadsheets() -> SpreadSheets:
     rslt = SpreadSheetsClient(
         credentials_oauth2 = 'credentials.json',
         token_json = 'token.json',
