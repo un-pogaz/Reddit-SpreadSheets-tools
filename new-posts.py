@@ -92,10 +92,17 @@ try:
     spreadsheets = init_spreadsheets()
     print('Google Sheets: send', len(lines), 'new entry to pending.')
     
-    start = len(spreadsheets.get('pending'))+2
-    end = start+len(lines)
+    start = len(spreadsheets.get('pending'))+1
+    end = start+len(lines)+1
     
-    spreadsheets.update(f"pending!{start}:{end}", [e.to_list() for e in lines])
+    spreadsheets.update(f"pending!{start}:{end}", [e.to_list() for e in lines]+[['']])
+    
+    # add empty rows at the end of 'data'
+    # corresponding to the number of rows into 'pending'
+    data_start = len(spreadsheets.get('data!A:A'))+1
+    data_end = data_start+end
+    spreadsheets.update(f"data!{data_start}:{data_end}", [[''] for _ in range(end)])
+    
     set_oldest_post_id(lines[-1].post_id)
     
     print('Google Sheets: update completed')
