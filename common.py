@@ -456,9 +456,22 @@ def get_filtered_post(
         # title_timelines
         entry.timeline = get_entry(title_timelines, entry.timeline)
         
-        # chapter_inside_post
-        if get_entry(chapter_inside_post):
-            entry.title += ' <chapter inside post>'
+        # co_authors
+        lst_authors = [entry.authors]
+        for co_author in get_entry(co_authors, []):
+            if not co_author:
+                continue
+            if co_author not in lst_authors:
+                lst_authors.append(co_author)
+        entry.authors = ' & '.join(lst_authors)
+        
+        # chapter_regex
+        for search,replace in chapter_regex:
+            if not search or not replace:
+                continue
+            if re.search(search, entry.title, flags=re.ASCII|re.IGNORECASE):
+                entry.title = re.sub(search, ' '+replace+' ', entry.title, flags=re.ASCII|re.IGNORECASE, count=1)
+                break
         
         # check_links_map, check_links_search
         for link_name in get_entry(check_links_map, []):
@@ -479,22 +492,9 @@ def get_filtered_post(
             else:
                 entry.title += ' {'+link_name+' link}'
         
-        # co_authors
-        lst_authors = [entry.authors]
-        for co_author in get_entry(co_authors, []):
-            if not co_author:
-                continue
-            if co_author not in lst_authors:
-                lst_authors.append(co_author)
-        entry.authors = ' & '.join(lst_authors)
-        
-        # chapter_regex
-        for search,replace in chapter_regex:
-            if not search or not replace:
-                continue
-            if re.search(search, entry.title, flags=re.ASCII|re.IGNORECASE):
-                entry.title = re.sub(search, ' '+replace+' ', entry.title, flags=re.ASCII|re.IGNORECASE, count=1)
-                break
+        # chapter_inside_post
+        if get_entry(chapter_inside_post):
+            entry.title += ' <chapter inside post>'
         
         entry.title = re.sub(r'\s+', ' ', entry.title.strip())
         
