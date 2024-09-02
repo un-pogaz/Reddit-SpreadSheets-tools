@@ -10,11 +10,11 @@ def _raw_input(value):
 
 class SpreadSheets():
     def __init__(self, spreadsheets_service, spreadsheet_id: str):
-        self._spreadsheets =  spreadsheets_service
+        self._spreadsheets_service = spreadsheets_service
         self.spreadsheets_id = spreadsheet_id
     
     def append(self, range: str, values: list[list[str|int|float]], raw_input=False, overwrite=False):
-        self._spreadsheets.values().append(
+        self._spreadsheets_service.values().append(
             spreadsheetId=self.spreadsheets_id,
             range=range,
             insertDataOption='OVERWRITE' if overwrite else 'INSERT_ROWS',
@@ -23,13 +23,13 @@ class SpreadSheets():
         ).execute()
     
     def get(self, range: str) -> list[list[str|int|float]]:
-        return self._spreadsheets.values().get(
+        return self._spreadsheets_service.values().get(
                 spreadsheetId=self.spreadsheets_id,
                 range=range
             ).execute().get("values", [])
     
     def update(self, range: str, values: list[list[str|int|float]], raw_input=False):
-        self._spreadsheets.values().update(
+        self._spreadsheets_service.values().update(
             spreadsheetId=self.spreadsheets_id,
             range=range,
             valueInputOption=_raw_input(raw_input),
@@ -37,13 +37,13 @@ class SpreadSheets():
         ).execute()
     
     def clear(self, range: str):
-        self._spreadsheets.values().clear(
+        self._spreadsheets_service.values().clear(
             spreadsheetId=self.spreadsheets_id,
             range=range,
         ).execute()
     
     def batchClear(self, ranges: list[str]):
-        self._spreadsheets.values().batchClear(
+        self._spreadsheets_service.values().batchClear(
             spreadsheetId=self.spreadsheets_id,
             body={'ranges': ranges},
         ).execute()
@@ -129,7 +129,7 @@ class SpreadSheetsClient(GoogleApiClient):
             scopes=scopes,
         )
         
-        self._spreadsheets = self._service.spreadsheets()
+        self._spreadsheets_service = self._service.spreadsheets()
     
     def new_spreadsheets(self, spreadsheets_id: str) -> SpreadSheets:
-        return SpreadSheets(self._spreadsheets, spreadsheets_id)
+        return SpreadSheets(self._spreadsheets_service, spreadsheets_id)
