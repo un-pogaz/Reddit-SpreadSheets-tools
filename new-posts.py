@@ -105,7 +105,36 @@ try:
     
     set_oldest_post_id(lines[-1].post_id)
     
-    print('Google Sheets: update completed')
+    print('Google Sheets: update pending entry completed')
+    print()
+    
+    # update range of filter view
+    print('Google Sheets: update range of filter views')
+    requests_filter_views = []
+    for sheet in spreadsheets.getSpreadsheetsMetadata().get('sheets', []):
+        sheetId = sheet['properties']['sheetId']
+        rowCount = sheet['properties']['gridProperties']['rowCount']
+        columnCount = sheet['properties']['gridProperties']['columnCount']
+        for filter_views in sheet.get('filterViews', []):
+            requests_filter_views.append(
+                {"updateFilterView": {
+                    "filter": {
+                        "filterViewId": filter_views['filterViewId'],
+                        "range": {
+                            "sheetId": sheetId,
+                            "startRowIndex": 0,
+                            "endRowIndex": rowCount,
+                            "startColumnIndex": 0,
+                            "endColumnIndex": columnCount,
+                        }
+                    },
+                    "fields": '*'}
+                }
+            )
+    
+    spreadsheets.batchUpdateSpreadsheets(requests_filter_views)
+    
+    print('Google Sheets: filter views range updated')
     
 except HttpError as err:
     print(err)
