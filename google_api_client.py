@@ -1,3 +1,4 @@
+from typing import Any
 from google.auth.transport.requests import Request
 from google.oauth2.credentials import Credentials
 from google_auth_oauthlib.flow import InstalledAppFlow
@@ -12,6 +13,11 @@ class SpreadSheets():
     def __init__(self, spreadsheets_service, spreadsheet_id: str):
         self._spreadsheets_service = spreadsheets_service
         self.spreadsheets_id = spreadsheet_id
+    
+    def getSpreadsheetsMetadata(self) -> dict[str, Any]:
+        return self._spreadsheets_service.get(
+                spreadsheetId=self.spreadsheets_id
+            ).execute()
     
     def append(self, range: str, values: list[list[str|int|float]], raw_input=False, overwrite=False):
         self._spreadsheets_service.values().append(
@@ -46,6 +52,12 @@ class SpreadSheets():
         self._spreadsheets_service.values().batchClear(
             spreadsheetId=self.spreadsheets_id,
             body={'ranges': ranges},
+        ).execute()
+    
+    def batchUpdateSpreadsheets(self, requests: list[dict[str, Any]]):
+        self._spreadsheets_service.batchUpdate(
+            spreadsheetId=self.spreadsheets_id,
+            body={'requests': requests},
         ).execute()
 
 
