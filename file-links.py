@@ -47,7 +47,7 @@ for file in args.file:
                 if not base_url.endswith(suffix):
                     base_url += suffix
             
-            reponse = requests.get(base_url, timeout=1000).json()
+            reponse = requests.get(base_url, timeout=60).json()
             if isinstance(reponse, list) and reponse:
                 r = reponse[0]['data']['children'][0]['data']
                 parse_content(r)

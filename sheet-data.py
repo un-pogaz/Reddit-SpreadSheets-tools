@@ -36,7 +36,7 @@ for args_idx in range(args_length):
         loop = True
         
         while loop:
-            tbl = requests.get(base_url, params=params, timeout=1000).json().get('data', {}).get('children', {})
+            tbl = requests.get(base_url, params=params, timeout=60).json().get('data', {}).get('children', {})
             if tbl:
                 count += len(tbl)
                 run_animation.extra = str(count)
