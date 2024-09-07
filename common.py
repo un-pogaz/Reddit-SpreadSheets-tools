@@ -598,7 +598,7 @@ def get_url_data() -> set:
 @cache
 def get_user_data() -> dict[str, list[list[str]]]:
     spreadsheets = init_spreadsheets()
-    print('Google Sheets: retrieve the user data...')
+    print('Google Sheets: retrieve the script-user-data...')
     
     try:
         rslt = defaultdict(list)
