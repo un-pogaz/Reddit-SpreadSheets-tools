@@ -6,7 +6,7 @@ args = argparse.ArgumentParser(description='Retrive the data from r/NatureofPred
 args.add_argument('-a', '--all', '--dont-exclude-url', dest='exclude_url', action='store_false', help="Retrive all entry, don't exclude where the url of the post is already in the spreadsheets")
 args.add_argument('--nsfw', action='store_true', help='Inspect the NSFW sub')
 args.add_argument('-csv', '--csv', type=str, nargs='?', default=False, help='Output into a CSV file')
-args.add_argument('-id', '--id', '--oldest-post-id', dest='oldest_post_id', type=str, help='id of the oldest post to check. If empty, go to the limit of the reddit API (1000 posts).')
+args.add_argument('-id', '--id', '--oldest-post-id', dest='oldest_post_id', type=str, help='id of the oldest post to check. If not specified, used the id stored on the spreadsheets.')
 args.add_argument('--no-emtpy-row', '--no-pending-emtpy-row', dest='no_emtpy_row', action='store_false', help="Don't add emtpy row at the end of the of the 'data' sheet")
 args.add_argument('--no-update-filtre', '--no-update-filtre-view', dest='no_update_filtre', action='store_false', help="Don't update the range of the filtre views")
 args = args.parse_args()
