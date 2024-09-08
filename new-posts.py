@@ -90,7 +90,7 @@ if args.csv:
 try:
     print()
     spreadsheets = init_spreadsheets()
-    print('Google Sheets: send', len(lines), 'new entry to pending.')
+    print('Google Sheets: send {} new entry to pending.'.format(len(lines)))
     
     start = len(spreadsheets.get('pending'))+1
     end = start+len(lines)+1
