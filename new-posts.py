@@ -7,6 +7,8 @@ args.add_argument('-a', '--all', '--dont-exclude-url', dest='exclude_url', actio
 args.add_argument('--nsfw', action='store_true', help='Inspect the NSFW sub')
 args.add_argument('-csv', '--csv', type=str, nargs='?', default=False, help='Output into a CSV file')
 args.add_argument('-id', '--id', '--oldest-post-id', dest='oldest_post_id', type=str, help='id of the oldest post to check. If empty, go to the limit of the reddit API (1000 posts).')
+args.add_argument('--no-emtpy-row', '--no-pending-emtpy-row', dest='no_emtpy_row', action='store_false', help="Don't add emtpy row at the end of the of the 'data' sheet")
+args.add_argument('--no-update-filtre', '--no-update-filtre-view', dest='no_update_filtre', action='store_false', help="Don't update the range of the filtre views")
 args = args.parse_args()
 
 
@@ -97,44 +99,48 @@ try:
     
     spreadsheets.update(f"pending!{start}:{end}", [e.to_list() for e in lines]+[['']])
     
-    # add empty rows at the end of 'data'
-    # corresponding to the number of rows into 'pending'
-    data_start = len(spreadsheets.get('data!A:A'))+1
-    data_end = data_start+end
-    spreadsheets.update(f"data!{data_start}:{data_end}", [[''] for _ in range(end)])
-    
     set_oldest_post_id(lines[-1].post_id)
-    
     print('Google Sheets: update pending entry completed')
     print()
     
-    # update range of filter view
-    print('Google Sheets: update range of filter views')
-    requests_filter_views = []
-    for sheet in spreadsheets.getSpreadsheetsMetadata().get('sheets', []):
-        sheetId = sheet['properties']['sheetId']
-        rowCount = sheet['properties']['gridProperties']['rowCount']
-        columnCount = sheet['properties']['gridProperties']['columnCount']
-        for filter_views in sheet.get('filterViews', []):
-            requests_filter_views.append(
-                {"updateFilterView": {
-                    "filter": {
-                        "filterViewId": filter_views['filterViewId'],
-                        "range": {
-                            "sheetId": sheetId,
-                            "startRowIndex": 0,
-                            "endRowIndex": rowCount,
-                            "startColumnIndex": 0,
-                            "endColumnIndex": columnCount,
-                        }
+    if args.no_emtpy_row:
+        # add empty rows at the end of 'data'
+        # corresponding to the number of rows into 'pending'
+        print('Google Sheets: append pending empty row to data')
+        data_start = len(spreadsheets.get('data!A:A'))+1
+        data_end = data_start+end
+        spreadsheets.update(f"data!{data_start}:{data_end}", [[''] for _ in range(end)])
+        print('Google Sheets: pending empty row completed')
+        print()
+    
+    if args.no_update_filtre:
+        # update range of filter views
+        print('Google Sheets: update range of filter views')
+        requests_filter_views = []
+        for sheet in spreadsheets.getSpreadsheetsMetadata().get('sheets', []):
+            sheetId = sheet['properties']['sheetId']
+            rowCount = sheet['properties']['gridProperties']['rowCount']
+            columnCount = sheet['properties']['gridProperties']['columnCount']
+            for filter_views in sheet.get('filterViews', []):
+                requests_filter_views.append(
+                    {"updateFilterView": {
+                        "filter": {
+                            "filterViewId": filter_views['filterViewId'],
+                            "range": {
+                                "sheetId": sheetId,
+                                "startRowIndex": 0,
+                                "endRowIndex": rowCount,
+                                "startColumnIndex": 0,
+                                "endColumnIndex": columnCount,
+                            }
+                        },
+                        "fields": '*'}
                     },
-                    "fields": '*'}
-                }
-            )
-    
-    spreadsheets.batchUpdateSpreadsheets(requests_filter_views)
-    
-    print('Google Sheets: filter views range updated')
+                )
+        
+        spreadsheets.batchUpdateSpreadsheets(requests_filter_views)
+        print('Google Sheets: filter views range updated')
+        print()
     
 except HttpError as err:
     print(err)
