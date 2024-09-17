@@ -304,6 +304,7 @@ def get_filtered_post(
     check_links_search: dict[str, str]|bool =True,
     domain_story_host: list[str]|bool =True,
     chapter_regex: list[tuple[str, str]]|bool =True,
+    status_regex: list[tuple[str, str]]|bool =True,
     timeline_key_words: dict[str, list[str]]|bool =True,
     co_authors: dict[str, list[str]]|bool =True,
 ) -> list[PostEntry]:
@@ -365,6 +366,12 @@ def get_filtered_post(
         chapter_regex = get_chapter_regex()
     if not isinstance(chapter_regex, list):
         chapter_regex = []
+    
+    # status_regex
+    if status_regex is True:
+        status_regex = get_status_regex()
+    if not isinstance(status_regex, list):
+        status_regex = []
     
     # timeline_key_words
     if timeline_key_words is True:
@@ -469,6 +476,14 @@ def get_filtered_post(
                 entry.title = re.sub(search, ' '+replace+' ', entry.title, flags=regex_flags, count=1)
                 break
         
+        # status_regex
+        for search,status in status_regex:
+            if not search or not status:
+                continue
+            if re.search(search, entry.title, flags=regex_flags):
+                entry.statue = status
+                break
+        
         # check_links_map, check_links_search
         for link_name in get_entry(check_links_map, []):
             if entry.link_redirect:
@@ -521,6 +536,7 @@ def read_subreddit(
     check_links_search: dict[str, str]|bool =True,
     domain_story_host: list[str]|bool =True,
     chapter_regex: list[tuple[str, str]]|bool =True,
+    status_regex: list[tuple[str, str]]|bool =True,
     timeline_key_words: dict[str, list[str]]|bool =True,
     co_authors: dict[str, list[str]]|bool =True,
 ) -> list[PostEntry]:
@@ -570,6 +586,7 @@ def read_subreddit(
         check_links_search=check_links_search,
         domain_story_host=domain_story_host,
         chapter_regex=chapter_regex,
+        status_regex=status_regex,
         timeline_key_words=timeline_key_words,
         co_authors=co_authors,
     )
@@ -666,6 +683,14 @@ def get_domain_story_host() -> list[str]:
 def get_chapter_regex() -> list[tuple[str, str]]:
     rslt = []
     for r in get_user_data().get('chapter-regex', []):
+        if not is_fulled_row(r, 2):
+            continue
+        rslt.append((r[0], r[1]))
+    return rslt
+
+def get_status_regex() -> list[tuple[str, str]]:
+    rslt = []
+    for r in get_user_data().get('status-regex', []):
         if not is_fulled_row(r, 2):
             continue
         rslt.append((r[0], r[1]))
