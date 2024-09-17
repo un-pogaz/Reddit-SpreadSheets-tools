@@ -265,22 +265,13 @@ class PostEntry():
         else:
             link_redirect = ''
         
-        cw = 'Mature' if post_item['over_18'] or (post_item['link_flair_text'] or '').lower() == 'nsfw' else ''
-        if cw and post_item['subreddit'] == 'NatureOfPredatorsNSFW':
-            cw = 'Adult'
-        
-        if (post_item['link_flair_text'] or '').lower() == 'roleplay':
-            statue = 'Roleplay'
-        else:
-            statue = ''
-        
         self._post_item = post_item
         self.created: datetime = datetime.fromtimestamp(post_item['created_utc'])
         self.timeline: str = ''
         self.title: str = post_item['title']
         self.authors: str = post_item['author']
-        self.content_warning: str = cw
-        self.statue: str = statue
+        self.content_warning: str = ''
+        self.statue: str = ''
         self.link: str = permalink
         self.description: str = link_redirect
         self.link_redirect: str = link_redirect
@@ -423,6 +414,14 @@ def get_filtered_post(
         entry = PostEntry(item, domain_story_host=domain_story_host)
         if entry.link in exclude_url:
             continue
+        
+        if item['over_18'] or (item['link_flair_text'] or '').lower() == 'nsfw':
+            entry.content_warning = 'Mature'
+        if item['subreddit'] == 'NatureOfPredatorsNSFW':
+            entry.content_warning = 'Adult'
+        
+        if (item['link_flair_text'] or '').lower() == 'roleplay':
+            entry.statue = 'Roleplay'
         
         if subreddit == 'HFY' or subreddit == 'NatureofPredators' and (item['link_flair_text'] or '').lower() in ['fanfic', 'nsfw']:
             entry.timeline = 'Fan-fic NoP1'
