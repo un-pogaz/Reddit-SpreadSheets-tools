@@ -358,6 +358,8 @@ def get_filtered_post(
     if not isinstance(domain_story_host, list):
         domain_story_host = []
     
+    regex_flags = re.ASCII|re.IGNORECASE
+    
     # chapter_regex
     if chapter_regex is True:
         chapter_regex = get_chapter_regex()
@@ -428,7 +430,7 @@ def get_filtered_post(
         for timeline,key_words in timeline_key_words.items():
             if not key_words or not timeline:
                 continue
-            if re.search(r'\s('+'|'.join(key_words)+r')s?[^a-z]', post_text, re.ASCII|re.IGNORECASE):
+            if re.search(r'\s('+'|'.join(key_words)+r')s?[^a-z]', post_text, flags=regex_flags):
                 entry.timeline = timeline
         
         
@@ -463,8 +465,8 @@ def get_filtered_post(
         for search,replace in chapter_regex:
             if not search or not replace:
                 continue
-            if re.search(search, entry.title, flags=re.ASCII|re.IGNORECASE):
-                entry.title = re.sub(search, ' '+replace+' ', entry.title, flags=re.ASCII|re.IGNORECASE, count=1)
+            if re.search(search, entry.title, flags=regex_flags):
+                entry.title = re.sub(search, ' '+replace+' ', entry.title, flags=regex_flags, count=1)
                 break
         
         # check_links_map, check_links_search
@@ -474,7 +476,7 @@ def get_filtered_post(
                 break
             if not link_name:
                 continue
-            url = re.search(check_links_search.get(link_name, ''), post_text, re.ASCII)
+            url = re.search(check_links_search.get(link_name, ''), post_text, flags=re.ASCII)
             if url:
                 url = url.group(0)
             if url:
