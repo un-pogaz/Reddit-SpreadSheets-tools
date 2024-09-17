@@ -14,7 +14,7 @@ from common import (
 
 args = argparse.ArgumentParser(description='Retrive the data from a list of link')
 args.add_argument('-u', '--url', '--exclude-url', dest='exclude_url', action='store_true', help='Exclude where the url post is already in the spreadsheets')
-args.add_argument('-w', '--waiting', '--waiting-for-each-entry', dest='waiting', nargs='?', default=False, type=int, help='Wait between each entry retiving. The effective time of waiting is ramdomly take in the range WAITING/2 to WAITING (in seconds). Can be useful for big file and don\'t be temporaly ip ban.')
+args.add_argument('-w', '--waiting', '--waiting-for-each-entry', dest='waiting', nargs='?', default=False, type=int, help='Wait between each entry retiving. The effective time of waiting is ramdomly take in the range WAITING/2 to WAITING (in seconds). Can be useful for big file and avoid a \'429 Too Many Requests\'.')
 args.add_argument('file', type=str, nargs='+', help='File path of txt containing urls to check')
 args = args.parse_args()
 
@@ -41,7 +41,7 @@ for file in args.file:
     
     async def read_all_link():
         for idx, base_url in enumerate(all_link, 1):
-            i = random.randint(args.waiting//2,args.waiting) if args.waiting else 0
+            i = random.randint(args.waiting//2,args.waiting) if args.waiting else 1
             run_animation.extra = f'{idx}/{lenght}' + (f' (waiting {i} seconds to appease reddit)' if args.waiting else '')
             
             if 'reddit.com' not in base_url:
