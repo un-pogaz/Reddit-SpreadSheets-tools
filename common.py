@@ -72,15 +72,10 @@ def read_lines(path: str, default=None) -> list[str]:
         print(ex)
         return default
 
-def write_lines(path: str, *lines: list[str]):
-    rslt = []
-    for l in lines:
-        if isinstance(l, str):
-            rslt.append(l)
-        if isinstance(l, list):
-            rslt.extend(l)
-    
-    write_text(path, '\n'.join(rslt))
+def write_lines(path: str, lines: list[str]):
+    if isinstance(lines, str):
+        lines = [lines]
+    write_text(path, '\n'.join(lines))
 
 def read_text(path: str, default=None) -> str:
     try:
