@@ -116,7 +116,7 @@ try:
     print('Google Sheets: update pending entry completed')
     print()
     
-    if args.no_emtpy_row:
+    if not args.spacepaladin and args.no_emtpy_row:
         # add empty rows at the end of 'data'
         # corresponding to the number of rows into 'pending'
         print('Google Sheets: append pending empty row to data')
@@ -126,7 +126,7 @@ try:
         print('Google Sheets: pending empty row completed')
         print()
     
-    if args.no_update_filtre:
+    if not args.spacepaladin and args.no_update_filtre:
         # update range of filter views
         print('Google Sheets: update range of filter views')
         requests_filter_views = []
