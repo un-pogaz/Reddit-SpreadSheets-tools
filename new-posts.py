@@ -5,11 +5,11 @@ from common import HttpError, init_spreadsheets, parse_post_id, read_subreddit
 args = argparse.ArgumentParser(description='Retrive the data from r/NatureofPredators, and push it to the spreadsheets')
 args.add_argument('-a', '--all', '--dont-exclude-url', dest='exclude_url', action='store_false', help="Retrive all entry, don't exclude where the url of the post is already in the spreadsheets")
 args_choice = args.add_mutually_exclusive_group()
-args_choice.add_argument('--nsfw', action='store_true', help='Inspect the NSFW sub')
+args_choice.add_argument('--nsfw', action='store_true', help='Inspect the NSFW subreddit')
 args_choice.add_argument('-sp', '--spacepaladin', action='store_true', help='Inspect SpacePaladin15 posts')
 args.add_argument('-csv', '--csv', type=str, nargs='?', default=False, help='Output into a CSV file')
 args.add_argument('-id', '--id', '--oldest-post-id', dest='oldest_post_id', type=str, help='id of the oldest post to check. If not specified, used the id stored on the spreadsheets.')
-args.add_argument('--no-emtpy-row', '--no-pending-emtpy-row', dest='no_emtpy_row', action='store_false', help="Don't add emtpy row at the end of the of the 'data' sheet")
+args.add_argument('--no-emtpy-row', '--no-pending-emtpy-row', dest='no_emtpy_row', action='store_false', help="Don't add emtpy row at the end of the 'data' sheet")
 args.add_argument('--no-update-filtre', '--no-update-filtre-view', dest='no_update_filtre', action='store_false', help="Don't update the range of the filtre views")
 args = args.parse_args()
 
