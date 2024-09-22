@@ -529,6 +529,8 @@ def read_subreddit(
     subreddit: str,
     oldest_post: str|None,
     *,
+    subreddit_is_author: bool =False,
+    additional_loading_message: str=None,
     exclude_url: list[str]|bool =True,
     special_timelines: dict[str, list[str]]|bool =True,
     chapter_inside_post: list[str]|bool =True,
@@ -547,7 +549,13 @@ def read_subreddit(
     """
     
     all_post = []
-    base_url = f'https://www.reddit.com/r/{subreddit}/new/.json'
+    if subreddit_is_author:
+        base_url = f'https://www.reddit.com/user/{subreddit}/submitted/.json'
+    else:
+        base_url = f'https://www.reddit.com/r/{subreddit}/new/.json'
+    
+    if not oldest_post:
+        oldest_post = '0'
     
     async def read_posts():
         import time
@@ -574,8 +582,14 @@ def read_subreddit(
                 loop = False
             time.sleep(1)
     
-    run_animation(read_posts, f'Loading new post on post r/{subreddit}')
-    print('Total new post to analyze:', len(all_post))
+    if subreddit_is_author:
+        msg = f'Loading Reddit post for u/{subreddit}'
+    else:
+        msg = f'Loading Reddit post on r/{subreddit}'
+    if additional_loading_message:
+        msg = (msg + additional_loading_message).strip()
+    run_animation(read_posts, msg)
+    print('Total post to analyze:', len(all_post))
     
     lines = get_filtered_post(
         source_data=all_post,
@@ -590,7 +604,12 @@ def read_subreddit(
         timeline_key_words=timeline_key_words,
         co_authors=co_authors,
     )
-    print(f'Data extracted from r/{subreddit}.', 'New lines to add:', len(lines))
+    
+    if subreddit_is_author:
+        msg = f'Data extracted for u/{subreddit}.'
+    else:
+        msg = f'Data extracted from r/{subreddit}.'
+    print(msg, 'Post found:', len(lines))
     
     return lines
 
