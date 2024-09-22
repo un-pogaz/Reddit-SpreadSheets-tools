@@ -43,23 +43,23 @@ def write_authors_list(sheet_name) -> set[str]:
     return rslt
 
 authors_full = write_authors_list('data')
-authors_pending = write_authors_list('pending')
+authors_various = write_authors_list('various')
 table = spreadsheets.get('data')
 
 print()
 print('Total data rows:', len(table))
 
-authors_common = sorted(authors_pending.intersection(authors_full))
+authors_common = sorted(authors_various.intersection(authors_full))
 if args.write_authors:
     write_lines('authors_common.txt', authors_common)
 
-authors_difference = sorted(authors_pending.difference(authors_full))
+authors_difference = sorted(authors_various.difference(authors_full))
 if args.write_authors:
     write_lines('authors_difference.txt', authors_difference)
 
 map_count = {
     'Authors':authors_full,
-    'Pending':authors_pending,
+    'Various':authors_various,
     'Common':authors_common,
     'Difference':authors_difference,
 }
