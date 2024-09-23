@@ -441,27 +441,34 @@ def get_filtered_post(
                 entry.timeline = timeline
         
         
-        def get_entry(list_dict: list[str]|dict[str, str], default=None):
+        def get_entry_text(input: list[str]|dict[str, str], default=None):
             title_lower = entry.title.lower()
             rslt = None
-            for title in list_dict:
+            for title in input:
                 if not title:
                     continue
                 if title.lower() in title_lower:
                     rslt = title
                     break
-            if isinstance(list_dict, dict):
-                rslt = list_dict.get(rslt)
+            if isinstance(input, dict):
+                rslt = input.get(rslt)
             if rslt is None:
                 rslt = default
             return rslt
         
+        def get_entry_regex(input: list[tuple[str, str]]) -> tuple[str, str]:
+            for search,value in input:
+                if not search or not value:
+                    continue
+                if re.search(search, entry.title, flags=regex_flags):
+                    return search, value
+        
         # title_timelines
-        entry.timeline = get_entry(title_timelines, entry.timeline)
+        entry.timeline = get_entry_text(title_timelines, entry.timeline)
         
         # co_authors
         lst_authors = [entry.authors]
-        for co_author in get_entry(co_authors, []):
+        for co_author in get_entry_text(co_authors, []):
             if not co_author:
                 continue
             if co_author not in lst_authors:
@@ -469,23 +476,17 @@ def get_filtered_post(
         entry.authors = ' & '.join(lst_authors)
         
         # status_regex
-        for search,status in status_regex:
-            if not search or not status:
-                continue
-            if re.search(search, entry.title, flags=regex_flags):
-                entry.statue = status
-                break
+        search_status = get_entry_regex(status_regex)
+        if search_status:
+            entry.statue = search_status[1]
         
         # chapter_regex
-        for search,replace in chapter_regex:
-            if not search or not replace:
-                continue
-            if re.search(search, entry.title, flags=regex_flags):
-                entry.title = re.sub(search, ' '+replace+' ', entry.title, flags=regex_flags, count=1)
-                break
+        search_replace = get_entry_regex(chapter_regex)
+        if search_replace:
+            entry.title = re.sub(search_replace[0], ' '+search_replace[1]+' ', entry.title, flags=regex_flags, count=1)
         
         # check_links_map, check_links_search
-        for link_name in get_entry(check_links_map, []):
+        for link_name in get_entry_text(check_links_map, []):
             if entry.link_redirect:
                 # is a link post, no text to analyze
                 break
@@ -504,7 +505,7 @@ def get_filtered_post(
                 entry.title += ' {'+link_name+' link}'
         
         # chapter_inside_post
-        if get_entry(chapter_inside_post):
+        if get_entry_text(chapter_inside_post):
             entry.title += ' <chapter inside post>'
         
         entry.title = re.sub(r'\s+', ' ', entry.title.strip())
