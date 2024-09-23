@@ -468,20 +468,20 @@ def get_filtered_post(
                 lst_authors.append(co_author)
         entry.authors = ' & '.join(lst_authors)
         
-        # chapter_regex
-        for search,replace in chapter_regex:
-            if not search or not replace:
-                continue
-            if re.search(search, entry.title, flags=regex_flags):
-                entry.title = re.sub(search, ' '+replace+' ', entry.title, flags=regex_flags, count=1)
-                break
-        
         # status_regex
         for search,status in status_regex:
             if not search or not status:
                 continue
             if re.search(search, entry.title, flags=regex_flags):
                 entry.statue = status
+                break
+        
+        # chapter_regex
+        for search,replace in chapter_regex:
+            if not search or not replace:
+                continue
+            if re.search(search, entry.title, flags=regex_flags):
+                entry.title = re.sub(search, ' '+replace+' ', entry.title, flags=regex_flags, count=1)
                 break
         
         # check_links_map, check_links_search
