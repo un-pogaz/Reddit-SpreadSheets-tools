@@ -72,7 +72,7 @@ if args.spacepaladin:
     subreddit = 'SpacePaladin15'
     subreddit_is_author = True
     kargs = {
-        'timeline_key_words':{'Main':['.+']}
+        'special_timelines':{'Main':['Nature of Predators']}
     }
 else:
     if args.nsfw:
