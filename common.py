@@ -470,6 +470,9 @@ def get_filtered_post(
                 if re.search(search, entry.title, flags=regex_flags):
                     return search, value
         
+        def parse_space(text):
+            return re.sub(r'\s+', ' ', text.strip()).strip()
+        
         # title_timelines
         entry.timeline = get_entry_text(title_timelines, entry.timeline)
         
@@ -485,7 +488,7 @@ def get_filtered_post(
         # additional_regex
         search_additional = get_entry_regex(additional_regex)
         if search_additional:
-            entry.title = re.sub(search_additional[0], search_additional[1], entry.title, flags=regex_flags, count=1)
+            entry.title = parse_space(re.sub(search_additional[0], search_additional[1], entry.title, flags=regex_flags, count=1))
         
         # status_regex
         search_status = get_entry_regex(status_regex)
@@ -495,7 +498,7 @@ def get_filtered_post(
         # chapter_regex
         search_replace = get_entry_regex(chapter_regex)
         if search_replace:
-            entry.title = re.sub(search_replace[0], ' '+search_replace[1]+' ', entry.title, flags=regex_flags, count=1)
+            entry.title = parse_space(re.sub(search_replace[0], ' '+search_replace[1]+' ', entry.title, flags=regex_flags, count=1))
         
         # check_links_map, check_links_search
         for link_name in get_entry_text(check_links_map, []):
@@ -520,7 +523,7 @@ def get_filtered_post(
         if get_entry_text(chapter_inside_post):
             entry.title += ' <chapter inside post>'
         
-        entry.title = re.sub(r'\s+', ' ', entry.title.strip())
+        entry.title = parse_space(entry.title)
         
         rslt.append(entry)
     
