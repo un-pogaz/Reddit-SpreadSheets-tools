@@ -657,6 +657,7 @@ def is_fulled_row(row, length):
             return False
     return True
 
+@cache
 def get_special_timelines() -> dict[str, list[str]]:
     rslt = defaultdict(list)
     for r in get_user_data().get('timeline', []):
@@ -665,6 +666,7 @@ def get_special_timelines() -> dict[str, list[str]]:
         rslt[r[1]].append(r[0])
     return rslt
 
+@cache
 def get_chapter_inside_post() -> list[str]:
     rslt = []
     for r in get_user_data().get('chapter-inside-post', []):
@@ -673,6 +675,7 @@ def get_chapter_inside_post() -> list[str]:
         rslt.append(r[0])
     return rslt
 
+@cache
 def get_check_links_search() -> dict[str, str]:
     rslt = {}
     for r in get_user_data().get('domain-story-host', []):
@@ -681,6 +684,7 @@ def get_check_links_search() -> dict[str, str]:
         rslt[r[1]] = r[2]
     return rslt
 
+@cache
 def get_check_links_map() -> dict[str, list[str]]:
     rslt = {}
     for r in get_user_data().get('check-links', []):
@@ -692,6 +696,7 @@ def get_check_links_map() -> dict[str, list[str]]:
         rslt[r[0]] = lst
     return rslt
 
+@cache
 def get_domain_story_host() -> list[str]:
     rslt = []
     for r in get_user_data().get('domain-story-host', []):
@@ -700,6 +705,7 @@ def get_domain_story_host() -> list[str]:
         rslt.append(r[0])
     return rslt
 
+@cache
 def get_chapter_regex() -> list[tuple[str, str]]:
     rslt = []
     for r in get_user_data().get('chapter-regex', []):
@@ -708,6 +714,7 @@ def get_chapter_regex() -> list[tuple[str, str]]:
         rslt.append((r[0], r[1]))
     return rslt
 
+@cache
 def get_status_regex() -> list[tuple[str, str]]:
     rslt = []
     for r in get_user_data().get('status-regex', []):
@@ -716,6 +723,7 @@ def get_status_regex() -> list[tuple[str, str]]:
         rslt.append((r[0], r[1]))
     return rslt
 
+@cache
 def get_timeline_key_words() -> dict[str, list[str]]:
     rslt = defaultdict(list)
     for r in get_user_data().get('timeline-key-word', []):
@@ -724,6 +732,7 @@ def get_timeline_key_words() -> dict[str, list[str]]:
         rslt[r[1]].append(r[0])
     return rslt
 
+@cache
 def get_co_authors() -> dict[str, list[str]]:
     rslt = defaultdict(list)
     for r in get_user_data().get('co-authors', []):
