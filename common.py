@@ -303,6 +303,7 @@ def get_filtered_post(
     check_links_map: dict[str, list[str]]|bool =True,
     check_links_search: dict[str, str]|bool =True,
     domain_story_host: list[str]|bool =True,
+    additional_regex: list[tuple[str, str]]|bool =True,
     chapter_regex: list[tuple[str, str]]|bool =True,
     status_regex: list[tuple[str, str]]|bool =True,
     timeline_key_words: dict[str, list[str]]|bool =True,
@@ -311,7 +312,7 @@ def get_filtered_post(
     """
     If exclude_url is True, get the exclude_url list from the spreadsheets.
     Same for special_timelines, chapter_inside_post, check_links_map, check_links_search,
-    domain_story_host, chapter_regex, timeline_key_words, co_authors.
+    domain_story_host, additional_regex, chapter_regex, status_regex, timeline_key_words, co_authors.
     """
     
     rslt = []
@@ -360,6 +361,12 @@ def get_filtered_post(
         domain_story_host = []
     
     regex_flags = re.ASCII|re.IGNORECASE
+    
+    # additional_regex
+    if additional_regex is True:
+        additional_regex = get_additional_regex()
+    if not isinstance(additional_regex, list):
+        additional_regex = []
     
     # chapter_regex
     if chapter_regex is True:
@@ -475,6 +482,11 @@ def get_filtered_post(
                 lst_authors.append(co_author)
         entry.authors = ' & '.join(lst_authors)
         
+        # additional_regex
+        search_additional = get_entry_regex(additional_regex)
+        if search_additional:
+            entry.title = re.sub(search_additional[0], search_additional[1], entry.title, flags=regex_flags, count=1)
+        
         # status_regex
         search_status = get_entry_regex(status_regex)
         if search_status:
@@ -538,6 +550,7 @@ def read_subreddit(
     check_links_map: dict[str, list[str]]|bool =True,
     check_links_search: dict[str, str]|bool =True,
     domain_story_host: list[str]|bool =True,
+    additional_regex: list[tuple[str, str]]|bool =True,
     chapter_regex: list[tuple[str, str]]|bool =True,
     status_regex: list[tuple[str, str]]|bool =True,
     timeline_key_words: dict[str, list[str]]|bool =True,
@@ -545,8 +558,8 @@ def read_subreddit(
 ) -> list[PostEntry]:
     """
     If exclude_url is True, get the exclude_url list from the spreadsheets.
-    Same for special_timelines, chapter_inside_post, check_links_map, check_links_search
-    domain_story_host, chapter_regex, timeline_key_words, co_authors.
+    Same for special_timelines, chapter_inside_post, check_links_map, check_links_search,
+    domain_story_host, additional_regex, chapter_regex, status_regex, timeline_key_words, co_authors.
     """
     
     all_post = []
@@ -600,6 +613,7 @@ def read_subreddit(
         check_links_map=check_links_map,
         check_links_search=check_links_search,
         domain_story_host=domain_story_host,
+        additional_regex=additional_regex,
         chapter_regex=chapter_regex,
         status_regex=status_regex,
         timeline_key_words=timeline_key_words,
@@ -703,6 +717,17 @@ def get_domain_story_host() -> list[str]:
         if not r[0]:
             continue
         rslt.append(r[0])
+    return rslt
+
+@cache
+def get_additional_regex() -> list[tuple[str, str]]:
+    rslt = []
+    for r in get_user_data().get('additional-regex', []):
+        if not r:
+            continue
+        if len(r) < 2:
+            r.append(' ')
+        rslt.append((r[0], r[1]))
     return rslt
 
 @cache
