@@ -247,8 +247,9 @@ class PostEntry():
         from datetime import datetime
         domain_story_host = domain_story_host or []
         
-        if 'reddit.com' in post_item.get('url_overridden_by_dest', ''):
-            permalink = post_item.get('url_overridden_by_dest') or post_item['permalink']
+        test_url = post_item.get('url_overridden_by_dest', '')
+        if 'reddit.com/r/' in test_url or 'reddit.com/user/' in test_url:
+            permalink = test_url
         else:
             permalink = post_item['permalink']
         
