@@ -1,6 +1,6 @@
 import argparse
 
-from common import HttpError, init_spreadsheets, parse_post_id, read_subreddit
+from common import HttpError, init_spreadsheets, read_subreddit
 
 args = argparse.ArgumentParser(description='Retrive the data from r/NatureofPredators, and push it to the spreadsheets')
 args.add_argument('-a', '--all', '--dont-exclude-url', dest='exclude_url', action='store_false', help="Retrive all entry, don't exclude where the url of the post is already in the spreadsheets")
@@ -17,6 +17,12 @@ def _last_post_name() -> str:
     if args.spacepaladin:
         return 'last-post-spacepaladin'
     return 'last-post' + ('-nsfw' if args.nsfw else '')
+
+def parse_post_id(post_id: str):
+    post_id = post_id.strip()
+    if not post_id.startswith('t3_'):
+        post_id = 't3_'+post_id
+    return post_id
 
 def get_oldest_post_id() -> str:
     spreadsheets = init_spreadsheets()
