@@ -455,9 +455,14 @@ def get_filtered_post(
             for title in input:
                 if not title:
                     continue
-                if title.lower() in title_lower:
+                
+                if title.startswith('^') and title_lower.startswith(title.lower()[1:]):
                     rslt = title
                     break
+                elif title.lower() in title_lower:
+                    rslt = title
+                    break
+            
             if isinstance(input, dict):
                 rslt = input.get(rslt)
             if rslt is None:
