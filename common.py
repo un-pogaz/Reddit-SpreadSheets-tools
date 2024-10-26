@@ -256,7 +256,8 @@ class PostEntry():
         permalink = re.sub(r'\w+.reddit.com', r'www.reddit.com', permalink)
         permalink = re.sub(r'\?.*', '', permalink)
         
-        if post_item['domain'] in domain_story_host:
+        self.domain :str = post_item['domain']
+        if self.domain in domain_story_host:
             link_redirect = post_item['url_overridden_by_dest']
         else:
             link_redirect = ''
@@ -309,11 +310,13 @@ def get_filtered_post(
     status_regex: list[tuple[str, str]]|bool =True,
     timeline_key_words: dict[str, list[str]]|bool =True,
     co_authors: dict[str, list[str]]|bool =True,
+    comics: list[str]|bool =True,
 ) -> list[PostEntry]:
     """
     If exclude_url is True, get the exclude_url list from the spreadsheets.
     Same for special_timelines, chapter_inside_post, check_links_map, check_links_search,
-    domain_story_host, additional_regex, chapter_regex, status_regex, timeline_key_words, co_authors.
+    domain_story_host, additional_regex, chapter_regex, status_regex, timeline_key_words,
+    co_authors, comics.
     """
     
     rslt = []
@@ -393,6 +396,12 @@ def get_filtered_post(
     if not isinstance(co_authors, dict):
         co_authors = {}
     
+    # comics
+    if comics is True:
+        comics = get_comics()
+    if not isinstance(comics, list):
+        comics = []
+    
     for item in source_data:
         if post_is_to_old(item):
             continue
@@ -416,38 +425,9 @@ def get_filtered_post(
                 post_text = crosspost_parent_list[0].get('selftext', '')
         post_text = (post_text or '').strip()
         
-        domain = item['domain']
-        if domain in SUBREDDITS_DOMAIN or domain in domain_story_host or domain.endswith('.reddit.com'):
-            pass
-        elif not post_text:
-            continue
-        
-        
         entry = PostEntry(item, domain_story_host=domain_story_host)
         if entry.link in exclude_url:
             continue
-        
-        if item['over_18'] or (item['link_flair_text'] or '').lower() == 'nsfw':
-            entry.content_warning = 'Mature'
-        if item['subreddit'] == 'NatureOfPredatorsNSFW':
-            entry.content_warning = 'Adult'
-        
-        if (item['link_flair_text'] or '').lower() == 'roleplay':
-            entry.statue = 'Roleplay'
-        
-        if subreddit == 'HFY' or subreddit == 'NatureofPredators' and (item['link_flair_text'] or '').lower() in ['fanfic', 'nsfw']:
-            entry.timeline = 'Fan-fic NoP1'
-        
-        if not entry.timeline:
-            entry.timeline = 'none'
-        
-        # timeline_key_words
-        for timeline,key_words in timeline_key_words.items():
-            if not key_words or not timeline:
-                continue
-            if re.search(r'\s('+'|'.join(key_words)+r')s?[^a-z]', post_text, flags=regex_flags):
-                entry.timeline = timeline
-        
         
         def get_entry_text(input: list[str]|dict[str, str], default=None):
             title_lower = entry.title.lower()
@@ -478,6 +458,36 @@ def get_filtered_post(
         
         def parse_space(text):
             return re.sub(r'\s+', ' ', text.strip()).strip()
+        
+        
+        if entry.domain in SUBREDDITS_DOMAIN or entry.domain in domain_story_host or entry.domain.endswith('reddit.com'):
+            pass
+        elif get_entry_text(comics):
+            pass
+        elif not post_text:
+            continue
+        
+        
+        if item['over_18'] or (item['link_flair_text'] or '').lower() == 'nsfw':
+            entry.content_warning = 'Mature'
+        if item['subreddit'] == 'NatureOfPredatorsNSFW':
+            entry.content_warning = 'Adult'
+        
+        if (item['link_flair_text'] or '').lower() == 'roleplay':
+            entry.statue = 'Roleplay'
+        
+        if subreddit == 'HFY' or subreddit == 'NatureofPredators' and (item['link_flair_text'] or '').lower() in ['fanfic', 'nsfw']:
+            entry.timeline = 'Fan-fic NoP1'
+        
+        if not entry.timeline:
+            entry.timeline = 'none'
+        
+        # timeline_key_words
+        for timeline,key_words in timeline_key_words.items():
+            if not key_words or not timeline:
+                continue
+            if re.search(r'\s('+'|'.join(key_words)+r')s?[^a-z]', post_text, flags=regex_flags):
+                entry.timeline = timeline
         
         # title_timelines
         entry.timeline = get_entry_text(title_timelines, entry.timeline)
@@ -564,11 +574,13 @@ def read_subreddit(
     status_regex: list[tuple[str, str]]|bool =True,
     timeline_key_words: dict[str, list[str]]|bool =True,
     co_authors: dict[str, list[str]]|bool =True,
+    comics: list[str]|bool =True,
 ) -> list[PostEntry]:
     """
     If exclude_url is True, get the exclude_url list from the spreadsheets.
     Same for special_timelines, chapter_inside_post, check_links_map, check_links_search,
-    domain_story_host, additional_regex, chapter_regex, status_regex, timeline_key_words, co_authors.
+    domain_story_host, additional_regex, chapter_regex, status_regex, timeline_key_words, co_authors
+    co_authors, comics.
     """
     
     all_post = []
@@ -627,6 +639,7 @@ def read_subreddit(
         status_regex=status_regex,
         timeline_key_words=timeline_key_words,
         co_authors=co_authors,
+        comics=comics,
     )
     
     if subreddit_is_author:
@@ -780,4 +793,13 @@ def get_co_authors() -> dict[str, list[str]]:
         if not lst:
             continue
         rslt[r[0]].extend(sorted(lst))
+    return rslt
+
+@cache
+def get_comics() -> list[str]:
+    rslt = []
+    for r in get_user_data().get('comics', []):
+        if not r[0]:
+            continue
+        rslt.append(r[0])
     return rslt
