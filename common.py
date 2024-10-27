@@ -504,7 +504,7 @@ def get_filtered_post(
         # additional_regex
         search_additional = get_entry_regex(additional_regex)
         if search_additional:
-            entry.title = parse_space(re.sub(search_additional[0], search_additional[1], entry.title, flags=regex_flags, count=1))
+            entry.title = parse_space(re.sub(search_additional[0], ' '+search_additional[1]+' ', entry.title, flags=regex_flags, count=1))
         
         # status_regex
         search_status = get_entry_regex(status_regex)
