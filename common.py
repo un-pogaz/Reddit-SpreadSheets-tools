@@ -429,6 +429,8 @@ def get_filtered_post(
         if entry.link in exclude_url:
             continue
         
+        entry.title = entry.title.replace("´", "’")
+        
         def get_entry_text(input: list[str]|dict[str, str], default=None):
             title_lower = entry.title.lower()
             rslt = None
