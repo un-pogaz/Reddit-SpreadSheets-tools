@@ -195,6 +195,9 @@ class PostEntry():
         permalink = re.sub(r'\w+.reddit.com', r'www.reddit.com', permalink)
         permalink = re.sub(r'\?.*', '', permalink)
         
+        if 'reddit' in permalink and '/s/' in permalink:
+            permalink = '!! shared-link !! ' + permalink
+        
         self._post_item = post_item
         self.created: datetime = datetime.fromtimestamp(post_item['created_utc'])
         self.timeline: str = ''
