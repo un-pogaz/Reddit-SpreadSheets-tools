@@ -300,7 +300,7 @@ def get_filtered_post(
     source_data: list[dict],
     *,
     exclude_url: list[str]|bool =True,
-    special_timelines: dict[str, list[str]]|bool =True,
+    title_timelines: dict[str, str]|bool =True,
     chapter_inside_post: list[str]|bool =True,
     check_links_map: dict[str, list[str]]|bool =True,
     check_links_search: dict[str, str]|bool =True,
@@ -314,7 +314,7 @@ def get_filtered_post(
 ) -> list[PostEntry]:
     """
     If exclude_url is True, get the exclude_url list from the spreadsheets.
-    Same for special_timelines, chapter_inside_post, check_links_map, check_links_search,
+    Same for title_timelines, chapter_inside_post, check_links_map, check_links_search,
     domain_story_host, additional_regex, chapter_regex, status_regex, timeline_key_words,
     co_authors, comics.
     """
@@ -329,16 +329,11 @@ def get_filtered_post(
         exclude_url = []
     
     
-    # special_timelines
-    if special_timelines is True:
-        special_timelines = get_special_timelines()
-    if not isinstance(special_timelines, dict):
-        special_timelines = {}
-    
-    title_timelines = {}
-    for timeline,lst in special_timelines.items():
-        for title in lst:
-            title_timelines[title] = timeline
+    # title_timelines
+    if title_timelines is True:
+        title_timelines = get_title_timelines()
+    if not isinstance(title_timelines, dict):
+        title_timelines = {}
     
     # chapter_inside_post
     if chapter_inside_post is True:
@@ -566,7 +561,7 @@ def read_subreddit(
     subreddit_is_author: bool =False,
     additional_loading_message: str=None,
     exclude_url: list[str]|bool =True,
-    special_timelines: dict[str, list[str]]|bool =True,
+    title_timelines: dict[str, list[str]]|bool =True,
     chapter_inside_post: list[str]|bool =True,
     check_links_map: dict[str, list[str]]|bool =True,
     check_links_search: dict[str, str]|bool =True,
@@ -580,7 +575,7 @@ def read_subreddit(
 ) -> list[PostEntry]:
     """
     If exclude_url is True, get the exclude_url list from the spreadsheets.
-    Same for special_timelines, chapter_inside_post, check_links_map, check_links_search,
+    Same for title_timelines, chapter_inside_post, check_links_map, check_links_search,
     domain_story_host, additional_regex, chapter_regex, status_regex, timeline_key_words, co_authors
     co_authors, comics.
     """
@@ -631,7 +626,7 @@ def read_subreddit(
     lines = get_filtered_post(
         source_data=all_post,
         exclude_url=exclude_url,
-        special_timelines=special_timelines,
+        title_timelines=title_timelines,
         chapter_inside_post=chapter_inside_post,
         check_links_map=check_links_map,
         check_links_search=check_links_search,
@@ -696,12 +691,12 @@ def is_fulled_row(row, length):
     return True
 
 @cache
-def get_special_timelines() -> dict[str, list[str]]:
-    rslt = defaultdict(list)
+def get_title_timelines() -> dict[str, list[str]]:
+    rslt = {}
     for r in get_user_data().get('timeline', []):
         if not is_fulled_row(r, 2):
             continue
-        rslt[r[1]].append(r[0])
+        rslt[r[0]] = r[1]
     return rslt
 
 @cache
