@@ -528,10 +528,7 @@ def get_filtered_post(
                 url = url.group(0)
             if url:
                 if url not in entry.description:
-                    if entry.description:
-                        entry.description += '\n'+url
-                    else:
-                        entry.description = url
+                    entry.description = (entry.description + '\n'+url).strip()
             else:
                 entry.title += ' {'+link_name+' link}'
         
