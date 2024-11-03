@@ -225,14 +225,12 @@ class PostEntry():
     def __str__(self) -> str:
         return self.__class__.__name__+'('+','.join([self.created.isoformat(), repr(self.title), repr(self.link)])+')'
 
-def post_is_to_old(post_item: dict) -> bool:
-    # https://www.reddit.com/r/HFY/comments/u19xpa/the_nature_of_predators/
-    return numeric_id(post_item['id']) < numeric_id('u19xpa')
 
 def get_filtered_post(
     source_data: list[dict],
     *,
     exclude_url: list[str]|bool =True,
+    max_old_post: str|bool =True,
     
     subreddit_and_flairs: dict[str, dict[str, str]]|bool =True,
     subreddit_flair_statue: dict[str, dict[str, str]]|bool =True,
@@ -255,27 +253,35 @@ def get_filtered_post(
     """
     If exclude_url is True, get the exclude_url list from the spreadsheets.
     
+    Same for max_old_post, subreddit_and_flairs, subreddit_flair_statue, subreddit_adult, title_timelines,
+    chapter_inside_post, check_links_map, check_links_search, domain_story_host, additional_regex, chapter_regex,
+    status_regex, timeline_key_words, co_authors, comics.
+    
     The `subreddit_and_flairs` argument use the following format: dict[<Allowed_Subreddit>, dict[<Flair>, <Default_Timeline_For_Flair>]]
     If no flair or a empty flair are specified, all the post of this sub will be selected.
     If a one or more flair are specified, the posts with no corresponding flair will be exclude.
     
-    Same for subreddit_and_flairs, subreddit_flair_statue, subreddit_adult, title_timelines,
-    chapter_inside_post, check_links_map, check_links_search, domain_story_host, additional_regex, chapter_regex,
-    status_regex, timeline_key_words, co_authors, comics.
-    
-    dont_fetch_user_data disable the retriving of the script-user-data for default values.
-    Only inputed values will be used, at the excpetion of exclude_url, subreddit_and_flairs,
-    subreddit_flair_statue and subreddit_adult will be still retriving independantly.
+    `dont_fetch_user_data` disable the retriving of the script-user-data for default values.
+    Only inputed values will be used, at the excpetion of max_old_post, exclude_url,
+    subreddit_and_flairs, subreddit_flair_statue and subreddit_adult will be always retrived from the spreadsheets.
     """
     
     rslt = []
     
+    # exclude_url
     if exclude_url is True:
         exclude_url = get_url_data()
     if hasattr(exclude_url, '__iter__'):
         exclude_url = set(exclude_url)
     else:
         exclude_url = []
+    
+    # max_old_post
+    if max_old_post is True:
+        max_old_post = get_max_old_post()
+    if not isinstance(max_old_post, str):
+        max_old_post = ''
+    
     
     # subreddit_and_flairs
     if subreddit_and_flairs is True:
@@ -374,7 +380,7 @@ def get_filtered_post(
         comics = []
     
     for item in source_data:
-        if post_is_to_old(item):
+        if max_old_post and numeric_id(item['id']) < numeric_id(max_old_post):
             continue
         
         if item.get('poll_data'):
@@ -557,6 +563,7 @@ def read_subreddit(
     subreddit_is_author: bool =False,
     additional_loading_message: str=None,
     exclude_url: list[str]|bool =True,
+    max_old_post: str|bool =True,
     
     subreddit_and_flairs: dict[str, dict[str, str]]|bool =True,
     subreddit_flair_statue: dict[str, dict[str, str]]|bool =True,
@@ -579,17 +586,17 @@ def read_subreddit(
     """
     If exclude_url is True, get the exclude_url list from the spreadsheets.
     
+    Same for max_old_post, subreddit_and_flairs, subreddit_flair_statue, subreddit_adult, title_timelines,
+    chapter_inside_post, check_links_map, check_links_search, domain_story_host, additional_regex, chapter_regex,
+    status_regex, timeline_key_words, co_authors, comics.
+    
     The `subreddit_and_flairs` argument use the following format: dict[<Allowed_Subreddit>, dict[<Flair>, <Default_Timeline_For_Flair>]]
     If no flair or a empty flair are specified, all the post of this sub will be selected.
     If a one or more flair are specified, the posts with no corresponding flair will be exclude.
     
-    Same for subreddit_and_flairs, subreddit_flair_statue, subreddit_adult, title_timelines,
-    chapter_inside_post, check_links_map, check_links_search, domain_story_host, additional_regex, chapter_regex,
-    status_regex, timeline_key_words, co_authors, comics.
-    
-    dont_fetch_user_data disable the retriving of the script-user-data for default values.
-    Only inputed values will be used, at the excpetion of exclude_url, subreddit_and_flairs,
-    subreddit_flair_statue and subreddit_adult will be still retriving independantly.
+    `dont_fetch_user_data` disable the retriving of the script-user-data for default values.
+    Only inputed values will be used, at the excpetion of max_old_post, exclude_url,
+    subreddit_and_flairs, subreddit_flair_statue and subreddit_adult will be always retrived from the spreadsheets.
     """
     
     all_post = []
@@ -638,6 +645,7 @@ def read_subreddit(
     lines = get_filtered_post(
         source_data=all_post,
         exclude_url=exclude_url,
+        max_old_post=max_old_post,
         
         subreddit_and_flairs=subreddit_and_flairs,
         subreddit_flair_statue=subreddit_flair_statue,
@@ -708,6 +716,12 @@ def is_fulled_row(row, length):
         if not row[idx]:
             return False
     return True
+
+@cache
+def get_max_old_post() -> str:
+    for r in get_user_data().get('max-old-post', []):
+        if r[0]:
+            return r[0]
 
 @cache
 def get_subreddit_and_flairs() -> dict[str, dict[str, str]]:
