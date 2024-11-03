@@ -293,6 +293,7 @@ def get_filtered_post(
     source_data: list[dict],
     *,
     exclude_url: list[str]|bool =True,
+    
     title_timelines: dict[str, str]|bool =True,
     chapter_inside_post: list[str]|bool =True,
     check_links_map: dict[str, list[str]]|bool =True,
@@ -304,12 +305,18 @@ def get_filtered_post(
     timeline_key_words: dict[str, list[str]]|bool =True,
     co_authors: dict[str, list[str]]|bool =True,
     comics: list[str]|bool =True,
+    
+    dont_fetch_user_data: bool=False,
 ) -> list[PostEntry]:
     """
     If exclude_url is True, get the exclude_url list from the spreadsheets.
+    
     Same for title_timelines, chapter_inside_post, check_links_map, check_links_search,
     domain_story_host, additional_regex, chapter_regex, status_regex, timeline_key_words,
     co_authors, comics.
+    
+    dont_fetch_user_data disable the retriving of the script-user-data for default values.
+    Only inputed values will be used, at the excpetion of exclude_url will be still retriving independantly.
     """
     
     rslt = []
@@ -323,31 +330,31 @@ def get_filtered_post(
     
     
     # title_timelines
-    if title_timelines is True:
+    if title_timelines is True and not dont_fetch_user_data:
         title_timelines = get_title_timelines()
     if not isinstance(title_timelines, dict):
         title_timelines = {}
     
     # chapter_inside_post
-    if chapter_inside_post is True:
+    if chapter_inside_post is True and not dont_fetch_user_data:
         chapter_inside_post = get_chapter_inside_post()
     if not isinstance(chapter_inside_post, list):
         chapter_inside_post = []
     
     # check_links_map
-    if check_links_map is True:
+    if check_links_map is True and not dont_fetch_user_data:
         check_links_map = get_check_links_map()
     if not isinstance(check_links_map, dict):
         check_links_map = {}
     
     # check_links_search
-    if check_links_search is True:
+    if check_links_search is True and not dont_fetch_user_data:
         check_links_search = get_check_links_search()
     if not isinstance(check_links_search, dict):
         check_links_search = {}
     
     # domain_story_host
-    if domain_story_host is True:
+    if domain_story_host is True and not dont_fetch_user_data:
         domain_story_host = get_domain_story_host()
     if not isinstance(domain_story_host, list):
         domain_story_host = []
@@ -355,37 +362,37 @@ def get_filtered_post(
     regex_flags = re.ASCII|re.IGNORECASE
     
     # additional_regex
-    if additional_regex is True:
+    if additional_regex is True and not dont_fetch_user_data:
         additional_regex = get_additional_regex()
     if not isinstance(additional_regex, list):
         additional_regex = []
     
     # chapter_regex
-    if chapter_regex is True:
+    if chapter_regex is True and not dont_fetch_user_data:
         chapter_regex = get_chapter_regex()
     if not isinstance(chapter_regex, list):
         chapter_regex = []
     
     # status_regex
-    if status_regex is True:
+    if status_regex is True and not dont_fetch_user_data:
         status_regex = get_status_regex()
     if not isinstance(status_regex, list):
         status_regex = []
     
     # timeline_key_words
-    if timeline_key_words is True:
+    if timeline_key_words is True and not dont_fetch_user_data:
         timeline_key_words = get_timeline_key_words()
     if not isinstance(timeline_key_words, dict):
         timeline_key_words = {}
     
     # co_authors
-    if co_authors is True:
+    if co_authors is True and not dont_fetch_user_data:
         co_authors = get_co_authors()
     if not isinstance(co_authors, dict):
         co_authors = {}
     
     # comics
-    if comics is True:
+    if comics is True and not dont_fetch_user_data:
         comics = get_comics()
     if not isinstance(comics, list):
         comics = []
@@ -561,6 +568,7 @@ def read_subreddit(
     subreddit_is_author: bool =False,
     additional_loading_message: str=None,
     exclude_url: list[str]|bool =True,
+    
     title_timelines: dict[str, list[str]]|bool =True,
     chapter_inside_post: list[str]|bool =True,
     check_links_map: dict[str, list[str]]|bool =True,
@@ -572,12 +580,18 @@ def read_subreddit(
     timeline_key_words: dict[str, list[str]]|bool =True,
     co_authors: dict[str, list[str]]|bool =True,
     comics: list[str]|bool =True,
+    
+    dont_fetch_user_data: bool=False,
 ) -> list[PostEntry]:
     """
     If exclude_url is True, get the exclude_url list from the spreadsheets.
+    
     Same for title_timelines, chapter_inside_post, check_links_map, check_links_search,
     domain_story_host, additional_regex, chapter_regex, status_regex, timeline_key_words, co_authors
     co_authors, comics.
+    
+    dont_fetch_user_data disable the retriving of the script-user-data for default values.
+    Only inputed values will be used, at the excpetion of exclude_url will be still retriving independantly.
     """
     
     all_post = []
@@ -626,6 +640,7 @@ def read_subreddit(
     lines = get_filtered_post(
         source_data=all_post,
         exclude_url=exclude_url,
+        
         title_timelines=title_timelines,
         chapter_inside_post=chapter_inside_post,
         check_links_map=check_links_map,
@@ -637,6 +652,8 @@ def read_subreddit(
         timeline_key_words=timeline_key_words,
         co_authors=co_authors,
         comics=comics,
+        
+        dont_fetch_user_data=dont_fetch_user_data,
     )
     
     if subreddit_is_author:
