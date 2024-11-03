@@ -178,10 +178,18 @@ class PostEntry():
     def __init__(self, post_item: dict):
         from datetime import datetime
         
+        permalink = ''
         test_url = post_item.get('url_overridden_by_dest', '')
-        if 'reddit.com/r/' in test_url or 'reddit.com/user/' in test_url:
-            permalink = test_url
-        else:
+        lst_test = [
+            'reddit.com/r/',
+            'reddit.com/u/',
+            'reddit.com/user/',
+        ]
+        for e in lst_test:
+            if e in test_url:
+                permalink = test_url
+                break
+        if not permalink:
             permalink = post_item['permalink']
         
         permalink = re.sub(r'\w+.reddit.com', r'www.reddit.com', permalink)
