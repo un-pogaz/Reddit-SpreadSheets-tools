@@ -33,9 +33,6 @@ DOMAIN_EXCLUDE = [
     'youtube.com',
 ]
 
-SUBREDDITS = ['HFY', 'NatureofPredators', 'NatureOfPredatorsNSFW']
-SUBREDDITS_DOMAIN = [f'self.{e}' for e in SUBREDDITS]
-
 
 def make_dirname(path):
     import os.path
@@ -237,6 +234,10 @@ def get_filtered_post(
     *,
     exclude_url: list[str]|bool =True,
     
+    subreddit_and_flairs: dict[str, dict[str, str]]|bool =True,
+    subreddit_flair_statue: dict[str, dict[str, str]]|bool =True,
+    subreddit_adult: list[str]|bool =True,
+    
     title_timelines: dict[str, str]|bool =True,
     chapter_inside_post: list[str]|bool =True,
     check_links_map: dict[str, list[str]]|bool =True,
@@ -254,12 +255,17 @@ def get_filtered_post(
     """
     If exclude_url is True, get the exclude_url list from the spreadsheets.
     
-    Same for title_timelines, chapter_inside_post, check_links_map, check_links_search,
-    domain_story_host, additional_regex, chapter_regex, status_regex, timeline_key_words,
-    co_authors, comics.
+    The `subreddit_and_flairs` argument use the following format: dict[<Allowed_Subreddit>, dict[<Flair>, <Default_Timeline_For_Flair>]]
+    If no flair or a empty flair are specified, all the post of this sub will be selected.
+    If a one or more flair are specified, the posts with no corresponding flair will be exclude.
+    
+    Same for subreddit_and_flairs, subreddit_flair_statue, subreddit_adult, title_timelines,
+    chapter_inside_post, check_links_map, check_links_search, domain_story_host, additional_regex, chapter_regex,
+    status_regex, timeline_key_words, co_authors, comics.
     
     dont_fetch_user_data disable the retriving of the script-user-data for default values.
-    Only inputed values will be used, at the excpetion of exclude_url will be still retriving independantly.
+    Only inputed values will be used, at the excpetion of exclude_url, subreddit_and_flairs,
+    subreddit_flair_statue and subreddit_adult will be still retriving independantly.
     """
     
     rslt = []
@@ -270,6 +276,33 @@ def get_filtered_post(
         exclude_url = set(exclude_url)
     else:
         exclude_url = []
+    
+    # subreddit_and_flairs
+    if subreddit_and_flairs is True:
+        subreddit_and_flairs = get_subreddit_and_flairs()
+    if not isinstance(subreddit_and_flairs, dict):
+        subreddit_and_flairs = {}
+    
+    # allowed_subreddits_flairs
+    allowed_subreddits_flairs = defaultdict(list)
+    for s,ft in subreddit_and_flairs.items():
+        if not ft:
+            subreddit_and_flairs[s] = {}
+            allowed_subreddits_flairs[s].append('')
+        else:
+            allowed_subreddits_flairs[s].extend(ft.keys())
+    
+    # subreddit_flair_statue
+    if subreddit_flair_statue is True:
+        subreddit_flair_statue = get_subreddit_flair_statue()
+    if not isinstance(subreddit_flair_statue, dict):
+        subreddit_flair_statue = {}
+    
+    # subreddit_adult
+    if subreddit_adult is True:
+        subreddit_adult = get_subreddit_adult()
+    if not isinstance(subreddit_adult, list):
+        subreddit_adult = []
     
     
     # title_timelines
@@ -344,15 +377,20 @@ def get_filtered_post(
         if post_is_to_old(item):
             continue
         
-        subreddit = item['subreddit']
-        if subreddit not in SUBREDDITS:
-            continue
-        
-        if subreddit == 'NatureofPredators' and (item['link_flair_text'] or '').lower() not in ['', 'fanfic', 'nsfw', 'roleplay']:
-            continue
-        
         if item.get('poll_data'):
             continue
+        
+        # allowed_subreddits_flairs
+        subreddit = item['subreddit']
+        post_flair = (item['link_flair_text'] or '').lower()
+        if allowed_subreddits_flairs:
+            if subreddit not in allowed_subreddits_flairs:
+                continue
+            
+            if '' in allowed_subreddits_flairs[subreddit]:
+                pass
+            elif post_flair not in allowed_subreddits_flairs[subreddit]:
+                continue
         
         parse_content(item)
         
@@ -401,7 +439,7 @@ def get_filtered_post(
         
         
         domain = item['domain']
-        if domain in SUBREDDITS_DOMAIN or domain in domain_story_host or domain.endswith('reddit.com'):
+        if domain.startswith('self.') or 'reddit.com' in domain or domain in domain_story_host:
             pass
         elif get_entry_text(comics):
             pass
@@ -409,16 +447,24 @@ def get_filtered_post(
             continue
         
         
-        if item['over_18'] or (item['link_flair_text'] or '').lower() == 'nsfw':
+        if item['over_18'] or 'nsfw' in post_flair:
             entry.content_warning = 'Mature'
-        if item['subreddit'] == 'NatureOfPredatorsNSFW':
+        if item['subreddit'] in subreddit_adult:
             entry.content_warning = 'Adult'
         
-        if (item['link_flair_text'] or '').lower() == 'roleplay':
-            entry.statue = 'Roleplay'
+        # subreddit_and_flairs 
+        if '' in subreddit_and_flairs.get(subreddit, {}):
+            entry.timeline = subreddit_and_flairs[subreddit]['']
+        for f,t in subreddit_and_flairs.get(subreddit, {}).items():
+            if f == post_flair:
+                entry.timeline = t
+                break
         
-        if subreddit == 'HFY' or subreddit == 'NatureofPredators' and (item['link_flair_text'] or '').lower() in ['fanfic', 'nsfw']:
-            entry.timeline = 'Fan-fic NoP1'
+        # subreddit_flair_statue
+        for f,s in subreddit_flair_statue.get(subreddit, {}).items():
+            if f == post_flair:
+                entry.statue = s
+                break
         
         if not entry.timeline:
             entry.timeline = 'none'
@@ -512,6 +558,10 @@ def read_subreddit(
     additional_loading_message: str=None,
     exclude_url: list[str]|bool =True,
     
+    subreddit_and_flairs: dict[str, dict[str, str]]|bool =True,
+    subreddit_flair_statue: dict[str, dict[str, str]]|bool =True,
+    subreddit_adult: list[str]|bool =True,
+    
     title_timelines: dict[str, list[str]]|bool =True,
     chapter_inside_post: list[str]|bool =True,
     check_links_map: dict[str, list[str]]|bool =True,
@@ -529,12 +579,17 @@ def read_subreddit(
     """
     If exclude_url is True, get the exclude_url list from the spreadsheets.
     
-    Same for title_timelines, chapter_inside_post, check_links_map, check_links_search,
-    domain_story_host, additional_regex, chapter_regex, status_regex, timeline_key_words, co_authors
-    co_authors, comics.
+    The `subreddit_and_flairs` argument use the following format: dict[<Allowed_Subreddit>, dict[<Flair>, <Default_Timeline_For_Flair>]]
+    If no flair or a empty flair are specified, all the post of this sub will be selected.
+    If a one or more flair are specified, the posts with no corresponding flair will be exclude.
+    
+    Same for subreddit_and_flairs, subreddit_flair_statue, subreddit_adult, title_timelines,
+    chapter_inside_post, check_links_map, check_links_search, domain_story_host, additional_regex, chapter_regex,
+    status_regex, timeline_key_words, co_authors, comics.
     
     dont_fetch_user_data disable the retriving of the script-user-data for default values.
-    Only inputed values will be used, at the excpetion of exclude_url will be still retriving independantly.
+    Only inputed values will be used, at the excpetion of exclude_url, subreddit_and_flairs,
+    subreddit_flair_statue and subreddit_adult will be still retriving independantly.
     """
     
     all_post = []
@@ -583,6 +638,10 @@ def read_subreddit(
     lines = get_filtered_post(
         source_data=all_post,
         exclude_url=exclude_url,
+        
+        subreddit_and_flairs=subreddit_and_flairs,
+        subreddit_flair_statue=subreddit_flair_statue,
+        subreddit_adult=subreddit_adult,
         
         title_timelines=title_timelines,
         chapter_inside_post=chapter_inside_post,
@@ -649,6 +708,50 @@ def is_fulled_row(row, length):
         if not row[idx]:
             return False
     return True
+
+@cache
+def get_subreddit_and_flairs() -> dict[str, dict[str, str]]:
+    rslt = defaultdict(dict)
+    for r in get_user_data().get('subreddit-flairs', []):
+        if not r[0]:
+            continue
+        
+        subreddit = r[0]
+        
+        if len(r) > 1:
+            timeline = r[1]
+        else:
+            timeline = ''
+        
+        if len(r) > 2:
+            flairs = r[2:]
+        else:
+            flairs = ['']
+        
+        for f in flairs:
+            rslt[subreddit][f.lower()] = timeline
+        
+    return rslt
+
+@cache
+def get_subreddit_flair_statue() -> dict[str, dict[str, str]]:
+    rslt = defaultdict(dict)
+    for r in get_user_data().get('subreddit-statue-flairs', []):
+        if not is_fulled_row(r, 3):
+            continue
+        for f in r[2:]:
+            rslt[r[0]][f.lower()] = r[1]
+    return rslt
+
+@cache
+def get_subreddit_adult() -> list[str]:
+    rslt = []
+    for r in get_user_data().get('subreddit-adult', []):
+        if not r[0]:
+            continue
+        rslt.append(r[0])
+    return rslt
+
 
 @cache
 def get_title_timelines() -> dict[str, list[str]]:
