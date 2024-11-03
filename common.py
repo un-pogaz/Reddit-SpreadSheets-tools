@@ -243,9 +243,8 @@ class PostEntry():
     
     DATETIME_FORMAT = '%m/%d/%Y'
     
-    def __init__(self, post_item: dict, *, domain_story_host: list[str]=None):
+    def __init__(self, post_item: dict):
         from datetime import datetime
-        domain_story_host = domain_story_host or []
         
         test_url = post_item.get('url_overridden_by_dest', '')
         if 'reddit.com/r/' in test_url or 'reddit.com/user/' in test_url:
@@ -256,12 +255,6 @@ class PostEntry():
         permalink = re.sub(r'\w+.reddit.com', r'www.reddit.com', permalink)
         permalink = re.sub(r'\?.*', '', permalink)
         
-        self.domain :str = post_item['domain']
-        if self.domain in domain_story_host:
-            link_redirect = post_item['url_overridden_by_dest']
-        else:
-            link_redirect = ''
-        
         self._post_item = post_item
         self.created: datetime = datetime.fromtimestamp(post_item['created_utc'])
         self.timeline: str = ''
@@ -270,8 +263,8 @@ class PostEntry():
         self.content_warning: str = ''
         self.statue: str = ''
         self.link: str = permalink
-        self.description: str = link_redirect
-        self.link_redirect: str = link_redirect
+        self.description: str = ''
+        self.link_redirect: str = ''
         self.post_id: str = post_item['name']
     
     def to_list(self) -> list[str]:
@@ -420,7 +413,7 @@ def get_filtered_post(
                 post_text = crosspost_parent_list[0].get('selftext', '')
         post_text = (post_text or '').strip()
         
-        entry = PostEntry(item, domain_story_host=domain_story_host)
+        entry = PostEntry(item)
         if entry.link in exclude_url:
             continue
         
@@ -457,7 +450,8 @@ def get_filtered_post(
             return re.sub(r'\s+', ' ', text.strip()).strip()
         
         
-        if entry.domain in SUBREDDITS_DOMAIN or entry.domain in domain_story_host or entry.domain.endswith('reddit.com'):
+        domain = item['domain']
+        if domain in SUBREDDITS_DOMAIN or domain in domain_story_host or domain.endswith('reddit.com'):
             pass
         elif get_entry_text(comics):
             pass
@@ -478,6 +472,15 @@ def get_filtered_post(
         
         if not entry.timeline:
             entry.timeline = 'none'
+        
+        # domain_story_host
+        if domain in domain_story_host:
+            link_redirect = item['url_overridden_by_dest']
+        else:
+            link_redirect = ''
+        if link_redirect:
+            entry.link_redirect = link_redirect
+            entry.description = link_redirect
         
         # timeline_key_words
         for timeline,key_words in timeline_key_words.items():
