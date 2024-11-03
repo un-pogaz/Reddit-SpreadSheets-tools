@@ -73,6 +73,7 @@ not_fulled_row = defaultdict(list)
 url_map = defaultdict(list)
 url_wrong = {}
 url_params = {}
+url_shared = {}
 authors_date = {}
 for idx, r in enumerate(table, 1):
     if idx <= 2:
@@ -95,8 +96,11 @@ for idx, r in enumerate(table, 1):
     if lr > 6:
         url = r[6]
         url_map[url].append(idx)
-        if '.reddit' in url and 'www.reddit' not in url:
-            url_wrong[idx] = url
+        if '.reddit' in url:
+            if 'www.reddit' not in url:
+                url_wrong[idx] = url
+            if '/s/' in url:
+                url_shared[idx] = url
         if '?' in url:
             url_params[idx] = url
     
@@ -123,7 +127,7 @@ for l in sorted(not_fulled_row.keys()):
     print(f' {l}:{l} <{msg}>')
 
 # print url errors
-has_url_errors = bool(url_duplicate or url_wrong or url_params)
+has_url_errors = bool(url_duplicate or url_wrong or url_params or url_shared)
 
 def uprint(*args, **kargs):
     print()
@@ -153,6 +157,12 @@ elif has_url_errors:
     uprint('No parameter in reddit url.')
 
 for l,url in url_params.items():
+    print(f' {l}:{l} => {url}')
+
+if url_shared:
+    uprint('Shared reddit url:')
+
+for l,url in url_shared.items():
     print(f' {l}:{l} => {url}')
 
 if not has_url_errors:
