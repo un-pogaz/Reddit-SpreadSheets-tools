@@ -267,9 +267,9 @@ class PostEntry():
         self.link_redirect: str = ''
         self.post_id: str = post_item['name']
     
-    def to_list(self) -> list[str]:
+    def to_list(self, datetime_format: str=DATETIME_FORMAT) -> list[str]:
         return [
-            self.created.strftime(self.DATETIME_FORMAT).lstrip('0').replace('/0', '/'),
+            self.created.strftime(datetime_format).lstrip('0').replace('/0', '/'),
             self.timeline,
             self.title,
             self.authors,
