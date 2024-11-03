@@ -153,8 +153,6 @@ for l,url in url_wrong.items():
 
 if url_params:
     uprint('Parameter in reddit url:')
-elif has_url_errors:
-    uprint('No parameter in reddit url.')
 
 for l,url in url_params.items():
     print(f' {l}:{l} => {url}')
