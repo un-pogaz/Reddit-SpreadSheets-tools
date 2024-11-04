@@ -549,8 +549,7 @@ def get_filtered_post(
     for idx,entry in enumerate(rslt):
         url_duplicate[entry.link].append(idx)
     for v in url_duplicate.values():
-        if len(v) > 1:
-            index_duplicate.extend(v[1:])
+        index_duplicate.extend(v[1:])
     for idx in sorted(index_duplicate, reverse=True):
         del rslt[idx]
     
@@ -737,9 +736,8 @@ def get_subreddit_and_flairs() -> dict[str, dict[str, str]]:
         else:
             timeline = ''
         
-        if len(r) > 2:
-            flairs = r[2:]
-        else:
+        flairs = r[2:]
+        if not flairs:
             flairs = ['']
         
         for f in flairs:
