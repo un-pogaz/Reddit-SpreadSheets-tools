@@ -395,6 +395,8 @@ def get_filtered_post(
             
             if '' in allowed_subreddits_flairs[subreddit]:
                 pass
+            elif not post_flair:
+                pass
             elif post_flair not in allowed_subreddits_flairs[subreddit]:
                 continue
         
