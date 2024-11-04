@@ -279,8 +279,8 @@ def get_filtered_post(
     # max_old_post
     if max_old_post is True:
         max_old_post = get_max_old_post()
-    if not isinstance(max_old_post, str):
-        max_old_post = ''
+    if not isinstance(max_old_post, str) or not max_old_post:
+        max_old_post = '0'
     
     
     # subreddit_and_flairs
