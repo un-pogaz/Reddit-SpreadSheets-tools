@@ -139,6 +139,7 @@ def parse_content(post: dict) -> dict:
     parse_body(post)
     
     post['title'] = replace_entitie(post['title']).strip()
+    post['title'] = post['title'].replace("´", "’")
     
     for k in ['permalink', 'url', 'url_overridden_by_dest']:
         if k in post and post[k].startswith('/r/'):
@@ -412,8 +413,6 @@ def get_filtered_post(
         entry = PostEntry(item)
         if entry.link in exclude_url:
             continue
-        
-        entry.title = entry.title.replace("´", "’")
         
         def get_entry_text(input: list[str]|dict[str, str], default=None):
             title_lower = entry.title.lower()
