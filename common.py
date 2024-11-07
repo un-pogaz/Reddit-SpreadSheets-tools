@@ -258,7 +258,7 @@ def get_filtered_post(
     
     The `subreddit_and_flairs` argument use the following format: dict[<Allowed_Subreddit>, dict[<Flair>, <Default_Timeline_For_Flair>]]
     If no flair or a empty flair are specified, all the post of this sub will be selected.
-    If a one or more flair are specified, the posts with no corresponding flair will be exclude.
+    If one or more flair are specified, the posts with no corresponding flair will be exclude.
     """
     
     rslt = []
@@ -584,7 +584,7 @@ def read_subreddit(
     
     The `subreddit_and_flairs` argument use the following format: dict[<Allowed_Subreddit>, dict[<Flair>, <Default_Timeline_For_Flair>]]
     If no flair or a empty flair are specified, all the post of this sub will be selected.
-    If a one or more flair are specified, the posts with no corresponding flair will be exclude.
+    If one or more flair are specified, the posts with no corresponding flair will be exclude.
     """
     
     all_post = []
