@@ -79,7 +79,7 @@ if args.spacepaladin:
     subreddit_is_author = True
     kargs = {
         'title_timelines': {'Main':'Nature of Predators'},
-        'dont_fetch_user_data': True,
+        'additional_regex': False,
     }
 else:
     if args.nsfw:

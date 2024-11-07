@@ -248,8 +248,6 @@ def get_filtered_post(
     timeline_key_words: dict[str, list[str]]|bool =True,
     co_authors: dict[str, list[str]]|bool =True,
     comics: list[str]|bool =True,
-    
-    dont_fetch_user_data: bool=False,
 ) -> list[PostEntry]:
     """
     If exclude_url is True, get the exclude_url list from the spreadsheets.
@@ -261,10 +259,6 @@ def get_filtered_post(
     The `subreddit_and_flairs` argument use the following format: dict[<Allowed_Subreddit>, dict[<Flair>, <Default_Timeline_For_Flair>]]
     If no flair or a empty flair are specified, all the post of this sub will be selected.
     If a one or more flair are specified, the posts with no corresponding flair will be exclude.
-    
-    `dont_fetch_user_data` disable the retriving of the script-user-data for default values.
-    Only inputed values will be used, at the excpetion of max_old_post, exclude_url,
-    subreddit_and_flairs, subreddit_flair_statue and subreddit_adult will be always retrived from the spreadsheets.
     """
     
     rslt = []
@@ -313,31 +307,31 @@ def get_filtered_post(
     
     
     # title_timelines
-    if title_timelines is True and not dont_fetch_user_data:
+    if title_timelines is True:
         title_timelines = get_title_timelines()
     if not isinstance(title_timelines, dict):
         title_timelines = {}
     
     # chapter_inside_post
-    if chapter_inside_post is True and not dont_fetch_user_data:
+    if chapter_inside_post is True:
         chapter_inside_post = get_chapter_inside_post()
     if not isinstance(chapter_inside_post, list):
         chapter_inside_post = []
     
     # check_links_map
-    if check_links_map is True and not dont_fetch_user_data:
+    if check_links_map is True:
         check_links_map = get_check_links_map()
     if not isinstance(check_links_map, dict):
         check_links_map = {}
     
     # check_links_search
-    if check_links_search is True and not dont_fetch_user_data:
+    if check_links_search is True:
         check_links_search = get_check_links_search()
     if not isinstance(check_links_search, dict):
         check_links_search = {}
     
     # domain_story_host
-    if domain_story_host is True and not dont_fetch_user_data:
+    if domain_story_host is True:
         domain_story_host = get_domain_story_host()
     if not isinstance(domain_story_host, list):
         domain_story_host = []
@@ -345,37 +339,37 @@ def get_filtered_post(
     regex_flags = re.ASCII|re.IGNORECASE
     
     # additional_regex
-    if additional_regex is True and not dont_fetch_user_data:
+    if additional_regex is True:
         additional_regex = get_additional_regex()
     if not isinstance(additional_regex, list):
         additional_regex = []
     
     # chapter_regex
-    if chapter_regex is True and not dont_fetch_user_data:
+    if chapter_regex is True:
         chapter_regex = get_chapter_regex()
     if not isinstance(chapter_regex, list):
         chapter_regex = []
     
     # status_regex
-    if status_regex is True and not dont_fetch_user_data:
+    if status_regex is True:
         status_regex = get_status_regex()
     if not isinstance(status_regex, list):
         status_regex = []
     
     # timeline_key_words
-    if timeline_key_words is True and not dont_fetch_user_data:
+    if timeline_key_words is True:
         timeline_key_words = get_timeline_key_words()
     if not isinstance(timeline_key_words, dict):
         timeline_key_words = {}
     
     # co_authors
-    if co_authors is True and not dont_fetch_user_data:
+    if co_authors is True:
         co_authors = get_co_authors()
     if not isinstance(co_authors, dict):
         co_authors = {}
     
     # comics
-    if comics is True and not dont_fetch_user_data:
+    if comics is True:
         comics = get_comics()
     if not isinstance(comics, list):
         comics = []
@@ -580,8 +574,6 @@ def read_subreddit(
     timeline_key_words: dict[str, list[str]]|bool =True,
     co_authors: dict[str, list[str]]|bool =True,
     comics: list[str]|bool =True,
-    
-    dont_fetch_user_data: bool=False,
 ) -> list[PostEntry]:
     """
     If exclude_url is True, get the exclude_url list from the spreadsheets.
@@ -593,10 +585,6 @@ def read_subreddit(
     The `subreddit_and_flairs` argument use the following format: dict[<Allowed_Subreddit>, dict[<Flair>, <Default_Timeline_For_Flair>]]
     If no flair or a empty flair are specified, all the post of this sub will be selected.
     If a one or more flair are specified, the posts with no corresponding flair will be exclude.
-    
-    `dont_fetch_user_data` disable the retriving of the script-user-data for default values.
-    Only inputed values will be used, at the excpetion of max_old_post, exclude_url,
-    subreddit_and_flairs, subreddit_flair_statue and subreddit_adult will be always retrived from the spreadsheets.
     """
     
     all_post = []
@@ -662,8 +650,6 @@ def read_subreddit(
         timeline_key_words=timeline_key_words,
         co_authors=co_authors,
         comics=comics,
-        
-        dont_fetch_user_data=dont_fetch_user_data,
     )
     
     if subreddit_is_author:
