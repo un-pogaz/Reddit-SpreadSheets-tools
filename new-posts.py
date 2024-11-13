@@ -78,7 +78,7 @@ if args.spacepaladin:
     subreddit = 'SpacePaladin15'
     subreddit_is_author = True
     kargs = {
-        'title_timelines': {'Main':'Nature of Predators'},
+        'title_timelines': {'Nature of Predators':'Main'},
         'additional_regex': False,
     }
 else:
