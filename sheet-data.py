@@ -2,10 +2,7 @@ import argparse
 import random
 import time
 
-from common import (
-    read_subreddit,
-    write_lines,
-)
+from common import read_subreddit, write_lines
 
 args = argparse.ArgumentParser(description='Retrive the data from authors')
 args.add_argument('-u', '--url', '--exclude-url', dest='exclude_url', action='store_true', help='Exclude where the url post is already in the spreadsheets')
