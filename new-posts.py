@@ -11,12 +11,18 @@ args.add_argument('--no-emtpy-row', '--no-pending-emtpy-row', dest='no_emtpy_row
 args.add_argument('--no-update-filtre', '--no-update-filtre-view', dest='no_update_filtre', action='store_false', help="Don't update the range of the filtre views")
 args = args.parse_args()
 
-if args.config not in CONFIG['settings']:
+settings = {}
+for k,v in CONFIG['settings'].items():
+    settings[k] = k
+    for a in v.get('alias', []):
+        settings[a] = k
+
+if args.config not in settings:
     print('The setting "{}" is not in the config file.'.format(args.config))
     exit()
 
-config = CONFIG['settings'][args.config]
-last_post_name = 'last-post-' + args.config
+config = CONFIG['settings'][settings[args.config]]
+last_post_name = 'last-post-' + settings[args.config]
 
 def parse_post_id(post_id: str):
     post_id = post_id.strip()
