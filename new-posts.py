@@ -1,22 +1,22 @@
 import argparse
 
-from common import HttpError, init_spreadsheets, read_subreddit
+from common import CONFIG, HttpError, init_spreadsheets, read_subreddit
 
-args = argparse.ArgumentParser(description='Retrive the data from r/NatureofPredators, and push it to the spreadsheets')
+args = argparse.ArgumentParser(description='Retrive the data from a subreddit, and push it to the spreadsheets')
 args.add_argument('-a', '--all', '--dont-exclude-url', dest='exclude_url', action='store_false', help="Retrive all entry, don't exclude where the url of the post is already in the spreadsheets")
-args_choice = args.add_mutually_exclusive_group()
-args_choice.add_argument('--nsfw', action='store_true', help='Inspect the NSFW subreddit')
-args_choice.add_argument('-sp', '--spacepaladin', action='store_true', help='Inspect SpacePaladin15 posts')
 args.add_argument('-csv', '--csv', type=str, nargs='?', default=False, help='Output into a CSV file')
 args.add_argument('-id', '--id', '--oldest-post-id', dest='oldest_post_id', type=str, help='id of the oldest post to check. If not specified, used the id stored on the spreadsheets.')
+args.add_argument('-c', '--config', type=str, default='main', help='Use the specified setting in the config file. If not specified, use "main"')
 args.add_argument('--no-emtpy-row', '--no-pending-emtpy-row', dest='no_emtpy_row', action='store_false', help="Don't add emtpy row at the end of the 'data' sheet")
 args.add_argument('--no-update-filtre', '--no-update-filtre-view', dest='no_update_filtre', action='store_false', help="Don't update the range of the filtre views")
 args = args.parse_args()
 
-def _last_post_name() -> str:
-    if args.spacepaladin:
-        return 'last-post-spacepaladin'
-    return 'last-post' + ('-nsfw' if args.nsfw else '')
+if args.config not in CONFIG['settings']:
+    print('The setting "{}" is not in the config file.'.format(args.config))
+    exit()
+
+config = CONFIG['settings'][args.config]
+last_post_name = 'last-post-' + args.config
 
 def parse_post_id(post_id: str):
     post_id = post_id.strip()
@@ -26,7 +26,6 @@ def parse_post_id(post_id: str):
 
 def get_oldest_post_id() -> str:
     spreadsheets = init_spreadsheets()
-    last_post_name = _last_post_name()
     
     print('Google Sheets: retrieve the oldest post to check...')
     for r in spreadsheets.get('script-user-data'):
@@ -39,7 +38,6 @@ def get_oldest_post_id() -> str:
 
 def set_oldest_post_id(oldest_post: str):
     spreadsheets = init_spreadsheets()
-    last_post_name = _last_post_name()
     
     oldest_post_row = None
     oldest_post_idx_row = None
@@ -74,34 +72,20 @@ else:
         print('Google Sheets: no oldest post to check found')
 print()
 
-if args.spacepaladin:
-    subreddit = 'SpacePaladin15'
-    subreddit_is_author = True
-    kargs = {
-        'title_timelines': {'Nature of Predators':'Main'},
-        'additional_regex': False,
-    }
-else:
-    if args.nsfw:
-        subreddit='NatureOfPredatorsNSFW'
-    else:
-        subreddit='NatureofPredators'
-    subreddit_is_author = False
-    kargs = {}
 
 lines = read_subreddit(
-    subreddit=subreddit,
-    subreddit_is_author=subreddit_is_author,
+    subreddit=config['name'],
+    subreddit_is_author=config['is_author'],
     oldest_post=args.oldest_post_id,
     exclude_url=args.exclude_url,
-    **kargs,
+    **config['kargs'],
 )
 
 if not lines:
     exit()
 
 if args.csv is None:
-    args.csv = '- NoP new subreddit.csv'
+    args.csv = '- new subreddit.csv'
 if args.csv:
     with open(args.csv, 'at', newline='\n', encoding='utf-8') as f:
         f.write('\n')

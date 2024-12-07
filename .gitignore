@@ -1,6 +1,6 @@
 *.*
 !*.py
-!*.bat
 !.git*
+!example/*
 !README.md
 !requirements.txt

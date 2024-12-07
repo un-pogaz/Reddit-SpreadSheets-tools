@@ -1,4 +1,5 @@
 import re
+import json
 from collections import defaultdict
 from functools import cache
 
@@ -6,20 +7,22 @@ import requests as _requests
 
 from google_api_client import HttpError, SpreadSheetsClient, SpreadSheets
 
-# The ID of the spreadsheet.
-SAMPLE_SPREADSHEET_ID = "1nOtYmv_d6Qt1tCX_63uE2yWVFs6-G5x_XJ778lD9qyU"
+# load configuration file
+with open('config.json', 'rt', encoding='utf-8') as f:
+    CONFIG = json.load(f)
+
 
 @cache
 def init_spreadsheets() -> SpreadSheets:
     rslt = SpreadSheetsClient(
         credentials_oauth2 = 'credentials.json',
         token_json = 'token.json',
-    ).new_spreadsheets(SAMPLE_SPREADSHEET_ID)
+    ).new_spreadsheets(CONFIG['spreadsheet_id'])
     
     return rslt
 
 requests = _requests.Session()
-requests.headers.update({'User-Agent':'un_pogaz/NatureofPredators:sheet:new_posts'})
+requests.headers.update({'User-Agent':'un_pogaz/reddit-spreadsheet-tools:sheet:new_posts'})
 
 
 DOMAIN_EXCLUDE = [
@@ -48,13 +51,11 @@ def read_json(path, default=None) -> dict|list:
         return default
 
 def write_json(path: str, obj, ensure_ascii=False):
-    import json
     make_dirname(path)
     with open(path, 'wt', newline='\n', encoding='utf-8') as f:
         f.write(json.dumps(obj, indent=2, ensure_ascii=ensure_ascii))
 
 def load_json(data, default=None) -> dict|list:
-    import json
     try:
         return json.loads(data)
     except Exception as ex:
