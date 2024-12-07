@@ -81,7 +81,7 @@ print()
 
 lines = read_subreddit(
     subreddit=config['name'],
-    subreddit_is_author=config['is_author'],
+    subreddit_is_user=config['is_user'],
     oldest_post=args.oldest_post_id,
     exclude_url=args.exclude_url,
     **config['kargs'],

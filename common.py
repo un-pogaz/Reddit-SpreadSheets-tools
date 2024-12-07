@@ -555,7 +555,7 @@ def read_subreddit(
     subreddit: str,
     oldest_post: str|None,
     *,
-    subreddit_is_author: bool =False,
+    subreddit_is_user: bool =False,
     additional_loading_message: str=None,
     exclude_url: list[str]|bool =True,
     max_old_post: str|bool =True,
@@ -589,7 +589,7 @@ def read_subreddit(
     """
     
     all_post = []
-    if subreddit_is_author:
+    if subreddit_is_user:
         base_url = f'https://www.reddit.com/user/{subreddit}/submitted/.json'
     else:
         base_url = f'https://www.reddit.com/r/{subreddit}/new/.json'
@@ -622,7 +622,7 @@ def read_subreddit(
                 loop = False
             time.sleep(1)
     
-    if subreddit_is_author:
+    if subreddit_is_user:
         msg = f'Loading Reddit post for u/{subreddit}'
     else:
         msg = f'Loading Reddit post on r/{subreddit}'
@@ -653,7 +653,7 @@ def read_subreddit(
         comics=comics,
     )
     
-    if subreddit_is_author:
+    if subreddit_is_user:
         msg = f'Data extracted for u/{subreddit}.'
     else:
         msg = f'Data extracted from r/{subreddit}.'

@@ -4,7 +4,7 @@
     "main": {
       "alias": [],
       "name": "<subreddit_name>",
-      "is_author": false,
+      "is_user": false,
       "kargs": {}
     }
   }

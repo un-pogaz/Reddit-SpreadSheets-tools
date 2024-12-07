@@ -20,7 +20,7 @@ for args_idx in range(args_length):
     lines = read_subreddit(
         subreddit=author,
         oldest_post=None,
-        subreddit_is_author=True,
+        subreddit_is_user=True,
         additional_loading_message=(f' [{args_idx+1}/{args_length}]' if args_length > 1 else ''),
         exclude_url=args.exclude_url,
     )
