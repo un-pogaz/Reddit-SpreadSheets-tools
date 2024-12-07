@@ -7,8 +7,8 @@ args.add_argument('-a', '--all', '--dont-exclude-url', dest='exclude_url', actio
 args.add_argument('-csv', '--csv', type=str, nargs='?', default=False, help='Output into a CSV file')
 args.add_argument('-id', '--id', '--oldest-post-id', dest='oldest_post_id', type=str, help='id of the oldest post to check. If not specified, used the id stored on the spreadsheets.')
 args.add_argument('-c', '--config', type=str, default='main', help='Use the specified setting in the config file. If not specified, use "main"')
-args.add_argument('--no-emtpy-row', '--no-pending-emtpy-row', dest='no_emtpy_row', action='store_false', help="Don't add emtpy row at the end of the 'data' sheet")
-args.add_argument('--no-update-filtre', '--no-update-filtre-view', dest='no_update_filtre', action='store_false', help="Don't update the range of the filtre views")
+args.add_argument('--no-emtpy-row', '--no-pending-emtpy-row', dest='do_emtpy_row', action='store_false', help="Don't add emtpy row at the end of the 'data' sheet")
+args.add_argument('--no-update-filtre', '--no-update-filtre-view', dest='do_update_filtre', action='store_false', help="Don't update the range of the filtre views")
 args = args.parse_args()
 
 settings = {}
@@ -113,7 +113,7 @@ try:
     print('Google Sheets: update pending entry completed')
     print()
     
-    if not args.spacepaladin and args.no_emtpy_row:
+    if args.do_emtpy_row:
         # add empty rows at the end of 'data'
         # corresponding to the number of rows into 'pending'
         print('Google Sheets: append pending empty row to data')
@@ -123,7 +123,7 @@ try:
         print('Google Sheets: pending empty row completed')
         print()
     
-    if not args.spacepaladin and args.no_update_filtre:
+    if args.do_update_filtre:
         # update range of filter views
         print('Google Sheets: update range of filter views')
         requests_filter_views = []
