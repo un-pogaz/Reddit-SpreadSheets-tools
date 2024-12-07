@@ -4,7 +4,7 @@ import re
 
 from common import read_text, write_lines
 
-args = argparse.ArgumentParser(description='Get the authors inside HTML files')
+args = argparse.ArgumentParser(description='Get all the reddit username inside HTML files')
 args.add_argument('file', type=str, nargs='+', help='File path of HTML to analyze')
 args = args.parse_args()
 
