@@ -18,6 +18,24 @@ Initialy create for The Nature of Predators community, centralized on [r/Natureo
 
 `readHTML-post.py` retrive all the reddits urls inside a HTML file.
 
+To use this script, your need to create a file `config.json` like the one in the `example/` folder. The content of this file follow:
+
+```json
+{
+  "spreadsheet_id": "<spreadsheet_id>", // the spreadsheet id to wich on to read and push the data
+  "settings": {
+    "main": {       // a named setting
+      "alias": [],  // optional, alias names for this setting
+      "name": "<subreddit_name>",   // subreddit or username to target to retrive the posts
+      "is_user": false,             // if the name is a subreddit or username
+      "kargs": {}   // additionals specific kargs to use, instead of the defaults on the spreadsheet
+    }
+  }
+}
+```
+
+The setting "main" is recomanded by default.
+
 <br/>
 
 `common.py` all the real magic is here.
