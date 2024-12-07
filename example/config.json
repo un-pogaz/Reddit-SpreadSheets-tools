@@ -1,11 +1,11 @@
 {
-    "spreadsheet_id": "<spreadsheet_id>",
-    "settings": {
-        "main": {
-            "alias": [],
-            "name": "<subreddit_name>",
-            "is_author": false,
-            "kargs": {}
-        }
+  "spreadsheet_id": "<spreadsheet_id>",
+  "settings": {
+    "main": {
+      "alias": [],
+      "name": "<subreddit_name>",
+      "is_author": false,
+      "kargs": {}
     }
+  }
 }
