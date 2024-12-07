@@ -18,7 +18,7 @@ for k,v in CONFIG['settings'].items():
         settings[a] = k
 
 if args.config not in settings:
-    print('The setting "{}" is not in the config file.'.format(args.config))
+    print(f'The setting "{args.config}" is not in the config file.')
     exit()
 
 config = CONFIG['settings'][settings[args.config]]
@@ -63,7 +63,7 @@ def set_oldest_post_id(oldest_post: str):
         oldest_post_row[oldest_post_idx_column] = parse_post_id(oldest_post or '')
         spreadsheets.update(f'script-user-data!{oldest_post_idx_row}:{oldest_post_idx_row}', [oldest_post_row])
     else:
-        print('ERROR: No last-post line found')
+        print(f'ERROR: No {last_post_name} line found')
 
 if args.oldest_post_id:
     args.oldest_post_id = parse_post_id(args.oldest_post_id)
