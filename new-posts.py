@@ -1,6 +1,6 @@
 import argparse
 
-from common import CONFIG, HttpError, init_spreadsheets, read_subreddit
+from common import CONFIG, HttpError, init_spreadsheets, read_subreddit, parse_post_id
 
 args = argparse.ArgumentParser(description='Retrive the data from a subreddit, and push it to the spreadsheets')
 args.add_argument('-a', '--all', '--dont-exclude-url', dest='exclude_url', action='store_false', help="Retrive all entry, don't exclude where the url of the post is already in the spreadsheets")
@@ -23,12 +23,6 @@ if args.config not in settings:
 
 config = CONFIG['settings'][settings[args.config]]
 last_post_name = 'last-post-' + settings[args.config]
-
-def parse_post_id(post_id: str):
-    post_id = post_id.strip()
-    if not post_id.startswith('t3_'):
-        post_id = 't3_'+post_id
-    return post_id
 
 def get_oldest_post_id() -> str:
     spreadsheets = init_spreadsheets()
