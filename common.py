@@ -20,6 +20,18 @@ def update_local_user_data(key: str, value):
 def get_local_user_data(key: str, default=None):
    return CONFIG.get('script-user-data', {}).get(key, default)
 
+def get_config_settings(name: str) -> tuple[dict, str]:
+    settings = {}
+    for k,v in CONFIG['settings'].items():
+        settings[k] = k
+        for a in v.get('alias', []):
+            settings[a] = k
+    
+    name = settings.get(name)
+    if not name:
+        return None, None
+    return CONFIG['settings'][name], 'last-post-' + name
+
 
 @cache
 def init_spreadsheets() -> SpreadSheets:

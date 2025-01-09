@@ -1,6 +1,6 @@
 import argparse
 
-from common import CONFIG, HttpError, init_spreadsheets, read_subreddit, parse_post_id
+from common import HttpError, init_spreadsheets, get_config_settings, read_subreddit, parse_post_id
 
 args = argparse.ArgumentParser(description='Retrive the data from a subreddit, and push it to the spreadsheets')
 args.add_argument('-a', '--all', '--dont-exclude-url', dest='exclude_url', action='store_false', help="Retrive all entry, don't exclude where the url of the post is already in the spreadsheets")
@@ -11,18 +11,12 @@ args.add_argument('--no-emtpy-row', '--no-pending-emtpy-row', dest='do_emtpy_row
 args.add_argument('--no-update-filtre', '--no-update-filtre-view', dest='do_update_filtre', action='store_false', help="Don't update the range of the filtre views")
 args = args.parse_args()
 
-settings = {}
-for k,v in CONFIG['settings'].items():
-    settings[k] = k
-    for a in v.get('alias', []):
-        settings[a] = k
 
-if args.config not in settings:
+config, last_post_name = get_config_settings(args.config)
+if not config:
     print(f'The setting "{args.config}" is not in the config file.')
     exit()
 
-config = CONFIG['settings'][settings[args.config]]
-last_post_name = 'last-post-' + settings[args.config]
 
 def get_oldest_post_id() -> str:
     spreadsheets = init_spreadsheets()
