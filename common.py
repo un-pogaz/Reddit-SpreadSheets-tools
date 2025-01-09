@@ -234,6 +234,9 @@ def get_filtered_post(
     exclude_url: list[str]|bool =True,
     max_old_post: str|bool =True,
     
+    allow_poll: bool =False,
+    allow_empty_text: bool =False,
+    
     subreddit_and_flairs: dict[str, dict[str, str]]|bool =True,
     subreddit_flair_statue: dict[str, dict[str, str]]|bool =True,
     subreddit_adult: list[str]|bool =True,
@@ -251,6 +254,9 @@ def get_filtered_post(
     comics: list[str]|bool =True,
 ) -> list[PostEntry]:
     """
+    The allow_poll control if Poll need to be exclude from the output.
+    The allow_empty_text control to exclude a post that have no body text, like the picture posts.
+    
     If exclude_url is True, get the exclude_url list from the spreadsheets.
     
     Same for max_old_post, subreddit_and_flairs, subreddit_flair_statue, subreddit_adult, title_timelines,
@@ -277,6 +283,15 @@ def get_filtered_post(
         max_old_post = get_max_old_post()
     if not isinstance(max_old_post, str) or not max_old_post:
         max_old_post = '0'
+    
+    
+    # allow_poll
+    if not isinstance(allow_poll, bool):
+        allow_poll = bool(allow_poll)
+    
+    # allow_empty_text
+    if not isinstance(allow_empty_text, bool):
+        allow_empty_text = bool(allow_empty_text)
     
     
     # subreddit_and_flairs
@@ -379,7 +394,7 @@ def get_filtered_post(
         if max_old_post and numeric_id(item['id']) < numeric_id(max_old_post):
             continue
         
-        if item.get('poll_data'):
+        if item.get('poll_data') and not allow_poll:
             continue
         
         # allowed_subreddits_flairs
@@ -445,7 +460,7 @@ def get_filtered_post(
             pass
         elif get_entry_text(comics):
             pass
-        elif not post_text:
+        elif not post_text and not allow_empty_text:
             continue
         
         
@@ -555,10 +570,13 @@ def read_subreddit(
     subreddit: str,
     oldest_post: str|None,
     *,
-    subreddit_is_user: bool =False,
+    subreddit_is_user: bool=False,
     additional_loading_message: str=None,
-    exclude_url: list[str]|bool =True,
-    max_old_post: str|bool =True,
+    exclude_url: list[str]|bool=True,
+    max_old_post: str|bool=True,
+    
+    allow_poll: bool=False,
+    allow_empty_text: bool=False,
     
     subreddit_and_flairs: dict[str, dict[str, str]]|bool =True,
     subreddit_flair_statue: dict[str, dict[str, str]]|bool =True,
@@ -577,6 +595,9 @@ def read_subreddit(
     comics: list[str]|bool =True,
 ) -> list[PostEntry]:
     """
+    The allow_poll control if Poll need to be exclude from the output.
+    The allow_empty_text control to exclude a post that have no body text, like the picture posts.
+    
     If exclude_url is True, get the exclude_url list from the spreadsheets.
     
     Same for max_old_post, subreddit_and_flairs, subreddit_flair_statue, subreddit_adult, title_timelines,
@@ -635,6 +656,9 @@ def read_subreddit(
         source_data=all_post,
         exclude_url=exclude_url,
         max_old_post=max_old_post,
+        
+        allow_poll=allow_poll,
+        allow_empty_text=allow_empty_text,
         
         subreddit_and_flairs=subreddit_and_flairs,
         subreddit_flair_statue=subreddit_flair_statue,
