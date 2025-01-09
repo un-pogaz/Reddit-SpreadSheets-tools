@@ -8,6 +8,8 @@ Initialy create for The Nature of Predators community, centralized on [r/Natureo
 
 `new-posts.py` is the main script to retrive and push the lasted new fan-fic's posted on the target subreddit.
 
+`all-posts.py` retrive and save all the posts localy.
+
 `sheet-data.py` is to retrive the posts create by specified authors.
 
 `inspect-sheet.py` little script to check if some error are present in the spreadsheets.
