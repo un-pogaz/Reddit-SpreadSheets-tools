@@ -11,6 +11,15 @@ from google_api_client import HttpError, SpreadSheetsClient, SpreadSheets
 with open('config.json', 'rt', encoding='utf-8') as f:
     CONFIG = json.load(f)
 
+def update_local_user_data(key: str, value):
+    CONFIG['script-user-data'] = user_data = CONFIG.get('script-user-data', {})
+    user_data[key] = value
+    with open('config.json', 'wt', encoding='utf-8') as f:
+        json.dump(CONFIG, f, ensure_ascii=False, indent=2)
+
+def get_local_user_data(key: str, default=None):
+   return CONFIG.get('script-user-data', {}).get(key, default)
+
 
 @cache
 def init_spreadsheets() -> SpreadSheets:
