@@ -23,11 +23,11 @@ def get_local_user_data(key: str, default=None):
 def get_config_settings(name: str) -> tuple[dict, str]:
     settings = {}
     for k,v in CONFIG['settings'].items():
-        settings[k] = k
+        settings[k.lower()] = k
         for a in v.get('alias', []):
-            settings[a] = k
+            settings[a.lower()] = k
     
-    name = settings.get(name)
+    name = settings.get(name.lower())
     if not name:
         return None, None
     return CONFIG['settings'][name], 'last-post-' + name
