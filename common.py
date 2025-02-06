@@ -186,6 +186,8 @@ def numeric_id(text_id) -> int:
     return int(text_id.removeprefix('t3_'), base=36)
 
 def parse_post_id(post_id: str):
+    if not post_id:
+        return None
     post_id = post_id.strip()
     if not post_id.startswith('t3_'):
         post_id = 't3_'+post_id
