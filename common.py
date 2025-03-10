@@ -518,25 +518,6 @@ def get_filtered_post(
             entry.link_redirect = link_redirect
             entry.description = link_redirect
         
-        # timeline_key_words
-        for timeline,key_words in timeline_key_words.items():
-            if not key_words or not timeline:
-                continue
-            if re.search(r'\s('+'|'.join(key_words)+r')s?[^a-z]', post_text, flags=regex_flags):
-                entry.timeline = timeline
-        
-        # title_timelines
-        entry.timeline = get_entry_text(title_timelines, entry.timeline)
-        
-        # co_authors
-        lst_authors = [entry.authors]
-        for co_author in get_entry_text(co_authors, []):
-            if not co_author:
-                continue
-            if co_author not in lst_authors:
-                lst_authors.append(co_author)
-        entry.authors = ' & '.join(lst_authors)
-        
         # additional_regex
         search_additional = get_entry_regex(additional_regex)
         if search_additional:
@@ -551,6 +532,25 @@ def get_filtered_post(
         search_replace = get_entry_regex(chapter_regex)
         if search_replace:
             entry.title = parse_space(re.sub(search_replace[0], ' '+search_replace[1]+' ', entry.title, flags=regex_flags, count=1))
+        
+        # co_authors
+        lst_authors = [entry.authors]
+        for co_author in get_entry_text(co_authors, []):
+            if not co_author:
+                continue
+            if co_author not in lst_authors:
+                lst_authors.append(co_author)
+        entry.authors = ' & '.join(lst_authors)
+        
+        # timeline_key_words
+        for timeline,key_words in timeline_key_words.items():
+            if not key_words or not timeline:
+                continue
+            if re.search(r'\s('+'|'.join(key_words)+r')s?[^a-z]', post_text, flags=regex_flags):
+                entry.timeline = timeline
+        
+        # title_timelines
+        entry.timeline = get_entry_text(title_timelines, entry.timeline)
         
         # check_links_map, check_links_search
         for link_name in get_entry_text(check_links_map, []):
