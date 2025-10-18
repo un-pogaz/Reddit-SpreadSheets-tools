@@ -420,19 +420,8 @@ def get_filtered_post(
         if item.get('poll_data') and not allow_poll:
             continue
         
-        # allowed_subreddits_flairs
         subreddit = item['subreddit']
         post_flair = (item['link_flair_text'] or '').lower()
-        if allowed_subreddits_flairs:
-            if subreddit not in allowed_subreddits_flairs:
-                continue
-            
-            if '' in allowed_subreddits_flairs[subreddit]:
-                pass
-            elif not post_flair:
-                pass
-            elif post_flair not in allowed_subreddits_flairs[subreddit]:
-                continue
         
         parse_content(item)
         
@@ -476,6 +465,21 @@ def get_filtered_post(
         
         def parse_space(text):
             return re.sub(r'\s+', ' ', text.strip()).strip()
+        
+        
+        # allowed_subreddits_flairs
+        if allowed_subreddits_flairs:
+            if subreddit not in allowed_subreddits_flairs:
+                continue
+            
+            if '' in allowed_subreddits_flairs[subreddit]:
+                pass
+            elif get_entry_text(comics):
+                pass
+            elif not post_flair:
+                pass
+            elif post_flair not in allowed_subreddits_flairs[subreddit]:
+                continue
         
         
         domain = item['domain']
