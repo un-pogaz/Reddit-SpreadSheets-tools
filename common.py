@@ -422,6 +422,7 @@ def get_filtered_post(
         
         subreddit = item['subreddit']
         post_flair = (item['link_flair_text'] or '').lower()
+        domain = item['domain']
         
         parse_content(item)
         
@@ -467,6 +468,19 @@ def get_filtered_post(
             return re.sub(r'\s+', ' ', text.strip()).strip()
         
         
+        if item['over_18'] or 'nsfw' in post_flair:
+            entry.content_warning = 'Mature'
+        if item['subreddit'] in subreddit_adult:
+            entry.content_warning = 'Adult'
+        
+        if domain.startswith('self.') or 'reddit.com' in domain or domain in domain_story_host:
+            pass
+        elif get_entry_text(comics):
+            pass
+        elif not post_text and not allow_empty_text:
+            continue
+        
+        
         # allowed_subreddits_flairs
         if allowed_subreddits_flairs:
             if subreddit not in allowed_subreddits_flairs:
@@ -480,21 +494,6 @@ def get_filtered_post(
                 pass
             elif post_flair not in allowed_subreddits_flairs[subreddit]:
                 continue
-        
-        
-        domain = item['domain']
-        if domain.startswith('self.') or 'reddit.com' in domain or domain in domain_story_host:
-            pass
-        elif get_entry_text(comics):
-            pass
-        elif not post_text and not allow_empty_text:
-            continue
-        
-        
-        if item['over_18'] or 'nsfw' in post_flair:
-            entry.content_warning = 'Mature'
-        if item['subreddit'] in subreddit_adult:
-            entry.content_warning = 'Adult'
         
         # subreddit_and_flairs 
         if '' in subreddit_and_flairs.get(subreddit, {}):
@@ -512,6 +511,7 @@ def get_filtered_post(
         
         if not entry.timeline:
             entry.timeline = 'none'
+        
         
         # domain_story_host
         if domain in domain_story_host:
