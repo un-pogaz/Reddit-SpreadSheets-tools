@@ -43,7 +43,7 @@ def init_spreadsheets() -> SpreadSheets:
     return rslt
 
 requests = _requests.Session()
-requests.headers.update({'User-Agent':'un_pogaz/reddit-spreadsheet-tools:sheet:new_posts'})
+requests.headers.update({'User-Agent':'un_pogaz/reddit-spreadsheet-tools'})
 
 
 DOMAIN_EXCLUDE = [
