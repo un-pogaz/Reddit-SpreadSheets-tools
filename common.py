@@ -622,6 +622,8 @@ def read_subreddit(
     timeline_key_words: dict[str, list[str]]|bool =True,
     co_authors: dict[str, list[str]]|bool =True,
     comics: list[str]|bool =True,
+    
+    source_files: list[str] =None,
 ) -> list[PostEntry]:
     """
     The allow_poll control if Poll need to be exclude from the output.
@@ -652,9 +654,21 @@ def read_subreddit(
         params = {'sort':'new', 'limit':100}
         count = 0
         loop = True
+        src_tbl = None
+        
+        if source_files:
+            run_animation.extra = 'reading source files...'
+            src_tbl = []
+            for file in source_files:
+                src_tbl.extend(read_json(file).get('data', {}).get('children', []))
+            run_animation.extra = None
         
         while loop:
-            tbl = requests.get(base_url, params=params, timeout=60).json().get('data', {}).get('children', [])
+            if src_tbl is not None:
+                tbl = src_tbl
+            else:
+                tbl = requests.get(base_url, params=params, timeout=60).json().get('data', {}).get('children', [])
+            
             if tbl:
                 count += len(tbl)
                 run_animation.extra = str(count)
@@ -668,7 +682,7 @@ def read_subreddit(
                         all_post.append(r)
                     params['after'] = r['name']
             
-            if len(tbl) < params['limit'] or count >= 1000:
+            if len(tbl) < params['limit'] or count >= 1000 or src_tbl is not None:
                 loop = False
             time.sleep(1)
     

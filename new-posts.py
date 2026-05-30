@@ -9,6 +9,7 @@ args.add_argument('-id', '--id', '--oldest-post-id', dest='oldest_post_id', type
 args.add_argument('-c', '--config', type=str, default='main', help='Use the specified setting in the config file. If not specified, use "main"')
 args.add_argument('--no-emtpy-row', '--no-pending-emtpy-row', dest='do_emtpy_row', action='store_false', help="Don't add emtpy row at the end of the 'data' sheet")
 args.add_argument('--no-update-filtre', '--no-update-filtre-view', dest='do_update_filtre', action='store_false', help="Don't update the range of the filtre views")
+args.add_argument('--files', '--from-files', dest='source_files', nargs='+', default=None, help='Read the data directly from a files, not from the API')
 args = args.parse_args()
 
 
@@ -72,6 +73,7 @@ lines = read_subreddit(
     subreddit_is_user=config['is_user'],
     oldest_post=args.oldest_post_id,
     exclude_url=args.exclude_url,
+    source_files=args.source_files,
     **config['kargs'],
 )
 
