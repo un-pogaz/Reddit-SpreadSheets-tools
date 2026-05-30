@@ -61,7 +61,8 @@ DOMAIN_EXCLUDE = [
 def make_dirname(path):
     import os.path
     dir = os.path.dirname(path)
-    if dir: os.makedirs(dir, exist_ok=True)
+    if dir:
+        os.makedirs(dir, exist_ok=True)
 
 def read_json(path, default=None) -> dict|list:
     try:
@@ -125,7 +126,8 @@ def run_animation(awaitable, text_wait: str, text_end: str=None):
             print(msg + ' '*(len(msg_last)-len(msg)), end="\r")
             msg_last = msg
             idx += 1
-            if idx == len(run_animation.loop): idx == 0
+            if idx == len(run_animation.loop):
+                idx == 0
             time.sleep(0.2)
     
     from threading import Thread
@@ -652,7 +654,7 @@ def read_subreddit(
         loop = True
         
         while loop:
-            tbl = requests.get(base_url, params=params, timeout=60).json().get('data', {}).get('children', {})
+            tbl = requests.get(base_url, params=params, timeout=60).json().get('data', {}).get('children', [])
             if tbl:
                 count += len(tbl)
                 run_animation.extra = str(count)
