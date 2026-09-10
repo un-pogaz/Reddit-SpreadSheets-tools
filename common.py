@@ -661,7 +661,7 @@ def read_subreddit(
             src_tbl = []
             for file in source_files:
                 src_tbl.extend(read_json(file).get('data', {}).get('children', []))
-            run_animation.extra = None
+            run_animation.extra = ''
         
         while loop:
             if src_tbl is not None:
